@@ -1,13 +1,9 @@
-import os
-
-from dotenv import load_dotenv
+import pytest
 
 from pyjudilibre import JudilibreClient
+from pyjudilibre.exceptions import JudilibreAPIDownError, JudilibreWrongCredentials
 
-load_dotenv()
-
-API_URL = os.environ.get("API_URL")
-API_KEY_ID = os.environ.get("API_KEY_ID")
+from .config import API_KEY_ID, API_URL
 
 
 def test_healthcheck():
@@ -15,3 +11,19 @@ def test_healthcheck():
 
     health_check = client.healthcheck()
     assert health_check is True
+
+
+def test_healthcheck_wrong_url():
+    client = JudilibreClient(
+        api_url="https://wrong_url.judilibre.com", api_key_id=API_KEY_ID
+    )
+
+    with pytest.raises(JudilibreAPIDownError):
+        client.healthcheck()
+
+
+def test_healthcheck_wrong_credentials():
+    client = JudilibreClient(api_url=API_URL, api_key_id="obvisouly_wrong_credentials")
+
+    with pytest.raises(JudilibreWrongCredentials):
+        client.healthcheck()
