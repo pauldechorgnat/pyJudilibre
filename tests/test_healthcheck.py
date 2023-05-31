@@ -1,7 +1,7 @@
 import pytest
 
 from pyjudilibre import JudilibreClient
-from pyjudilibre.exceptions import JudilibreAPIDownError, JudilibreWrongCredentials
+from pyjudilibre.exceptions import JudilibreWrongCredentials, JudilibreWrongURLError
 
 from .config import API_KEY_ID, API_URL
 
@@ -18,7 +18,7 @@ def test_healthcheck_wrong_url():
         api_url="https://wrong_url.judilibre.com", api_key_id=API_KEY_ID
     )
 
-    with pytest.raises(JudilibreAPIDownError):
+    with pytest.raises(JudilibreWrongURLError):
         client.healthcheck()
 
 

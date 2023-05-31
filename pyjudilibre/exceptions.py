@@ -10,5 +10,5 @@ class JudilibreWrongCredentials(Exception):
     pass
 
 
-class JudilibreWrongUrl(Exception):
+class JudilibreWrongURLError(Exception):
     pass

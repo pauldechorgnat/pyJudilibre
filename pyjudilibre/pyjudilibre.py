@@ -1,6 +1,6 @@
 import requests
 
-from .exceptions import JudilibreAPIDownError, JudilibreWrongCredentials
+from .exceptions import JudilibreWrongCredentials, JudilibreWrongURLError
 
 
 class JudilibreClient:
@@ -28,7 +28,7 @@ class JudilibreClient:
             )
 
         except requests.exceptions.ConnectionError as exc:
-            raise JudilibreAPIDownError(
+            raise JudilibreWrongURLError(
                 f"URL `{self.api_url}` is not reachable."
             ) from exc
 
