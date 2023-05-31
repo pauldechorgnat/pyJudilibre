@@ -6,7 +6,7 @@ class JudilibreAPIDownError(Exception):
     pass
 
 
-class JudilibreWrongCredentials(Exception):
+class JudilibreWrongCredentialsError(Exception):
     pass
 
 

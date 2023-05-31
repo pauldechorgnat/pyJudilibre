@@ -84,7 +84,7 @@ class File(BaseModel):
     name: str
     size: str
     url: str
-    rawUrl: str
+    rawUrl: Union[str, None]
 
 
 class ShortDecision(BaseModel):

@@ -1,6 +1,11 @@
 import requests
 
-from .exceptions import JudilibreWrongCredentials, JudilibreWrongURLError
+from .exceptions import (
+    JudilibreDecisionNotFoundError,
+    JudilibreWrongCredentialsError,
+    JudilibreWrongURLError,
+)
+from .models import JudilibreDecision
 
 
 class JudilibreClient:
@@ -18,8 +23,25 @@ class JudilibreClient:
     def export(self):
         pass
 
-    def get(self):
-        pass
+    def get(self, decision_id: str) -> JudilibreDecision:
+        try:
+            response = requests.get(
+                url=f"{self.api_url}/decision?id={decision_id}",
+                headers=self.api_headers,
+            )
+        except requests.exceptions.ConnectionError as exc:
+            raise JudilibreWrongURLError(
+                f"URL `{self.api_url}` is not reachable."
+            ) from exc
+        if response.status_code == 400:
+            raise JudilibreWrongCredentialsError("Credentials are not valid.")
+        elif response.status_code == 404:
+            raise JudilibreDecisionNotFoundError(
+                f"Decision with id `{decision_id}` is not found in Judilibre"
+            )
+        decision = JudilibreDecision(**response.json())
+
+        return decision
 
     def healthcheck(self):
         try:
@@ -33,7 +55,7 @@ class JudilibreClient:
             ) from exc
 
         if response.status_code != 200:
-            raise JudilibreWrongCredentials("Credentials are not valid.")
+            raise JudilibreWrongCredentialsError("Credentials are not valid.")
 
         if response.json()["status"]:
             return True

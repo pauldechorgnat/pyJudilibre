@@ -1,11 +1,13 @@
 import pytest
-from config import API_KEY_ID, API_URL
 
 from pyjudilibre import JudilibreClient
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
+    JudilibreWrongCredentialsError,
     JudilibreWrongURLError,
 )
+
+from .config import API_KEY_ID, API_URL
 
 
 def test_get():
@@ -15,7 +17,7 @@ def test_get():
 
     decision = client.get(decision_id=decision_id)
 
-    assert decision["id"] == decision_id
+    assert decision.id == decision_id
 
 
 def test_get_wrong_id():
@@ -43,8 +45,5 @@ def test_get_wrong_credentials():
 
     client = JudilibreClient(api_url=API_URL, api_key_id="obviously_wrong_credentials")
 
-    with pytest.raises(JudilibreWrongURLError):
-        client.get(decision_id=decision_id)
-
-    with pytest.raises(JudilibreWrongURLError):
+    with pytest.raises(JudilibreWrongCredentialsError):
         client.get(decision_id=decision_id)
