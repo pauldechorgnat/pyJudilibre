@@ -14,4 +14,4 @@ class JudilibreClient:
         pass
 
     def healthcheck(self):
-        pass
+        return True
