@@ -151,7 +151,7 @@ class JudilibreDecision(BaseModel):
         publication (list[str]): list of publication types
         decision_date (str): date of the decision (YYYY-MM-DD)
         update_date (str): date of the last update of the decision (YYYY-MM-DD)
-        update_datetime (str): datetime of the last update of the decision (YYYY-MM-DD 00:00:00+0)
+        update_datetime (str): datetime of the last update (YYYY-MM-DD 00:00:00+0)
         decision_datetime (str): datetime of the decision (YYYY-MM-DD 00:00:00+0)
         solution (str): solution of the decision
         type (str): type of the decision
@@ -165,7 +165,7 @@ class JudilibreDecision(BaseModel):
         timeline (Union[list[ShortDecision], None]): list of related decisions
         partial (str): ...
         visa (list[Article]): list of law articles to base the pourvoi on
-        rapprochements (list[Article]): list of decisions that are related to this decision
+        rapprochements (list[Article]): list of decisions related to this decision
         legacy (Legacy): ...
     """
 

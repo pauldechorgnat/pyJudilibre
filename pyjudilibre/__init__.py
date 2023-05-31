@@ -1,1 +1,1 @@
-from .pyjudilibre import JudilibreClient
+from .pyjudilibre import JudilibreClient  # noqa
