@@ -12,3 +12,11 @@ class JudilibreWrongCredentialsError(Exception):
 
 class JudilibreWrongURLError(Exception):
     pass
+
+
+class JudilibreValueWarning(Warning):
+    pass
+
+
+class JudilibreValueError(ValueError):
+    pass
