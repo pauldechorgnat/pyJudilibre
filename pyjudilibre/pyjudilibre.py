@@ -1,10 +1,9 @@
+from typing import Union
+
 import requests
 
-from .exceptions import (
-    JudilibreDecisionNotFoundError,
-    JudilibreWrongCredentialsError,
-    JudilibreWrongURLError,
-)
+from .decorators import catch_wrong_url_error
+from .exceptions import JudilibreDecisionNotFoundError
 from .models import JudilibreDecision
 from .references import (
     CA_DECISION_TYPES,
@@ -17,6 +16,7 @@ from .references import (
     CC_SOLUTIONS,
     CC_THEMES,
 )
+from .utils import check_authentication_error, check_value
 
 
 class JudilibreClient:
@@ -47,22 +47,56 @@ class JudilibreClient:
     def search(self):
         pass
 
-    def export(self):
-        pass
+    def export(
+        self,
+        n_results: int = 10,
+        juridisction: list[str] = ["cc"],
+        decision_type: list[str] = [],
+        decision_theme: list[str] = [],
+        chamber: list[str] = [],
+        formation: list[str] = [],
+        # commitee:list[str]=[],
+        publication: list[str] = [],
+        solution: list[str] = [],
+        date_start: Union[str, None] = None,
+        date_end: Union[str, None] = None,
+        date_type: str = "creation",  # update
+        order: str = "asc",  # desc,
+        action_on_check: Union[str, None] = None,
+    ):
+        action_on_check = (
+            action_on_check if action_on_check is not None else self.action_on_check
+        )
+        parameters = {}
 
+        if len(juridisction) > 0:
+            for jurisdiction_value in juridisction:
+                check_value(
+                    value=jurisdiction_value,
+                    value_name="jurisdiction",
+                    allowed_values=["cc", "ca"],
+                    action_on_check=action_on_check,
+                )
+            parameters["jurisdiction"] = juridisction
+
+        if len(decision_type) > 0:
+            for type_value in decision_type:
+                check_value(
+                    value=type_value,
+                    value_name="decision_type",
+                    allowed_values=self.cc_decision_type_values,
+                )
+
+    @catch_wrong_url_error
     def get(self, decision_id: str) -> JudilibreDecision:
-        try:
-            response = requests.get(
-                url=f"{self.api_url}/decision?id={decision_id}",
-                headers=self.api_headers,
-            )
-        except requests.exceptions.ConnectionError as exc:
-            raise JudilibreWrongURLError(
-                f"URL `{self.api_url}` is not reachable."
-            ) from exc
-        if response.status_code == 400:
-            raise JudilibreWrongCredentialsError("Credentials are not valid.")
-        elif response.status_code == 404:
+        response = requests.get(
+            url=f"{self.api_url}/decision?id={decision_id}",
+            headers=self.api_headers,
+        )
+
+        check_authentication_error(status_code=response.status_code)
+
+        if response.status_code == 404:
             raise JudilibreDecisionNotFoundError(
                 f"Decision with id `{decision_id}` is not found in Judilibre"
             )
@@ -70,19 +104,13 @@ class JudilibreClient:
 
         return decision
 
+    @catch_wrong_url_error
     def healthcheck(self):
-        try:
-            response = requests.get(
-                url=f"{self.api_url}/healthcheck", headers=self.api_headers
-            )
+        response = requests.get(
+            url=f"{self.api_url}/healthcheck", headers=self.api_headers
+        )
 
-        except requests.exceptions.ConnectionError as exc:
-            raise JudilibreWrongURLError(
-                f"URL `{self.api_url}` is not reachable."
-            ) from exc
-
-        if response.status_code != 200:
-            raise JudilibreWrongCredentialsError("Credentials are not valid.")
+        check_authentication_error(status_code=response.status_code)
 
         if response.json()["status"]:
             return True
