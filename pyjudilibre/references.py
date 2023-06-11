@@ -1,4 +1,7 @@
 import json
+import os
+
+dir_name = os.path.dirname(__file__)
 
 JURISDICTIONS = {"ca": "Cour d'appel", "cc": "Cour de cassation"}
 
@@ -12,11 +15,15 @@ CC_DECISION_TYPES = {
     "qpc": "Question prioritaire de constitutionnalité (QPC)",
     "saisie": "Saisie",
 }
-with open("ca_themes.json", "r", encoding="utf-8") as ca_theme_file:
+with open(
+    os.path.join(dir_name, "ca_themes.json"), mode="r", encoding="utf-8"
+) as ca_theme_file:
     CA_THEMES = json.load(ca_theme_file)
 
 
-with open("cc_themes.json", "r", encoding="utf-8") as cc_theme_file:
+with open(
+    os.path.join(dir_name, "cc_themes.json"), mode="r", encoding="utf-8"
+) as cc_theme_file:
     CC_THEMES = json.load(cc_theme_file)
 
 
