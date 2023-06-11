@@ -1,6 +1,15 @@
+import math
 import warnings
 
-from pyjudilibre.exceptions import JudilibreValueError, JudilibreValueWarning
+import requests
+from tqdm import tqdm
+
+from .decorators import catch_wrong_url_error
+from .exceptions import (
+    JudilibreValueError,
+    JudilibreValueWarning,
+    JudilibreWrongCredentialsError,
+)
 
 AVAILABLE_ACTIONS = set(["raise", "warn", "ignore"])
 
@@ -50,3 +59,108 @@ def check_value(
             return False
 
     return True
+
+
+def check_authentication_error(status_code: int) -> None:
+    """Checks if the status code is 400 which means a CredentialError.
+
+    Args:
+        status_code (int): status code of a requests
+
+    Raises:
+        JudilibreWrongCredentialsError: raised if status code is 400.
+    """
+    if status_code == 400:
+        raise JudilibreWrongCredentialsError("Credentials are not valid.")
+
+
+@catch_wrong_url_error
+def paginate_results(
+    url: str,
+    parameters: dict = {},
+    headers: dict = {},
+    batch_size: int = 10,
+    max_results: int = 10_000,
+    verbose: bool = False,
+) -> list[dict]:
+    """_summary_
+
+    Args:
+        url (str): url of the request
+        parameters (dict, optional): parameters of the request.
+            Defaults to {}.
+        headers (dict, optional): headers of the request.
+            Defaults to {}.
+        batch_size (int, optional): size of the batches.
+            Defaults to 10.
+        max_results (int, optional): maximum number of results to return.
+            Defaults to 10_000.
+        verbose (bool, optional): if True shows a progress bar.
+            Defaults to False.
+
+    Raises:
+        JudilibreValueError: raised if 'batch_size' is more than 1,000.
+        JudilibreValueError: raised if 'batch_size' is less than 1.
+        JudilibreValueError: raised if 'max_results' is more than 10, 000.
+        JudilibreValueError: raised if 'max_results' is less than 1
+
+    Returns:
+        list[dict]: a list of decisions as a dictionaries
+    """
+    if batch_size > 1_000:
+        raise JudilibreValueError("'batch_size' parameter cannot be more than 1,000.")
+    elif batch_size < 1:
+        raise JudilibreValueError("'batch_size' parameter cannot be less than 1.")
+
+    if max_results > 10_000:
+        raise JudilibreValueError(
+            "Judilibre cannot return more than 10,000 results for a given query."
+        )
+    elif max_results < 1:
+        raise JudilibreValueError("'max_results' cannot be less than 1.")
+
+    if max_results < batch_size:
+        batch_size = max_results
+
+    n_batches = (max_results // batch_size) + 1
+    remaining_results = max_results % batch_size
+
+    decisions = []
+    n_decisions = 0
+
+    if verbose:
+        batch_numbers = tqdm(range(n_batches))
+        n_zeros = int(math.log10(max_results) + 1)
+        batch_numbers.set_description(
+            f"{str(n_decisions).zfill(n_zeros)}/"
+            f"{str(max_results).zfill(n_zeros)} decisions"
+        )
+    else:
+        batch_numbers = range(n_batches)
+
+    parameters["batch_size"] = batch_size
+
+    for index_batch in batch_numbers:
+        parameters["batch"] = index_batch
+
+        response = requests.get(url=url, headers=headers, params=parameters)
+
+        check_authentication_error(status_code=response.status_code)
+
+        if index_batch != n_batches - 1:
+            decisions.extend(response.json()["results"])
+            n_decisions += batch_size
+        else:
+            decisions.extend(response.json()["results"][:remaining_results])
+            n_decisions += remaining_results
+
+        if verbose:
+            batch_numbers.set_description(
+                f"{str(n_decisions).zfill(n_zeros)}/"
+                f"{str(max_results).zfill(n_zeros)} decisions"
+            )
+
+        if response.json()["next_batch"] is None:
+            break
+
+    return decisions
