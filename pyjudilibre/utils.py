@@ -1,5 +1,7 @@
+import datetime
 import math
 import warnings
+from typing import Union
 
 import requests
 from tqdm import tqdm
@@ -17,7 +19,8 @@ AVAILABLE_ACTIONS = set(["raise", "warn", "ignore"])
 def check_value(
     value: str,
     value_name: str = "",
-    allowed_values: list[str] = [],
+    message: Union[str, None] = None,
+    allowed_values: Union[list[str], dict[str, str], set[str]] = [],
     action_on_check: str = "raise",
 ) -> bool:
     """Function that check if a value is in a set of allowed values and acts on it.
@@ -44,17 +47,16 @@ def check_value(
             "'action_on_check' should be one of ['raise', 'warn', 'ignore']. "
             f"Received '{action_on_check}'"
         )
+    if message is None:
+        message = f"'{value}' is not a valid value for parameter '{value_name}'"
+    else:
+        message = message.format(value=value, value_name=value_name)
 
     if value not in allowed_values:
         if action_on_check == "raise":
-            raise JudilibreValueError(
-                f"'{value}' is not a valid value for parameter '{value_name}'"
-            )
+            raise JudilibreValueError(message)
         elif action_on_check == "warn":
-            warnings.warn(
-                f"'{value}' is not a valid value for parameter '{value_name}'",
-                category=JudilibreValueWarning,
-            )
+            warnings.warn(message, category=JudilibreValueWarning)
         elif action_on_check == "ignore":
             return False
 
@@ -164,3 +166,26 @@ def paginate_results(
             break
 
     return decisions
+
+
+def check_date(input_date: str, action_on_check: str = "raise") -> str:
+    if action_on_check not in AVAILABLE_ACTIONS:
+        raise ValueError(
+            "'action_on_check' should be one of ['raise', 'warn', 'ignore']. "
+            f"Received '{action_on_check}'"
+        )
+    try:
+        datetime.date.fromisoformat(input_date)
+        return True
+    except ValueError as exc:
+        if action_on_check == "raise":
+            raise JudilibreValueError(
+                f"'{input_date}' is not a valid date format"
+            ) from exc
+        elif action_on_check == "warn":
+            warnings.warn(
+                f"'{input_date}' is not a valid date format",
+                category=JudilibreValueWarning,
+            )
+        else:
+            return False
