@@ -18,13 +18,13 @@ CC_DECISION_TYPES = {
 with open(
     os.path.join(dir_name, "ca_themes.json"), mode="r", encoding="utf-8"
 ) as ca_theme_file:
-    CA_THEMES = json.load(ca_theme_file)
+    CA_THEMES = set(json.load(ca_theme_file))
 
 
 with open(
     os.path.join(dir_name, "cc_themes.json"), mode="r", encoding="utf-8"
 ) as cc_theme_file:
-    CC_THEMES = json.load(cc_theme_file)
+    CC_THEMES = set(json.load(cc_theme_file))
 
 
 CC_CHAMBERS = {
@@ -115,4 +115,17 @@ CA_LOCATIONS = {
     "ca_st_denis_reunion": "Cour d'appel de Saint-Denis de la Réunion",
     "ca_toulouse": "Cour d'appel de Toulouse",
     "ca_versailles": "Cour d'appel de Versailles",
+}
+
+CA_SOLUTIONS = {
+    "annulation": "annulation",
+    "avis": "avis",
+    "decheance": "decheance",
+    "designation": "designation",
+    "irrecevabilite": "irrecevabilite",
+    "nonlieu": "nonlieu",
+    "rabat": "rabat",
+    "reglement": "reglement",
+    "rejet": "rejet",
+    "renvoi": "renvoi",
 }
