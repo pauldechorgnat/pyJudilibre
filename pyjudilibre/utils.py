@@ -11,6 +11,25 @@ def check_value(
     allowed_values: list[str] = [],
     action_on_check: str = "raise",
 ) -> bool:
+    """Function that check if a value is in a set of allowed values and acts on it.
+
+    Args:
+        value (str): value of the parameter to check
+        value_name (str, optional): name of the parameter to check.
+            Defaults to "".
+        allowed_values (list[str], optional): list or set of allowed values.
+            Defaults to [].
+        action_on_check (str, optional): action to take if the check is not valid.
+            Must be one of "raise", "warn" or "ignore"
+            Defaults to "raise".
+
+    Raises:
+        ValueError: raised if the value of action_on_check is not valid.
+        JudilibreValueError: raised if the value of the parameter is not valid.
+
+    Returns:
+        bool: True if the parameter is a valid value. False otherwise.
+    """
     if action_on_check not in AVAILABLE_ACTIONS:
         raise ValueError(
             "'action_on_check' should be one of ['raise', 'warn', 'ignore']. "
