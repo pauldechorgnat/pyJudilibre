@@ -23,14 +23,22 @@ from .utils import check_authentication_error, check_date, check_value, paginate
 class JudilibreClient:
     """Class that implements a Python Client for the Judilibre API"""
 
-    def __init__(self, api_url: str, api_key_id: str, action_on_check: str = "warning"):
+    def __init__(self, api_url: str, api_key_id: str, action_on_check: str = "warn"):
         self.api_url = api_url
         self.api_key_id = api_key_id
         self.__version__ = "0.0.1"
+
+        check_value(
+            value=action_on_check,
+            value_name="action_on_check",
+            allowed_values=["raise", "ignore", "warn"],
+            action_on_check="raise",
+        )
+
         self.action_on_check = action_on_check
 
         self.cc_decision_type_values: dict = CC_DECISION_TYPES
-        self.cc_solution_values: dict = CC_SOLUTIONS
+        self.cc_decision_solution_values: dict = CC_SOLUTIONS
         self.cc_chamber_values: dict = CC_CHAMBERS
         self.cc_formation_values: dict = CC_FORMATIONS
         self.cc_theme_values: set = CC_THEMES
@@ -363,44 +371,68 @@ class JudilibreClient:
             )
 
         if juridisctions == ["ca"]:
-            self._check_ca_parameters(
+            check_ca = self._check_ca_parameters(
                 parameters=parameters, action_on_check=action_on_check
             )
+
+            if not check_ca:
+                return []
+
         elif juridisctions == ["cc"]:
-            self._check_cc_parameters(
+            check_cc = self._check_cc_parameters(
+                parameters=parameters, action_on_check=action_on_check
+            )
+            if not check_cc:
+                return []
+
+        else:
+            self._check_all_parameters(
                 parameters=parameters, action_on_check=action_on_check
             )
 
         if date_start is not None:
-            check_date(date_start, action_on_check=action_on_check)
-            parameters["date_start"] = date_start
+            check_start_date = check_date(date_start, action_on_check=action_on_check)
+            if check_start_date:
+                parameters["date_start"] = date_start
+            else:
+                return []
 
         if date_end is not None:
-            check_date(date_end, action_on_check=action_on_check)
-            parameters["date_end"] = date_end
+            check_date_end = check_date(date_end, action_on_check=action_on_check)
+            if check_date_end:
+                parameters["date_end"] = date_end
+            else:
+                return []
+
         if date_type:
-            check_value(
+            check_datetype = check_value(
                 value=date_type,
                 allowed_values=["creation", "update"],
                 value_name="date_type",
                 action_on_check=action_on_check,
             )
-            parameters["date_type"] = date_type
+
+            if check_datetype:
+                parameters["date_type"] = date_type
+            else:
+                return []
 
         if order:
-            check_value(
+            check_order = check_value(
                 value=order,
                 allowed_values=["desc", "asc"],
                 value_name="order",
                 action_on_check=action_on_check,
             )
-
-            parameters["order"] = order
+            if check_order:
+                parameters["order"] = order
+            else:
+                return []
 
         results = paginate_results(
             url=f"{self.api_url}/export",
             headers=self.api_headers,
-            params=parameters,
+            parameters=parameters,
             max_results=max_results,
             batch_size=batch_size,
             verbose=verbose,
@@ -415,7 +447,7 @@ class JudilibreClient:
             headers=self.api_headers,
         )
 
-        check_authentication_error(status_code=response.status_code)
+        check_authentication_error(response=response)
 
         if response.status_code == 404:
             raise JudilibreDecisionNotFoundError(
@@ -431,7 +463,7 @@ class JudilibreClient:
             url=f"{self.api_url}/healthcheck", headers=self.api_headers
         )
 
-        check_authentication_error(status_code=response.status_code)
+        check_authentication_error(response=response)
 
         if response.json()["status"]:
             return True

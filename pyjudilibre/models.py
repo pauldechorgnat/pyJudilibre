@@ -102,11 +102,11 @@ class ShortDecision(BaseModel):
 
     id: Union[str, None]
     date: str
-    jurisdiction: str
+    jurisdiction: Union[str, None]
     chamber: Union[str, None]
     title: str
     solution: Union[str, None]
-    number: str
+    number: Union[str, None]
 
 
 class Article(BaseModel):
@@ -173,17 +173,17 @@ class JudilibreDecision(BaseModel):
     source: SourceEnum
     text: str
     jurisdiction: JurisdictionLevelEnum
-    chamber: str
+    chamber: Union[str, None]
     number: str
     numbers: list[str]
     ecli: Union[str, None]
     publication: list[str]
     decision_date: str
     update_date: str
-    update_datetime: str
-    decision_datetime: str
+    update_datetime: Union[str, None]
+    decision_datetime: Union[str, None]
     solution: str
-    type: str
+    type: Union[str, None]
     themes: Union[list[str], None]
     nac: Union[str, None]
     portalis: Union[str, None]

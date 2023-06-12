@@ -57,23 +57,29 @@ def check_value(
             raise JudilibreValueError(message)
         elif action_on_check == "warn":
             warnings.warn(message, category=JudilibreValueWarning)
+            return False
         elif action_on_check == "ignore":
             return False
 
     return True
 
 
-def check_authentication_error(status_code: int) -> None:
-    """Checks if the status code is 400 which means a CredentialError.
+def check_authentication_error(response: requests.Response) -> None:
+    """Checks if a CredentialError is raised.
 
     Args:
-        status_code (int): status code of a requests
+        response (requests.Response): response
 
     Raises:
         JudilibreWrongCredentialsError: raised if status code is 400.
     """
-    if status_code == 400:
-        raise JudilibreWrongCredentialsError("Credentials are not valid.")
+    if response.status_code == 400:
+        message = response.headers.get("WWW-Authenticate", "")
+        if message == (
+            'Bearer realm="DefaultRealm",error="invalid_request"'
+            ',error_description="Unable to find token in the message"'
+        ):
+            raise JudilibreWrongCredentialsError("Credentials are not valid.")
 
 
 @catch_wrong_url_error
@@ -147,14 +153,20 @@ def paginate_results(
 
         response = requests.get(url=url, headers=headers, params=parameters)
 
-        check_authentication_error(status_code=response.status_code)
+        check_authentication_error(response=response)
 
-        if index_batch != n_batches - 1:
-            decisions.extend(response.json()["results"])
-            n_decisions += batch_size
+        data = response.json()
+
+        if "results" in data:
+            if index_batch != n_batches - 1:
+                decisions.extend(response.json()["results"])
+                n_decisions += batch_size
+            else:
+                decisions.extend(response.json()["results"][:remaining_results])
+                n_decisions += remaining_results
+
         else:
-            decisions.extend(response.json()["results"][:remaining_results])
-            n_decisions += remaining_results
+            break
 
         if verbose:
             batch_numbers.set_description(
