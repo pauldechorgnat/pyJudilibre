@@ -1,67 +1,64 @@
 import datetime
 import math
-import warnings
-from typing import Union
 
 import requests
 from tqdm import tqdm
 
 from .decorators import catch_wrong_url_error
-from .exceptions import (
-    JudilibreValueError,
-    JudilibreValueWarning,
-    JudilibreWrongCredentialsError,
-)
+from .exceptions import JudilibreValueError, JudilibreWrongCredentialsError
 
 AVAILABLE_ACTIONS = set(["raise", "warn", "ignore"])
 
 
-def check_value(
-    value: str,
-    value_name: str = "",
-    message: Union[str, None] = None,
-    allowed_values: Union[list[str], dict[str, str], set[str]] = [],
-    action_on_check: str = "raise",
-) -> bool:
-    """Function that check if a value is in a set of allowed values and acts on it.
+# def check_value(
+#     value: str,
+#     value_name: str = "",
+#     message: Union[str, None] = None,
+#     allowed_values: Union[list[str], dict[str, str], set[str]] = [],
+#     action_on_check: str = "raise",
+# ) -> bool:
+#     """Function that check if a value is in a set of allowed values and acts on it.
 
-    Args:
-        value (str): value of the parameter to check
-        value_name (str, optional): name of the parameter to check.
-            Defaults to "".
-        allowed_values (list[str], optional): list or set of allowed values.
-            Defaults to [].
-        action_on_check (str, optional): action to take if the check is not valid.
-            Must be one of "raise", "warn" or "ignore"
-            Defaults to "raise".
+#     Args:
+#         value (str): value of the parameter to check
+#         value_name (str, optional): name of the parameter to check.
+#             Defaults to "".
+#         allowed_values (list[str], optional): list or set of allowed values.
+#             Defaults to [].
+#         action_on_check (str, optional): action to take if the check is not valid.
+#             Must be one of "raise", "warn" or "ignore"
+#             Defaults to "raise".
 
-    Raises:
-        ValueError: raised if the value of action_on_check is not valid.
-        JudilibreValueError: raised if the value of the parameter is not valid.
+#     Raises:
+#         ValueError: raised if the value of action_on_check is not valid.
+#         JudilibreValueError: raised if the value of the parameter is not valid.
 
-    Returns:
-        bool: True if the parameter is a valid value. False otherwise.
-    """
-    if action_on_check not in AVAILABLE_ACTIONS:
-        raise ValueError(
-            "'action_on_check' should be one of ['raise', 'warn', 'ignore']. "
-            f"Received '{action_on_check}'"
-        )
-    if message is None:
-        message = f"'{value}' is not a valid value for parameter '{value_name}'"
-    else:
-        message = message.format(value=value, value_name=value_name)
+#     Returns:
+#         bool: True if the parameter is a valid value. False otherwise.
+#     """
+#     if action_on_check not in AVAILABLE_ACTIONS:
+#         raise ValueError(
+#             "'action_on_check' should be one of ['raise', 'warn', 'ignore']. "
+#             f"Received '{action_on_check}'"
+#         )
+#     if message is None:
+#         message = f"'{value}' is not a valid value for parameter '{value_name}'"
+#     else:
+#         message = message.format(
+#             value=value,
+#             value_name=value_name,
+#         )
 
-    if value not in allowed_values:
-        if action_on_check == "raise":
-            raise JudilibreValueError(message)
-        elif action_on_check == "warn":
-            warnings.warn(message, category=JudilibreValueWarning)
-            return False
-        elif action_on_check == "ignore":
-            return False
+#     if value not in allowed_values:
+#         if action_on_check == "raise":
+#             raise JudilibreValueError(message)
+#         elif action_on_check == "warn":
+#             warnings.warn(message, category=JudilibreValueWarning)
+#             return False
+#         elif action_on_check == "ignore":
+#             return False
 
-    return True
+#     return True
 
 
 def check_authentication_error(response: requests.Response) -> None:
@@ -90,6 +87,7 @@ def paginate_results(
     batch_size: int = 10,
     max_results: int = 10_000,
     verbose: bool = False,
+    batch_type: str = "batch",
 ) -> list[dict]:
     """_summary_
 
@@ -116,9 +114,11 @@ def paginate_results(
         list[dict]: a list of decisions as a dictionaries
     """
     if batch_size > 1_000:
-        raise JudilibreValueError("'batch_size' parameter cannot be more than 1,000.")
+        raise JudilibreValueError(
+            f"'{batch_type}' parameter cannot be more than 1,000."
+        )
     elif batch_size < 1:
-        raise JudilibreValueError("'batch_size' parameter cannot be less than 1.")
+        raise JudilibreValueError(f"'{batch_type}' parameter cannot be less than 1.")
 
     if max_results > 10_000:
         raise JudilibreValueError(
@@ -146,10 +146,10 @@ def paginate_results(
     else:
         batch_numbers = range(n_batches)
 
-    parameters["batch_size"] = batch_size
+    parameters[f"{batch_type}_size"] = batch_size
 
     for index_batch in batch_numbers:
-        parameters["batch"] = index_batch
+        parameters[batch_type] = index_batch
 
         response = requests.get(url=url, headers=headers, params=parameters)
 
@@ -174,30 +174,29 @@ def paginate_results(
                 f"{str(max_results).zfill(n_zeros)} decisions"
             )
 
-        if response.json()["next_batch"] is None:
+        if response.json()[f"next_{batch_type}"] is None:
             break
 
     return decisions
 
 
-def check_date(input_date: str, action_on_check: str = "raise") -> str:
-    if action_on_check not in AVAILABLE_ACTIONS:
-        raise ValueError(
-            "'action_on_check' should be one of ['raise', 'warn', 'ignore']. "
-            f"Received '{action_on_check}'"
-        )
+def check_date(
+    input_date: str,
+) -> bool:
     try:
         datetime.date.fromisoformat(input_date)
         return True
     except ValueError as exc:
-        if action_on_check == "raise":
-            raise JudilibreValueError(
-                f"'{input_date}' is not a valid date format"
-            ) from exc
-        elif action_on_check == "warn":
-            warnings.warn(
-                f"'{input_date}' is not a valid date format",
-                category=JudilibreValueWarning,
-            )
-        else:
-            return False
+        raise JudilibreValueError(f"'{input_date}' is not a valid date format") from exc
+
+
+def check_value(
+    value,
+    value_name: str,
+    authozied_values: list = [],
+) -> bool:
+    if value in authozied_values:
+        return True
+    raise JudilibreValueError(
+        f"`{value}` is not a valid value for parameter `{value_name}`"
+    )

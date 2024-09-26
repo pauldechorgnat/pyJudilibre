@@ -1,9 +1,10 @@
+local
 venv
-__pycache__
 .env
-.ipynb_checkpoints
-notebooks
-notes.md
+.pytest_cache
+__pycache__
 *.egg-info
 build
-dist
+.ipynb_checkpoints
+notebooks
+examples

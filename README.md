@@ -1,3 +1,3 @@
 # pyJudilibre
 
-Python wrapper for Judilibre REST API
+Python Wrapper for Judilibre REST API.
