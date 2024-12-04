@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from pyjudilibre.__version__ import __version__
 
 with open("requirements.txt", "r", encoding="utf-8") as file:
-    requirements = file.read().split("\n")
+    requirements = [f.split("/")[-1].split("@")[0] for f in file.read().split("\n")]
 
 with open("README.md", "r", encoding="utf-8") as file:
     long_description = file.read()
