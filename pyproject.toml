@@ -1,0 +1,48 @@
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyjudilibre"
+version = "0.1.0"
+description = "Python client for the JUDILIBRE public API"
+readme = "README.md"                  
+license = { file = "LICENSE" }        
+requires-python = ">=3.9"
+authors = [{ name = "Paul", email = "you@example.com" }]
+dependencies = [
+  "tqdm==4.65.0", 
+  "pydantic>=2.10.2", 
+  "requests==2.31.0", 
+  "aenum>=3.1.15", 
+  "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.4.1",
+  "jupyterlab==4.0.1",
+  "twine==4.0.2",
+  "isort==6.0.1",
+  "ruff==0.12.8",
+  "python-dotenv==1.1.1",
+  "build",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/pyjudilibre"
+Issues   = "https://github.com/yourname/pyjudilibre/issues"
+
+# Tell Hatchling where your package lives
+[tool.hatch.build.targets.wheel]
+packages = ["lib/pyjudilibre"]
+
+# (Optional) tighten what goes into sdist
+[tool.hatch.build.targets.sdist]
+include = [
+  "README.md",
+  "LICENSE",
+  "lib/pyjudilibre",
+  "tests",
+]

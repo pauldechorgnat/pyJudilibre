@@ -1,0 +1,39 @@
+#[build-system]
+#requires = ["hatchling>=1.18"]
+#build-backend = "hatchling.build"
+#
+#[project]
+#name = "pyjudilibre"
+#version = "0.5.0"
+#description = "Tiny Python client for the JUDILIBRE public API"
+#readme = "../README.md"
+#requires-python = ">=3.9"
+#license = {file = "../LICENSE"}
+#authors = [{ name = "Paul", email = "you@example.com" }]
+#dependencies = [
+#  "tqdm==4.65.0", 
+#  "pydantic>=2.10.2", 
+#  "requests==2.31.0", 
+#  "aenum>=3.1.15", 
+#  "httpx==0.28.1",
+#]
+#classifiers = [
+#  "Programming Language :: Python :: 3",
+#  "License :: OSI Approved :: MIT License",
+#  "Typing :: Typed",
+#]
+#
+#[project.urls]
+#Homepage = "https://github.com/pauldechorgnat/pyjudilibre"
+#Issues = "https://github.com/pauldechorgnat/pyjudilibre/issues"
+#
+#[project.optional-dependencies]
+#dev = [
+#  "pytest==8.4.1",
+#  "jupyterlab==4.0.1",
+#  "twine==4.0.2",
+#  "isort==6.0.1",
+#  "ruff==0.12.8",
+#  "python-dotenv==1.1.1",
+#  "build",
+#]

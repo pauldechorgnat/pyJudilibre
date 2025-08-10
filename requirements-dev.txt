@@ -1,4 +1,0 @@
-pytest==7.3.1
-jupyterlab==4.0.1
-wheel
-twine==4.0.2

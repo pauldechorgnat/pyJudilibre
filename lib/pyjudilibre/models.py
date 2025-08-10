@@ -2,7 +2,12 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict
 
-from .enums import LocationCAEnum, LocationTJEnum, SourceEnum, JurisdictionEnum
+from pyjudilibre.enums import (
+    LocationCAEnum,
+    LocationTJEnum,
+    SourceEnum,
+    JurisdictionEnum,
+)
 
 
 class Zone(BaseModel):
@@ -118,10 +123,10 @@ class JudilibreShortDecision(BaseModel):
     ## decision attributes
     id: str
     decision_date: str
-    jurisdiction: Optional[JurisdictionEnum] = None 
+    jurisdiction: Optional[JurisdictionEnum] = None
     number: str
     numbers: list[str]
-    publication: list[str]
+    publication: list[str] | None = None
     solution: str  # TODO: remplacer par SolutionEnum
     particularInterest: bool
 
@@ -143,7 +148,7 @@ class Highlights(BaseModel):
     text: list[str] = []
 
 
-class SearchResult(JudilibreShortDecision):
+class JudilibreSearchResult(JudilibreShortDecision):
     # Mandatory attributes
     ## Search attributes
     score: float

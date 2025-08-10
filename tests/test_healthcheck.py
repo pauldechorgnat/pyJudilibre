@@ -6,13 +6,16 @@ from pyjudilibre.exceptions import (
     JudilibreWrongURLError,
 )
 
-from .config import API_KEY_ID, API_URL
+from .config import (
+    JUDILIBRE_API_KEY,
+    JUDILIBRE_API_URL,
+)
 
 
 def test_healthcheck():
     client = JudilibreClient(
-        api_url=API_URL,
-        api_key_id=API_KEY_ID,
+        judilibre_api_url=JUDILIBRE_API_URL,
+        judilibre_api_key=JUDILIBRE_API_KEY,
     )
 
     health_check = client.healthcheck()
@@ -21,8 +24,8 @@ def test_healthcheck():
 
 def test_healthcheck_wrong_url():
     client = JudilibreClient(
-        api_url="https://wrong_url.judilibre.com",
-        api_key_id=API_KEY_ID,
+        judilibre_api_url="https://wrong_url.judilibre.com",
+        judilibre_api_key=JUDILIBRE_API_KEY,
     )
 
     with pytest.raises(JudilibreWrongURLError):
@@ -31,8 +34,8 @@ def test_healthcheck_wrong_url():
 
 def test_healthcheck_wrong_credentials():
     client = JudilibreClient(
-        api_url=API_URL,
-        api_key_id="obvisouly_wrong_credentials",
+        judilibre_api_url=JUDILIBRE_API_URL,
+        judilibre_api_key="obvisouly_wrong_credentials",
     )
 
     with pytest.raises(JudilibreWrongCredentialsError):

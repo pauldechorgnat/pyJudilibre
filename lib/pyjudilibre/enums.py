@@ -1,9 +1,10 @@
 from aenum import Enum, EnumMeta, MultiValueEnum
 
-from ..exceptions import JudilibreValueError
+from pyjudilibre.exceptions import JudilibreValueError
 
 
-class JudilibreEnumMeta(EnumMeta):
+class JudilibreEnumMeta(EnumMeta):  # type: ignore
+    @classmethod
     def __call__(cls, value, *args, **kw):
         try:
             new_instance = super().__call__(value, *args, **kw)
@@ -12,7 +13,7 @@ class JudilibreEnumMeta(EnumMeta):
             raise JudilibreValueError(f"Value '{value}' is not valid for {cls.__name__}") from exc
 
 
-class SourceEnum(Enum, metaclass=JudilibreEnumMeta):
+class SourceEnum(Enum, metaclass=JudilibreEnumMeta):  # type: ignore
     """Data source of a decision.
 
     Can only take one of 3 values:
@@ -28,7 +29,10 @@ class SourceEnum(Enum, metaclass=JudilibreEnumMeta):
     juritj = "juritj"
 
 
-class JurisdictionEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
+class JurisdictionEnum(
+    MultiValueEnum,
+    metaclass=JudilibreEnumMeta,
+):
     """Jurisdiction level of a decision.
 
     Can only take one of 2 values:
@@ -41,7 +45,10 @@ class JurisdictionEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
     tribunal_judiciaire = "Tribunal judiciaire", "tj", "tribunal_judiciaire"
 
 
-class SolutionEnum(Enum, metaclass=JudilibreEnumMeta):
+class SolutionEnum(
+    Enum,  # type: ignore
+    metaclass=JudilibreEnumMeta,
+):
     cassation = "Cassation", "cassation"
     rejet = "Rejet", "rejet"
     annulation = "Annulation", "annulation"

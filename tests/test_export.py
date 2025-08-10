@@ -1,13 +1,13 @@
 from pyjudilibre import JudilibreClient
 from pyjudilibre.models import JudilibreDecision
 
-from .config import API_KEY_ID, API_URL
+from .config import JUDILIBRE_API_KEY, JUDILIBRE_API_URL
 
 
 def test_export():
     client = JudilibreClient(
-        api_url=API_URL,
-        api_key_id=API_KEY_ID,
+        judilibre_api_url=JUDILIBRE_API_URL,
+        judilibre_api_key=JUDILIBRE_API_KEY,
     )
 
     results = client.export(
@@ -22,8 +22,8 @@ def test_export():
 
 def test_export_jurisdiction():
     client = JudilibreClient(
-        api_url=API_URL,
-        api_key_id=API_KEY_ID,
+        judilibre_api_url=JUDILIBRE_API_URL,
+        judilibre_api_key=JUDILIBRE_API_KEY,
     )
 
     # CC
@@ -40,4 +40,4 @@ def test_export_jurisdiction():
         assert len(results) == 42
         for r in results:
             assert isinstance(r, JudilibreDecision)
-            assert r.jurisdiction.value == jurisdiction
+            assert (r.jurisdiction is not None) and (r.jurisdiction.value) == jurisdiction

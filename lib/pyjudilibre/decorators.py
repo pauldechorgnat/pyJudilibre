@@ -1,17 +1,18 @@
 import functools
-
-import requests
-
-from .exceptions import JudilibreWrongURLError
+from typing import Callable
 
 
-def catch_wrong_url_error(function: callable):
+from pyjudilibre.exceptions import JudilibreWrongURLError
+import httpx
+
+
+def catch_wrong_url_error(function: Callable):
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         try:
             results = function(*args, **kwargs)
             return results
-        except requests.exceptions.ConnectionError as exc:
+        except httpx.ConnectError as exc:
             raise JudilibreWrongURLError("URL is not reachable.") from exc
 
     return wrapper
