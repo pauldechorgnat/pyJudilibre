@@ -1,23 +1,29 @@
 import datetime
-from typing import Optional
+import logging
+import os
 
 import requests
-import logging
-
+from httpx import Client
 from pyjudilibre.decorators import catch_wrong_url_error
 from pyjudilibre.exceptions import (
-    JudilibreValueError,
-    JudilibreWrongCredentialsError,
     JudilibreDecisionNotFoundError,
+    JudilibreWrongCredentialsError,
 )
 from pyjudilibre.models import (
     JudilibreDecision,
     JudilibreSearchResult,
+    JudilibreStats,
 )
 
-from httpx import Client
+from pyjudilibre.enums import (
+    JudilibreStatsAggregationKeysEnum,
+    JurisdictionEnum,
+    LocationCAEnum,
+    LocationTJEnum,
+    replace_enums_in_dictionary,
+)
 
-__version__ = "0.5.4"
+__version__ = "0.5.5"
 
 
 def catch_response(response: requests.Response) -> requests.Response:
@@ -37,10 +43,14 @@ class JudilibreClient:
 
     def __init__(
         self,
-        judilibre_api_url: str,
-        judilibre_api_key: str,
+        judilibre_api_url: str | None = None,
+        judilibre_api_key: str | None = None,
         logging_level: int = logging.INFO,
     ):
+        # HTTP CLIENT
+        judilibre_api_url = judilibre_api_url or os.environ["JUDILIBRE_API_URL"]
+        judilibre_api_key = judilibre_api_key or os.environ["JUDILIBRE_API_KEY"]
+
         self.judilibre_api_url = judilibre_api_url
         self.judilibre_api_key = judilibre_api_key
         self.__version__ = __version__
@@ -55,8 +65,8 @@ class JudilibreClient:
             headers=self.api_headers,
         )
 
+        # LOGGING
         self._logger = logging.getLogger("judilibre-client")
-
         handler = logging.StreamHandler()
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
@@ -71,15 +81,23 @@ class JudilibreClient:
         params: dict | None = None,
     ) -> requests.Response:
         url = f"{self.judilibre_api_url.rstrip('/')}/{url.lstrip('/')}"
-        print(url)
+
+        params = self._clean_params(params)
+
+        self._logger.debug(f"REQUEST METHOD URL:            {method} {url}")
+        self._logger.debug(f"REQUEST PARAMETERS: {params}")
+
         response = self._client.request(
             method=method,
             url=url,
             params=params,
         )
-        response = catch_response(response=response)  # type: ignore
 
-        self._logger.info(response.request)
+        self._logger.debug(f"RESPONSE STATUS : {response.status_code}")
+        self._logger.debug(f"RESPONSE HEADERS: {response.headers}")
+        self._logger.debug(f"RESPONSE CONTENT: {response.content}")
+
+        response = catch_response(response=response)  # type: ignore
 
         return response  # type: ignore
 
@@ -87,22 +105,23 @@ class JudilibreClient:
         self,
         decision_id: str,
     ) -> JudilibreDecision:
+        params = {
+            "id": decision_id,
+            "resolve_references": True,
+        }
         response = self._query(
             method="GET",
             url="/decision",
-            params={
-                "id": decision_id,
-                "resolve_references": True,
-            },
+            params=params,
         )
         if response.status_code == 404:
             raise JudilibreDecisionNotFoundError(f"decision with ID {decision_id} not Found")
 
-        decision = JudilibreDecision(**response.json())
+        return JudilibreDecision(**response.json())
 
-        return decision
-
-    def healthcheck(self) -> bool:
+    def healthcheck(
+        self,
+    ) -> bool:
         """Returns true if the API is up
 
         Returns:
@@ -118,96 +137,21 @@ class JudilibreClient:
 
         return False
 
-    def export(
-        self,
-        max_results: int = 10,
-        jurisdictions: list[str] = ["cc", "ca", "tj"],
-        date_start: Optional[datetime.date] = None,
-        date_end: Optional[datetime.date] = None,
-        date_type: str = "creation",  # update
-        batch_size: int = 10,
-        **kwargs,
-    ) -> list[JudilibreDecision]:
-        params = {}
-
-        if jurisdictions:
-            params["jurisdiction"] = jurisdictions
-        if date_start:
-            params["date_start"] = date_start
-        if date_end:
-            params["date_end"] = date_end
-        if date_type:
-            if date_type not in ["creation", "update"]:
-                raise JudilibreValueError(f"`date_type` must be 'update' or 'creation' not `{date_type}`")
-            params["date_type"] = date_type
-
-        # adding more parameters
-        params = {
-            "resolve_references": True,
-            **params,
-            **kwargs,
-        }
-
-        results = self._paginate_results(
-            url="/export",
-            params=params,
-            max_results=max_results,
-            batch_size=batch_size,
-            batch_type="batch",
-        )
-
-        return [JudilibreDecision(**r) for r in results]
-
-    def search(
-        self,
-        query: str,
-        operator: str = "exact",
-        jurisdictions: list[str] = ["cc", "ca", "tj"],
-        max_results: int = 100,
-        page_size: int = 25,
-        **kwargs,
-    ) -> list[JudilibreDecision]:
-        params = {
-            "query": query,
-            "operator": operator,
-            "jurisdiction": jurisdictions,
-            "resolve_references": True,
-        }
-
-        params = {
-            **params,
-            **kwargs,
-        }
-
-        results = self._paginate_results(
-            url="/search",
-            params=params,
-            max_results=max_results,
-            batch_size=page_size,
-            batch_type="page",
-        )
-
-        decisions = []
-
-        for r in results:
-            decisions.append(JudilibreSearchResult(**r))
-
-        return decisions
-
     def stats(
         self,
-        keys: list[str] = [],  # month, year,
+        *,
+        keys: list[JudilibreStatsAggregationKeysEnum] | None = None,
+        location: list[LocationCAEnum | LocationTJEnum] | None = None,
+        jurisdictions: list[JurisdictionEnum] | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        jurisdiction: str | None = None,
-        location: list[str] | None = None,
         selection: bool | None = None,
-    ) -> list:  # TODO: changer ça
+    ) -> JudilibreStats:
         params = {
             **({"keys": keys} if keys is not None else {}),
             **({"date_start": date_start} if date_start is not None else {}),
             **({"date_end": date_end} if date_end is not None else {}),
-            **({"jurisdiction": jurisdiction} if jurisdiction is not None else {}),
+            **({"jurisdiction": jurisdictions} if jurisdictions is not None else {}),
             **({"location": location} if location is not None else {}),
             **({"selection": selection} if selection is not None else {}),
         }
@@ -216,67 +160,191 @@ class JudilibreClient:
             url="/stats",
             params=params,
         )
+        return JudilibreStats(**response.json())
 
-        data = response.json()
-
-        return data["results"]
-
-    def _paginate_results(
+    def export(
         self,
-        url: str,
-        method: str = "GET",
-        params: dict = {},
+        batch_number: int = 0,
         batch_size: int = 10,
-        max_results: int = 10_000,
-        batch_type: str = "batch",
-    ) -> list[dict]:
-        # checking batch parameters
-        if batch_size > 1_000:
-            raise JudilibreValueError(f"'{batch_type}' parameter cannot be more than 1,000.")
-        elif batch_size < 1:
-            raise JudilibreValueError(f"'{batch_type}' parameter cannot be less than 1.")
+        *,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        date_start: datetime.date | None = None,
+        date_end: datetime.date | None = None,
+        date_type: str | None = "creation",
+        **kwargs,
+    ) -> tuple[int, list[JudilibreDecision]]:
+        params = {}
 
-        if max_results > 10_000:
-            raise JudilibreValueError("Judilibre cannot return more than 10,000 results for a given query.")
-        elif max_results < 1:
-            raise JudilibreValueError("'max_results' cannot be less than 1.")
+        # adding more parameters
+        params = {
+            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **({"date_start": date_start} if date_start else {}),
+            **({"date_end": date_end} if date_end else {}),
+            **({"date_type": date_type} if date_type else {}),
+            "resolve_references": True,
+            "batch": batch_number,
+            "batch_size": batch_size,
+            **kwargs,
+        }
 
-        if max_results < batch_size:
-            batch_size = max_results
+        response = self._query(
+            method="GET",
+            url="/export",
+            params=params,
+        )
+        response_data = response.json()
 
-        params[f"{batch_type}_size"] = batch_size
+        return response_data["total"], [JudilibreDecision(**r) for r in response_data["results"]]
 
-        n_batches = (max_results // batch_size) + 1
-        remaining_results = max_results % batch_size
+    def search(
+        self,
+        query: str,
+        page_size: int = 25,
+        page_number: int = 0,
+        *,
+        operator: str | None = None,
+        date_start: datetime.date | None = None,
+        date_end: datetime.date | None = None,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        **kwargs,
+    ) -> tuple[int, list[JudilibreSearchResult]]:
+        params = {
+            "query": query,
+            "page_size": page_size,
+            "page": page_number,
+            "resolve_references": True,
+            **({"date_start": date_start} if date_start else {}),
+            **({"date_end": date_end} if date_end else {}),
+            **({"operator": operator} if operator else {}),
+            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **kwargs,
+        }
+
+        response = self._query(
+            method="GET",
+            url="/search",
+            params=params,
+        )
+        response_data = response.json()
+
+        return response_data["total"], [JudilibreSearchResult(**r) for r in response_data["results"]]
+
+    def search_paginate(
+        self,
+        query: str,
+        max_results: int | None = None,
+        *,
+        operator: str | None = None,
+        date_start: datetime.date | None = None,
+        date_end: datetime.date | None = None,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        **kwargs,
+    ) -> list[JudilibreSearchResult]:
+        page_size = 25
+        page_number = 0
+        next_page = True
+
+        params = {
+            "query": query,
+            "page_size": page_size,
+            "page": page_number,
+            "resolve_references": True,
+            **({"date_start": date_start} if date_start else {}),
+            **({"date_end": date_end} if date_end else {}),
+            **({"operator": operator} if operator else {}),
+            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **kwargs,
+        }
+
+        results = []
+        n_results = 0
+
+        while next_page:
+            print(page_number)
+            params["page"] = page_number
+
+            response = self._query(
+                method="GET",
+                url="/search",
+                params=params,
+            )
+
+            response_data = response.json()
+            new_results = [JudilibreSearchResult(**r) for r in response_data["results"]]
+            n_results += len(new_results)
+
+            results.extend(new_results)
+
+            if response_data.get("next_page") is None:
+                next_page = False
+
+            if (max_results is not None) and (n_results >= max_results):
+                next_page = False
+
+            page_number += 1
+
+        if max_results is not None:
+            return results[:max_results]
+        return results
+
+    def export_paginate(
+        self,
+        max_results: int | None = None,
+        *,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        date_start: datetime.date | None = None,
+        date_end: datetime.date | None = None,
+        date_type: str | None = "creation",
+        **kwargs,
+    ) -> list[JudilibreDecision]:
+        batch_size = 100
+        batch_number = 0
+        next_batch = True
+
+        params = {
+            "batch_size": batch_size,
+            "batch": batch_number,
+            "resolve_references": True,
+            **({"date_start": date_start} if date_start else {}),
+            **({"date_end": date_end} if date_end else {}),
+            **({"date_type": date_type} if date_type else {}),
+            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **kwargs,
+        }
 
         decisions = []
         n_decisions = 0
 
-        batch_numbers = range(n_batches)
-
-        for index_batch in batch_numbers:
-            params[batch_type] = index_batch
+        while next_batch:
+            params["batch"] = batch_number
 
             response = self._query(
-                method=method,
-                url=url,
+                method="GET",
+                url="/export",
                 params=params,
             )
 
-            data = response.json()
+            response_data = response.json()
+            new_decisions = [JudilibreDecision(**r) for r in response_data["results"]]
+            n_decisions += len(new_decisions)
 
-            if "results" in data:
-                if index_batch != n_batches - 1:
-                    decisions.extend(data["results"])
-                    n_decisions += batch_size
-                else:
-                    decisions.extend(data["results"][:remaining_results])
-                    n_decisions += remaining_results
+            decisions.extend(new_decisions)
 
-            else:
-                break
+            if response_data.get("next_batch") is None:
+                next_batch = False
 
-            if data.get(f"next_{batch_type}") is None:
-                break
+            if (max_results is not None) and (n_decisions >= max_results):
+                next_batch = False
+
+            batch_number += 1
+
+        if max_results is not None:
+            return decisions[:max_results]
 
         return decisions
+
+    @staticmethod
+    def _clean_params(params: dict | None) -> dict:
+        if params is None:
+            return {}
+        return replace_enums_in_dictionary(params)  # type: ignore

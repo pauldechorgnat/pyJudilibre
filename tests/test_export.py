@@ -1,43 +1,159 @@
-from pyjudilibre import JudilibreClient
+import datetime
+import pytest
 from pyjudilibre.models import JudilibreDecision
+from pyjudilibre.enums import JurisdictionEnum
 
-from .config import JUDILIBRE_API_KEY, JUDILIBRE_API_URL
+from .config import client
 
 
 def test_export():
-    client = JudilibreClient(
-        judilibre_api_url=JUDILIBRE_API_URL,
-        judilibre_api_key=JUDILIBRE_API_KEY,
+    total, results = client.export(
+        batch_number=0,
+        batch_size=42,
     )
 
-    results = client.export(
-        max_results=42,
-        verbose=False,
-    )
+    n_results = len(results)
+    assert n_results == 42
 
-    assert len(results) == 42
     for r in results:
         assert isinstance(r, JudilibreDecision)
 
 
-def test_export_jurisdiction():
-    client = JudilibreClient(
-        judilibre_api_url=JUDILIBRE_API_URL,
-        judilibre_api_key=JUDILIBRE_API_KEY,
+@pytest.mark.parametrize(
+    "jurisdiction",
+    [r for r in JurisdictionEnum],  # type: ignore
+)
+def test_export_jurisdiction(jurisdiction):
+    total, results = client.export(
+        jurisdictions=[jurisdiction],
+        batch_number=0,
+        batch_size=42,
     )
 
-    # CC
-    for jurisdiction_short, jurisdiction in {
-        "cc": "Cour de cassation",
-        "ca": "Cour d'appel",
-        "tj": "Tribunal judiciaire",
-    }.items():
-        results = client.export(
-            max_results=42,
-            jurisdictions=[jurisdiction_short],
-            verbose=False,
-        )
-        assert len(results) == 42
-        for r in results:
-            assert isinstance(r, JudilibreDecision)
-            assert (r.jurisdiction is not None) and (r.jurisdiction.value) == jurisdiction
+    n_results = len(results)
+    assert n_results == 42
+
+    for r in results:
+        assert isinstance(r, JudilibreDecision)
+        assert r.jurisdiction == jurisdiction
+
+
+def test_export_min_date():
+    # MIN DATE
+    min_date = datetime.date(
+        year=2000,
+        month=1,
+        day=1,
+    )
+    total, results = client.export(
+        date_start=min_date,
+        batch_number=0,
+        batch_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreDecision)
+        assert r.decision_date >= min_date
+
+
+def test_export_max_date():
+    # MAX DATE
+    max_date = datetime.date(
+        year=2000,
+        month=1,
+        day=1,
+    )
+    total, results = client.export(
+        date_end=max_date,
+        batch_number=0,
+        batch_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreDecision)
+        assert r.decision_date < max_date
+
+
+def test_export_both_dates():
+    # MIN DATE
+    min_date = datetime.date(
+        year=2020,
+        month=1,
+        day=1,
+    )
+
+    # MAX DATE
+    max_date = datetime.date(
+        year=2024,
+        month=1,
+        day=1,
+    )
+
+    total, results = client.export(
+        date_start=min_date,
+        date_end=max_date,
+        batch_number=0,
+        batch_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreDecision)
+        assert (r.decision_date < max_date) and (r.decision_date >= min_date)
+
+
+def test_export_paginate():
+    jurisdictions = [JurisdictionEnum.cour_de_cassation]
+    min_date = datetime.date(
+        year=2020,
+        month=1,
+        day=1,
+    )
+    max_date = datetime.date(
+        year=2020,
+        month=2,
+        day=1,
+    )
+
+    total, decisions = client.export(
+        batch_number=0,
+        batch_size=10,
+        jurisdictions=jurisdictions,  # type: ignore
+        date_start=min_date,
+        date_end=max_date,
+        page_size=1,
+    )
+
+    decisions_paginate = client.export_paginate(
+        jurisdictions=jurisdictions,  # type: ignore
+        date_start=min_date,
+        date_end=max_date,
+        max_results=None,
+    )
+
+    n_decisions = len(decisions_paginate)
+
+    assert total == n_decisions
+
+    for r in decisions_paginate:
+        assert isinstance(r, JudilibreDecision)
+
+
+def test_export_paginate_with_max_results():
+    max_results = 10
+
+    decisions = client.export_paginate(
+        max_results=max_results,
+    )
+
+    n_decisions = len(decisions)
+
+    assert max_results == n_decisions

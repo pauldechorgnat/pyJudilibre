@@ -1,53 +1,69 @@
-from aenum import Enum, EnumMeta, MultiValueEnum
+from aenum import (
+    # EnumMeta,
+    MultiValueEnum,
+)
 
-from pyjudilibre.exceptions import JudilibreValueError
-
-
-class JudilibreEnumMeta(EnumMeta):  # type: ignore
-    @classmethod
-    def __call__(cls, value, *args, **kw):
-        try:
-            new_instance = super().__call__(value, *args, **kw)
-            return new_instance
-        except ValueError as exc:
-            raise JudilibreValueError(f"Value '{value}' is not valid for {cls.__name__}") from exc
+# from pyjudilibre.exceptions import JudilibreValueError
 
 
-class SourceEnum(Enum, metaclass=JudilibreEnumMeta):  # type: ignore
-    """Data source of a decision.
+# class JudilibreEnumMeta(EnumMeta):  # type: ignore
+#     @classmethod
+#     def __call__(cls, value, *args, **kw):
+#         try:
+#             new_instance = super().__call__(value, *args, **kw)
+#             return new_instance
+#         except ValueError as exc:
+#             raise JudilibreValueError(f"Value '{value}' is not valid for {cls.__name__}") from exc
 
-    Can only take one of 3 values:
-    - 'jurinet': Cour de cassation system.
-    - 'jurica': Cours d'appel system.
-    - 'juritj': Tribunaux judiciaires system.
-    - 'dila': Legacy system.
-    """
 
+class JudilibreMultiValueEnum(MultiValueEnum):
+    pass
+    # def __iter__(self):
+    #     super().__iter__(self)
+
+
+def replace_enum(obj):
+    if isinstance(obj, JudilibreMultiValueEnum):
+        return obj.values[-1]
+    else:
+        return obj
+
+
+def replace_enums_in_dictionary(obj):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            obj[k] = replace_enums_in_dictionary(v)
+    elif isinstance(obj, list):
+        return [replace_enums_in_dictionary(i) for i in obj]
+    else:
+        return replace_enum(obj)
+    return obj
+
+
+class SourceEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
     jurinet = "jurinet"
     jurica = "jurica"
     dila = "dila"
     juritj = "juritj"
+    juritcom = "juritcom"
 
 
 class JurisdictionEnum(
-    MultiValueEnum,
-    metaclass=JudilibreEnumMeta,
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
 ):
-    """Jurisdiction level of a decision.
-
-    Can only take one of 2 values:
-    - 'cc' for Cour de cassation.
-    - 'ca' for Cour d'appel.
-    """
-
-    cour_de_cassation = "Cour de cassation", "cc", "cour_de_cassation"
-    cours_d_appel = "Cour d'appel", "ca", "cours_d_appel"
-    tribunal_judiciaire = "Tribunal judiciaire", "tj", "tribunal_judiciaire"
+    cour_de_cassation = "Cour de cassation", "cc"
+    cours_d_appel = "Cour d'appel", "ca"
+    tribunal_judiciaire = "Tribunal judiciaire", "tj"
+    tribunal_de_commerce = "Tribunal de commerce", "tcom"
 
 
 class SolutionEnum(
-    Enum,  # type: ignore
-    metaclass=JudilibreEnumMeta,
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
 ):
     cassation = "Cassation", "cassation"
     rejet = "Rejet", "rejet"
@@ -65,39 +81,90 @@ class SolutionEnum(
     other = "Autre", "other"
 
 
-class ChamberEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
-    pl = "Assemblée plénière", "pl"
-    mi = "Chambre mixte", "mi"
-    civ1 = "Première chambre civile", "civ1"
-    civ2 = "Deuxième chambre civile", "civ2"
-    civ3 = "Troisième chambre civile", "civ3"
-    comm = "Chambre commerciale financière et économique", "comm"
-    soc = "Chambre sociale", "soc"
-    cr = "Chambre criminelle", "cr"
-    creun = "Chambres réunies", "creun"
-    ordo = "Première présidence (Ordonnance)", "ordo"
-    allciv = "Toutes les chambres civiles", "allciv"
+class ChamberEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    assemblee_pleniere = "Assemblée plénière", "pl"
+    chamber_mixte = "Chambre mixte", "mi"
+    premiere_chambre_civile = "Première chambre civile", "civ1"
+    deuxieme_chambre_civile = "Deuxième chambre civile", "civ2"
+    troisieme_chambre_civile = "Troisième chambre civile", "civ3"
+    chambre_commerciale = "Chambre commerciale financière et économique", "comm"
+    chambre_sociale = "Chambre sociale", "soc"
+    chambre_criminelle = "Chambre criminelle", "cr"
+    chambres_reunies = "Chambres réunies", "creun"
+    ordonnance = "Première présidence (Ordonnance)", "ordo"
+    chambres_civiles = "Toutes les chambres civiles", "allciv"
+    autres = "Autre", "other"
+
+
+class FormationEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    formation_pleniere_chambre = "Formation plénière de chambre", "fp"
+    formation_mixte = "Formation mixte", "fm"
+    formation_section = "Formation de section", "fs"
+    formation_restreinte = "Formation restreinte", "f"
+    formation_restreinte_hors_rnsm_na = "Formation restreinte hors RNSM/NA", "frh"
+    formation_restreinte_rnsm_na = "Formation restreinte RNSM/NA", "frr"
+
+
+class PublicationEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    bulletin = "Publié au Bulletin", "b"
+    rapport = "Publié au Rapport", "r"
+    lettre_de_chambre = "Publié aux Lettres de chambre", "l"
+    communique = "Communiqué", "c"
+    non_publie = "Non publié", "n"
+
+
+class SearchOrderFieldEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    par_score = "Par pertinence", "score"
+    par_score_et_publication = "Par pertinence et niveau de publication", "scorepub"
+    par_date = "Par date", "date"
+
+
+class DecisionTypeEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    arret = "Arrêt", "arret"
+    demande_avis = "Demande d'avis", "avis"
+    qpc = "Question prioritaire de constitutionnalité (QPC)", "qpc"
+    ordonnance = "Ordonnance", "ordonnance"
+    saisie = "Saisie", "saisie"
     other = "Autre", "other"
 
 
-class FormationEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
-    fp = "Formation plénière de chambre", "fp"
-    fm = "Formation mixte", "fm"
-    fs = "Formation de section", "fs"
-    f = "Formation restreinte", "f"
-    frh = "Formation restreinte hors RNSM/NA", "frh"
-    frr = "Formation restreinte RNSM/NA", "frr"
+class JudilibreStatsAggregationKeysEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    jurisdiction = "jurisdiction"
+    source = "source"
+    location = "location"
+    year = "year"
+    month = "month"
+    chamber = "chamber"
+    formation = "formation"
+    solution = "solution"
+    type = "type"
+    nac = "nac"
+    themes = "themes"
+    publication = "publication"
 
 
-class PublicationEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
-    b = "Publié au Bulletin", "b"
-    r = "Publié au Rapport", "r"
-    l = "Publié aux Lettres de chambre", "l"  # noqa: E741
-    c = "Communiqué", "c"
-    n = "Non publié", "n"
-
-
-class LocationCAEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
+class LocationCAEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
     ca_agen = "Cour d'appel d'Agen", "ca_agen"
     ca_aix_provence = "Cour d'appel d'Aix-en-Provence", "ca_aix_provence"
     ca_amiens = "Cour d'appel d'Amiens", "ca_amiens"
@@ -131,201 +198,335 @@ class LocationCAEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
     ca_rennes = "Cour d'appel de Rennes", "ca_rennes"
     ca_riom = "Cour d'appel de Riom", "ca_riom"
     ca_rouen = "Cour d'appel de Rouen", "ca_rouen"
-    ca_st_denis_reunion = (
-        "Cour d'appel de Saint-Denis de la Réunion",
-        "ca_st_denis_reunion",
-    )
+    ca_st_denis_reunion = "Cour d'appel de Saint-Denis de la Réunion", "ca_st_denis_reunion"
     ca_toulouse = "Cour d'appel de Toulouse", "ca_toulouse"
     ca_versailles = "Cour d'appel de Versailles", "ca_versailles"
 
 
-class LocationTJEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
-    tj_47001 = "Tribunal judiciaire d'Agen", "tj47001"
-    tj_13001 = "Tribunal judiciaire d'Aix-en-Provence", "tj13001"
-    tj_2a004 = "Tribunal judiciaire d'Ajaccio", "tj2a004"
-    tj_73011 = "Tribunal judiciaire d'Albertville", "tj73011"
-    tj_81004 = "Tribunal judiciaire d'Albi", "tj81004"
-    tj_61001 = "Tribunal judiciaire d'Alençon", "tj61001"
-    tj_30007 = "Tribunal judiciaire d'Alès", "tj30007"
-    tj_80021 = "Tribunal judiciaire d'Amiens", "tj80021"
-    tj_49007 = "Tribunal judiciaire d'Angers", "tj49007"
-    tj_16015 = "Tribunal judiciaire d'Angoulême", "tj16015"
-    tj_74010 = "Tribunal judiciaire d'Annecy", "tj74010"
-    tj_61006 = "Tribunal judiciaire d'Argentan", "tj61006"
-    tj_62041 = "Tribunal judiciaire d'Arras", "tj62041"
-    tj_32013 = "Tribunal judiciaire d'Auch", "tj32013"
-    tj_15014 = "Tribunal judiciaire d'Aurillac", "tj15014"
-    tj_89024 = "Tribunal judiciaire d'Auxerre", "tj89024"
-    tj_59036 = "Tribunal judiciaire d'Avesnes-sur-Helpe", "tj59036"
-    tj_84007 = "Tribunal judiciaire d'Avignon", "tj84007"
-    tj_55029 = "Tribunal judiciaire de Bar-le-Duc", "tj55029"
-    tj_97105 = "Tribunal judiciaire de Basse-Terre", "tj97105"
-    tj_2b033 = "Tribunal judiciaire de Bastia", "tj2b033"
-    tj_64102 = "Tribunal judiciaire de Bayonne", "tj64102"
-    tj_60057 = "Tribunal judiciaire de Beauvais", "tj60057"
-    tj_90010 = "Tribunal judiciaire de Belfort", "tj90010"
-    tj_24037 = "Tribunal judiciaire de Bergerac", "tj24037"
-    tj_25056 = "Tribunal judiciaire de Besançon", "tj25056"
-    tj_62119 = "Tribunal judiciaire de Béthune", "tj62119"
-    tj_34032 = "Tribunal judiciaire de Béziers", "tj34032"
-    tj_41018 = "Tribunal judiciaire de Blois", "tj41018"
-    tj_93008 = "Tribunal judiciaire de Bobigny", "tj93008"
-    tj_74042 = "Tribunal judiciaire de Bonneville", "tj74042"
-    tj_33063 = "Tribunal judiciaire de Bordeaux", "tj33063"
-    tj_62160 = "Tribunal judiciaire de Boulogne-sur-Mer", "tj62160"
-    tj_01053 = "Tribunal judiciaire de Bourg-en-Bresse", "tj1053", "tj01053"
-    tj_18033 = "Tribunal judiciaire de Bourges", "tj18033"
-    tj_38053 = "Tribunal judiciaire de Bourgoin-Jallieu", "tj38053"
-    tj_29019 = "Tribunal judiciaire de Brest", "tj29019"
-    tj_54099 = "Tribunal judiciaire de Briey", "tj54099"
-    tj_19031 = "Tribunal judiciaire de Brive-la-Gaillarde", "tj19031"
-    tj_14118 = "Tribunal judiciaire de Caen", "tj14118"
-    tj_46042 = "Tribunal judiciaire de Cahors", "tj46042"
-    tj_59122 = "Tribunal judiciaire de Cambrai", "tj59122"
-    tj_11069 = "Tribunal judiciaire de Carcassonne", "tj11069"
-    tj_84031 = "Tribunal judiciaire de Carpentras", "tj84031"
-    tj_81065 = "Tribunal judiciaire de Castres", "tj81065"
-    tj_97302 = "Tribunal judiciaire de Cayenne", "tj97302"
-    tj_71076 = "Tribunal judiciaire de Chalon-sur-Saône", "tj71076"
-    tj_51108 = "Tribunal judiciaire de Chalons-en-Champagne", "tj51108"
-    tj_73065 = "Tribunal judiciaire de Chambéry", "tj73065"
-    tj_08105 = "Tribunal judiciaire de Charleville-Mézières", "tj8105", "tj08105"
-    tj_28085 = "Tribunal judiciaire de Chartres", "tj28085"
-    tj_36044 = "Tribunal judiciaire de Châteauroux", "tj36044"
-    tj_52121 = "Tribunal judiciaire de Chaumont", "tj52121"
-    tj_50129 = "Tribunal judiciaire de Cherbourg", "tj50129"
-    tj_63113 = "Tribunal judiciaire de Clermont-Ferrand", "tj63113"
-    tj_68066 = "Tribunal judiciaire de Colmar", "tj68066"
-    tj_60159 = "Tribunal judiciaire de Compiègne", "tj60159"
-    tj_50147 = "Tribunal judiciaire de Coutances", "tj50147"
-    tj_94028 = "Tribunal judiciaire de Créteil", "tj94028"
-    tj_03095 = "Tribunal judiciaire de Cusset", "tj3095", "tj03095"
-    tj_40088 = "Tribunal judiciaire de Dax", "tj40088"
-    tj_76217 = "Tribunal judiciaire de Dieppe", "tj76217"
-    tj_04070 = "Tribunal judiciaire de Digne-les-Bains", "tj4070", "tj04070"
-    tj_21231 = "Tribunal judiciaire de Dijon", "tj21231"
-    tj_39198 = "Tribunal judiciaire de Dole (chambre détachée)", "tj39198"
-    tj_59178 = "Tribunal judiciaire de Douai", "tj59178"
-    tj_83050 = "Tribunal judiciaire de Draguignan", "tj83050"
-    tj_59183 = "Tribunal judiciaire de Dunkerque", "tj59183"
-    tj_88160 = "Tribunal judiciaire d'Epinal", "tj88160"
-    tj_27229 = "Tribunal judiciaire d'Evreux", "tj27229"
-    tj_91228 = "Tribunal judiciaire d'Evry", "tj91228"
-    tj_09122 = "Tribunal judiciaire de Foix", "tj9122", "tj09122"
-    tj_77186 = "Tribunal judiciaire de Fontainebleau", "tj77186"
-    tj_97209 = "Tribunal judiciaire de Fort-de-France", "tj97209"
-    tj_05061 = "Tribunal judiciaire de Gap", "tj5061", "tj05061"
-    tj_06069 = "Tribunal judiciaire de Grasse", "tj6069", "tj06069"
-    tj_38185 = "Tribunal judiciaire de Grenoble", "tj38185"
-    tj_23096 = "Tribunal judiciaire de Guéret", "tj23096"
-    tj_22070 = "Tribunal judiciaire de Guingamp (chambre détachée)", "tj22070"
-    tj_98811 = "Tribunal judiciaire de Kone", "tj98811"
-    tj_85191 = "Tribunal judiciaire de La Roche-sur-Yon", "tj85191"
-    tj_17300 = "Tribunal judiciaire de La Rochelle", "tj17300"
-    tj_02408 = "Tribunal judiciaire de Laon", "tj2408", "tj02408"
-    tj_53130 = "Tribunal judiciaire de Laval", "tj53130"
-    tj_76351 = "Tribunal judiciaire du Havre", "tj76351"
-    tj_72181 = "Tribunal judiciaire du Mans", "tj72181"
-    tj_43157 = "Tribunal judiciaire du Puy-en-Velay", "tj43157"
-    tj_85194 = "Tribunal judiciaire des Sables-d'Olonne", "tj85194"
-    tj_33243 = "Tribunal judiciaire de Libourne", "tj33243"
-    tj_59350 = "Tribunal judiciaire de Lille", "tj59350"
-    tj_87085 = "Tribunal judiciaire de Limoges", "tj87085"
-    tj_14366 = "Tribunal judiciaire de Lisieux", "tj14366"
-    tj_39300 = "Tribunal judiciaire de Lons-le-Saunier", "tj39300"
-    tj_56121 = "Tribunal judiciaire de Lorient", "tj56121"
-    tj_69123 = "Tribunal judiciaire de Lyon", "tj69123"
-    tj_71270 = "Tribunal judiciaire de Mâcon", "tj71270"
-    tj_97611 = "Tribunal judiciaire de Mamoudzou", "tj97611"
-    tj_47157 = "Tribunal judiciaire de Marmande (chambre détachée)", "tj47157"
-    tj_13055 = "Tribunal judiciaire de Marseille", "tj13055"
-    tj_98613 = "Tribunal judiciaire de Mata-Utu", "tj98613"
-    tj_77284 = "Tribunal judiciaire de Meaux", "tj77284"
-    tj_77288 = "Tribunal judiciaire de Melun", "tj77288"
-    tj_48095 = "Tribunal judiciaire de Mende", "tj48095"
-    tj_57463 = "Tribunal judiciaire de Metz", "tj57463"
-    tj_12145 = "Tribunal judiciaire de Millau (chambre détachée)", "tj12145"
-    tj_40192 = "Tribunal judiciaire de Mont-de-Marsan", "tj40192"
-    tj_45208 = "Tribunal judiciaire de Montargis", "tj45208"
-    tj_82121 = "Tribunal judiciaire de Montauban", "tj82121"
-    tj_25388 = "Tribunal judiciaire de Montbéliard", "tj25388"
-    tj_03185 = "Tribunal judiciaire de Montluçon", "tj3185", "tj03185"
-    tj_34172 = "Tribunal judiciaire de Montpellier", "tj34172"
-    tj_03190 = "Tribunal judiciaire de Moulins", "tj3190", "tj03190"
-    tj_68224 = "Tribunal judiciaire de Mulhouse", "tj68224"
-    tj_54395 = "Tribunal judiciaire de Nancy", "tj54395"
-    tj_92050 = "Tribunal judiciaire de Nanterre", "tj92050"
-    tj_44109 = "Tribunal judiciaire de Nantes", "tj44109"
-    tj_11262 = "Tribunal judiciaire de Narbonne", "tj11262"
-    tj_58194 = "Tribunal judiciaire de Nevers", "tj58194"
-    tj_06088 = "Tribunal judiciaire de Nice", "tj6088", "tj06088"
-    tj_30189 = "Tribunal judiciaire de Nîmes", "tj30189"
-    tj_79191 = "Tribunal judiciaire de Niort", "tj79191"
-    tj_98818 = "Tribunal judiciaire de Nouméa", "tj98818"
-    tj_45234 = "Tribunal judiciaire d'Orléans", "tj45234"
-    tj_98735 = "Tribunal judiciaire de Papeete", "tj98735"
-    tj_75056 = "Tribunal judiciaire de Paris", "tj75056"
-    tj_64445 = "Tribunal judiciaire de Pau", "tj64445"
-    tj_24322 = "Tribunal judiciaire de Périgueux", "tj24322"
-    tj_66136 = "Tribunal judiciaire de Perpignan", "tj66136"
-    tj_97120 = "Tribunal judiciaire de Pointe-à-Pitre", "tj97120"
-    tj_86194 = "Tribunal judiciaire de Poitiers", "tj86194"
-    tj_95500 = "Tribunal judiciaire de Pontoise", "tj95500"
-    tj_07186 = "Tribunal judiciaire de Privas", "tj7186", "tj07186"
-    tj_29232 = "Tribunal judiciaire de Quimper", "tj29232"
-    tj_51454 = "Tribunal judiciaire de Reims", "tj51454"
-    tj_35238 = "Tribunal judiciaire de Rennes", "tj35238"
-    tj_42187 = "Tribunal judiciaire de Roanne", "tj42187"
-    tj_12202 = "Tribunal judiciaire de Rodez", "tj12202"
-    tj_76540 = "Tribunal judiciaire de Rouen", "tj76540"
-    tj_22278 = "Tribunal judiciaire de Saint-Brieuc", "tj22278"
-    tj_97411 = "Tribunal judiciaire de Saint-Denis de La Réunion", "tj97411"
-    tj_42218 = "Tribunal judiciaire de Saint-Etienne", "tj42218"
-    tj_31483 = "Tribunal judiciaire de Saint-Gaudens", "tj31483"
-    tj_35288 = "Tribunal judiciaire de Saint-Malo", "tj35288"
-    tj_44184 = "Tribunal judiciaire de Saint-Nazaire", "tj44184"
-    tj_62765 = "Tribunal judiciaire de Saint-Omer", "tj62765"
-    tj_97416 = "Tribunal judiciaire de Saint-Pierre de La Réunion", "tj97416"
-    tj_02691 = "Tribunal judiciaire de Saint-Quentin", "tj2691", "tj02691"
-    tj_97311 = (
-        "Tribunal judiciaire de Saint-Laurent-Du-Maroni (chambre détachée)",
-        "tj97311",
+class LocationTJEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    tj_agen = "Tribunal judiciaire d'Agen", "tj47001"
+    tj_aix_en_provence = "Tribunal judiciaire d'Aix-en-Provence", "tj13001"
+    tj_ajaccio = "Tribunal judiciaire d'Ajaccio", "tj2a004"
+    tj_albertville = "Tribunal judiciaire d'Albertville", "tj73011"
+    tj_albi = "Tribunal judiciaire d'Albi", "tj81004"
+    tj_alencon = "Tribunal judiciaire d'Alençon", "tj61001"
+    tj_ales = "Tribunal judiciaire d'Alès", "tj30007"
+    tj_amiens = "Tribunal judiciaire d'Amiens", "tj80021"
+    tj_angers = "Tribunal judiciaire d'Angers", "tj49007"
+    tj_angouleme = "Tribunal judiciaire d'Angoulême", "tj16015"
+    tj_annecy = "Tribunal judiciaire d'Annecy", "tj74010"
+    tj_argentan = "Tribunal judiciaire d'Argentan", "tj61006"
+    tj_arras = "Tribunal judiciaire d'Arras", "tj62041"
+    tj_auch = "Tribunal judiciaire d'Auch", "tj32013"
+    tj_aurillac = "Tribunal judiciaire d'Aurillac", "tj15014"
+    tj_auxerre = "Tribunal judiciaire d'Auxerre", "tj89024"
+    tj_avesnes_sur_helpe = "Tribunal judiciaire d'Avesnes-sur-Helpe", "tj59036"
+    tj_avignon = "Tribunal judiciaire d'Avignon", "tj84007"
+    tj_bar_le_duc = "Tribunal judiciaire de Bar-le-Duc", "tj55029"
+    tj_basse_terre = "Tribunal judiciaire de Basse-Terre", "tj97105"
+    tj_bastia = "Tribunal judiciaire de Bastia", "tj2b033"
+    tj_bayonne = "Tribunal judiciaire de Bayonne", "tj64102"
+    tj_beauvais = "Tribunal judiciaire de Beauvais", "tj60057"
+    tj_belfort = "Tribunal judiciaire de Belfort", "tj90010"
+    tj_bergerac = "Tribunal judiciaire de Bergerac", "tj24037"
+    tj_besancon = "Tribunal judiciaire de Besançon", "tj25056"
+    tj_bethune = "Tribunal judiciaire de Béthune", "tj62119"
+    tj_beziers = "Tribunal judiciaire de Béziers", "tj34032"
+    tj_blois = "Tribunal judiciaire de Blois", "tj41018"
+    tj_bobigny = "Tribunal judiciaire de Bobigny", "tj93008"
+    tj_bonneville = "Tribunal judiciaire de Bonneville", "tj74042"
+    tj_bordeaux = "Tribunal judiciaire de Bordeaux", "tj33063"
+    tj_boulogne_sur_mer = "Tribunal judiciaire de Boulogne-sur-Mer", "tj62160"
+    tj_bourg_en_bresse = "Tribunal judiciaire de Bourg-en-Bresse", "tj01053"
+    tj_bourges = "Tribunal judiciaire de Bourges", "tj18033"
+    tj_bourgoin_jallieu = "Tribunal judiciaire de Bourgoin-Jallieu", "tj38053"
+    tj_brest = "Tribunal judiciaire de Brest", "tj29019"
+    tj_brive_la_gaillarde = "Tribunal judiciaire de Brive-la-Gaillarde", "tj19031"
+    tj_caen = "Tribunal judiciaire de Caen", "tj14118"
+    tj_cahors = "Tribunal judiciaire de Cahors", "tj46042"
+    tj_cambrai = "Tribunal judiciaire de Cambrai", "tj59122"
+    tj_carcassonne = "Tribunal judiciaire de Carcassonne", "tj11069"
+    tj_carpentras = "Tribunal judiciaire de Carpentras", "tj84031"
+    tj_castres = "Tribunal judiciaire de Castres", "tj81065"
+    tj_cayenne = "Tribunal judiciaire de Cayenne", "tj97302"
+    tj_chalon_sur_saone = "Tribunal judiciaire de Chalon-sur-Saône", "tj71076"
+    tj_chalons_en_champagne = "Tribunal judiciaire de Chalons-en-Champagne", "tj51108"
+    tj_chambery = "Tribunal judiciaire de Chambéry", "tj73065"
+    tj_charleville_mezieres = "Tribunal judiciaire de Charleville-Mézières", "tj08105"
+    tj_chartres = "Tribunal judiciaire de Chartres", "tj28085"
+    tj_chateauroux = "Tribunal judiciaire de Châteauroux", "tj36044"
+    tj_chaumont = "Tribunal judiciaire de Chaumont", "tj52121"
+    tj_cherbourg_en_cotentin = "Tribunal judiciaire de Cherbourg-en-Cotentin", "tj50129"
+    tj_clermont_ferrand = "Tribunal judiciaire de Clermont-Ferrand", "tj63113"
+    tj_colmar = "Tribunal judiciaire de Colmar", "tj68066"
+    tj_compiegne = "Tribunal judiciaire de Compiègne", "tj60159"
+    tj_coutances = "Tribunal judiciaire de Coutances", "tj50147"
+    tj_creteil = "Tribunal judiciaire de Créteil", "tj94028"
+    tj_cusset = "Tribunal judiciaire de Cusset", "tj03095"
+    tj_dax = "Tribunal judiciaire de Dax", "tj40088"
+    tj_dieppe = "Tribunal judiciaire de Dieppe", "tj76217"
+    tj_digne_les_bains = "Tribunal judiciaire de Digne-les-Bains", "tj04070"
+    tj_dijon = "Tribunal judiciaire de Dijon", "tj21231"
+    tj_dole = "Tribunal judiciaire de Dole (chambre détachée)", "tj39198"
+    tj_douai = "Tribunal judiciaire de Douai", "tj59178"
+    tj_draguignan = "Tribunal judiciaire de Draguignan", "tj83050"
+    tj_dunkerque = "Tribunal judiciaire de Dunkerque", "tj59183"
+    tj_epinal = "Tribunal judiciaire d'Épinal", "tj88160"
+    tj_evreux = "Tribunal judiciaire d'Évreux", "tj27229"
+    tj_evry = "Tribunal judiciaire d'Évry", "tj91228"
+    tj_foix = "Tribunal judiciaire de Foix", "tj09122"
+    tj_fontainebleau = "Tribunal judiciaire de Fontainebleau", "tj77186"
+    tj_fort_de_france = "Tribunal judiciaire de Fort-de-France", "tj97209"
+    tj_gap = "Tribunal judiciaire de Gap", "tj05061"
+    tj_grasse = "Tribunal judiciaire de Grasse", "tj06069"
+    tj_grenoble = "Tribunal judiciaire de Grenoble", "tj38185"
+    tj_gueret = "Tribunal judiciaire de Guéret", "tj23096"
+    tj_guingamp = "Tribunal judiciaire de Guingamp (chambre détachée)", "tj22070"
+    tj_kone = "Tribunal judiciaire de Kone (section détachée)", "tj98811"
+    tj_la_roche_sur_yon = "Tribunal judiciaire de La Roche-sur-Yon", "tj85191"
+    tj_la_rochelle = "Tribunal judiciaire de La Rochelle", "tj17300"
+    tj_laon = "Tribunal judiciaire de Laon", "tj02408"
+    tj_laval = "Tribunal judiciaire de Laval", "tj53130"
+    tj_havre = "Tribunal judiciaire du Havre", "tj76351"
+    tj_mans = "Tribunal judiciaire du Mans", "tj72181"
+    tj_puy_en_velay = "Tribunal judiciaire du Puy-en-Velay", "tj43157"
+    tj_sables_d_olonne = "Tribunal judiciaire des Sables-d'Olonne", "tj85194"
+    tj_libourne = "Tribunal judiciaire de Libourne", "tj33243"
+    tj_lille = "Tribunal judiciaire de Lille", "tj59350"
+    tj_limoges = "Tribunal judiciaire de Limoges", "tj87085"
+    tj_lisieux = "Tribunal judiciaire de Lisieux", "tj14366"
+    tj_lons_le_saunier = "Tribunal judiciaire de Lons-le-Saunier", "tj39300"
+    tj_lorient = "Tribunal judiciaire de Lorient", "tj56121"
+    tj_lyon = "Tribunal judiciaire de Lyon", "tj69123"
+    tj_macon = "Tribunal judiciaire de Mâcon", "tj71270"
+    tj_mamoudzou = "Tribunal judiciaire de Mamoudzou", "tj97611"
+    tj_marmande = "Tribunal judiciaire de Marmande (chambre détachée)", "tj47157"
+    tj_marseille = "Tribunal judiciaire de Marseille", "tj13055"
+    tj_mata_utu = "Tribunal judiciaire de Mata-Utu", "tj98613"
+    tj_meaux = "Tribunal judiciaire de Meaux", "tj77284"
+    tj_melun = "Tribunal judiciaire de Melun", "tj77288"
+    tj_mende = "Tribunal judiciaire de Mende", "tj48095"
+    tj_metz = "Tribunal judiciaire de Metz", "tj57463"
+    tj_millau = "Tribunal judiciaire de Millau (chambre détachée)", "tj12145"
+    tj_mont_de_marsan = "Tribunal judiciaire de Mont-de-Marsan", "tj40192"
+    tj_montargis = "Tribunal judiciaire de Montargis", "tj45208"
+    tj_montauban = "Tribunal judiciaire de Montauban", "tj82121"
+    tj_montbeliard = "Tribunal judiciaire de Montbéliard", "tj25388"
+    tj_montlucon = "Tribunal judiciaire de Montluçon", "tj03185"
+    tj_montpellier = "Tribunal judiciaire de Montpellier", "tj34172"
+    tj_moulins = "Tribunal judiciaire de Moulins", "tj03190"
+    tj_mulhouse = "Tribunal judiciaire de Mulhouse", "tj68224"
+    tj_nancy = "Tribunal judiciaire de Nancy", "tj54395"
+    tj_nanterre = "Tribunal judiciaire de Nanterre", "tj92050"
+    tj_nantes = "Tribunal judiciaire de Nantes", "tj44109"
+    tj_narbonne = "Tribunal judiciaire de Narbonne", "tj11262"
+    tj_nevers = "Tribunal judiciaire de Nevers", "tj58194"
+    tj_nice = "Tribunal judiciaire de Nice", "tj06088"
+    tj_nimes = "Tribunal judiciaire de Nîmes", "tj30189"
+    tj_niort = "Tribunal judiciaire de Niort", "tj79191"
+    tj_noumea = "Tribunal judiciaire de Nouméa", "tj98818"
+    tj_orleans = "Tribunal judiciaire d'Orléans", "tj45234"
+    tj_papeete = "Tribunal judiciaire de Papeete", "tj98735"
+    tj_paris = "Tribunal judiciaire de Paris", "tj75056"
+    tj_pau = "Tribunal judiciaire de Pau", "tj64445"
+    tj_perigueux = "Tribunal judiciaire de Périgueux", "tj24322"
+    tj_perpignan = "Tribunal judiciaire de Perpignan", "tj66136"
+    tj_pointe_a_pitre = "Tribunal judiciaire de Pointe-à-Pitre", "tj97120"
+    tj_poitiers = "Tribunal judiciaire de Poitiers", "tj86194"
+    tj_pontoise = "Tribunal judiciaire de Pontoise", "tj95500"
+    tj_privas = "Tribunal judiciaire de Privas", "tj07186"
+    tj_quimper = "Tribunal judiciaire de Quimper", "tj29232"
+    tj_reims = "Tribunal judiciaire de Reims", "tj51454"
+    tj_rennes = "Tribunal judiciaire de Rennes", "tj35238"
+    tj_roanne = "Tribunal judiciaire de Roanne", "tj42187"
+    tj_rodez = "Tribunal judiciaire de Rodez", "tj12202"
+    tj_rouen = "Tribunal judiciaire de Rouen", "tj76540"
+    tj_saint_brieuc = "Tribunal judiciaire de Saint-Brieuc", "tj22278"
+    tj_saint_denis_de_la_reunion = "Tribunal judiciaire de Saint-Denis de La Réunion", "tj97411"
+    tj_saint_etienne = "Tribunal judiciaire de Saint-Etienne", "tj42218"
+    tj_saint_gaudens = "Tribunal judiciaire de Saint-Gaudens", "tj31483"
+    tj_saint_malo = "Tribunal judiciaire de Saint-Malo", "tj35288"
+    tj_saint_nazaire = "Tribunal judiciaire de Saint-Nazaire", "tj44184"
+    tj_saint_omer = "Tribunal judiciaire de Saint-Omer", "tj62765"
+    tj_saint_pierre_de_la_reunion = "Tribunal judiciaire de Saint-Pierre de La Réunion", "tj97416"
+    tj_saint_quentin = "Tribunal judiciaire de Saint-Quentin", "tj02691"
+    tj_saint_laurent_du_maroni = "Tribunal judiciaire de Saint-Laurent-Du-Maroni (chambre détachée)", "tj97311"
+    tj_saint_martin = "Tribunal judiciaire de Saint-Martin (chambre détachée)", "tj97801"
+    tj_sarreguemines = "Tribunal judiciaire de Sarreguemines", "tj57631"
+    tj_saumur = "Tribunal judiciaire de Saumur", "tj49328"
+    tj_saverne = "Tribunal judiciaire de Saverne", "tj67437"
+    tj_senlis = "Tribunal judiciaire de Senlis", "tj60612"
+    tj_sens = "Tribunal judiciaire de Sens", "tj89387"
+    tj_soissons = "Tribunal judiciaire de Soissons", "tj02722"
+    tj_strasbourg = "Tribunal judiciaire de Strasbourg", "tj67482"
+    tj_tarascon = "Tribunal judiciaire de Tarascon", "tj13108"
+    tj_tarbes = "Tribunal judiciaire de Tarbes", "tj65440"
+    tj_thionville = "Tribunal judiciaire de Thionville", "tj57672"
+    tj_thonon_les_bains = "Tribunal judiciaire de Thonon-les-Bains", "tj74281"
+    tj_toulon = "Tribunal judiciaire de Toulon", "tj83137"
+    tj_toulouse = "Tribunal judiciaire de Toulouse", "tj31555"
+    tj_tours = "Tribunal judiciaire de Tours", "tj37261"
+    tj_troyes = "Tribunal judiciaire de Troyes", "tj10387"
+    tj_tulle = "Tribunal judiciaire de Tulle", "tj19272"
+    tj_val_de_briey = "Tribunal judiciaire de Val de Briey", "tj54099"
+    tj_valence = "Tribunal judiciaire de Valence", "tj26362"
+    tj_valenciennes = "Tribunal judiciaire de Valenciennes", "tj59606"
+    tj_vannes = "Tribunal judiciaire de Vannes", "tj56260"
+    tj_verdun = "Tribunal judiciaire de Verdun", "tj55545"
+    tj_versailles = "Tribunal judiciaire de Versailles", "tj78646"
+    tj_vesoul = "Tribunal judiciaire de Vesoul", "tj70550"
+    tj_vienne = "Tribunal judiciaire de Vienne", "tj38544"
+    tj_villefranche_sur_saone = "Tribunal judiciaire de Villefranche-sur-Saône", "tj69264"
+
+
+class LocationTCOMEnum(
+    JudilibreMultiValueEnum,
+    # metaclass=JudilibreEnumMeta,
+):
+    tcom_agen = "Tribunal de commerce d'Agen", "4701"
+    tcom_aix_en_provence = "Tribunal de commerce d'Aix-en-Provence", "1301"
+    tcom_ajaccio = "Tribunal de commerce d'Ajaccio", "2001"
+    tcom_albi = "Tribunal de commerce d'Albi", "8101"
+    tcom_alencon = "Tribunal de commerce d'Alençon", "6101"
+    tcom_amiens = "Tribunal de commerce d'Amiens", "8002"
+    tcom_angers = "Tribunal de commerce d'Angers", "4901"
+    tcom_angouleme = "Tribunal de commerce d'Angoulême", "1601"
+    tcom_annecy = "Tribunal de commerce d'Annecy", "7401"
+    tcom_antibes = "Tribunal de commerce d'Antibes", "0601"
+    tcom_arras = "Tribunal de commerce d'Arras", "6201"
+    tcom_aubenas = "Tribunal de commerce d'Aubenas", "0702"
+    tcom_auch = "Tribunal de commerce d'Auch", "3201"
+    tcom_aurillac = "Tribunal de commerce d'Aurillac", "1501"
+    tcom_tribunal_des_activites_economiques_d_auxerre = "Tribunal des activités économiques d'Auxerre", "8901"
+    tcom_tribunal_des_activites_economiques_d_avignon = "Tribunal des activités économiques d'Avignon", "8401"
+    tcom_bar_le_duc = "Tribunal de commerce de Bar-le-Duc", "5501"
+    tcom_basse_terre = "Tribunal de commerce de Basse-Terre", "9711"
+    tcom_bastia = "Tribunal de commerce de Bastia", "2002"
+    tcom_bayonne = "Tribunal de commerce de Bayonne", "6401"
+    tcom_beauvais = "Tribunal de commerce de Beauvais", "6001"
+    tcom_belfort = "Tribunal de commerce de Belfort", "9001"
+    tcom_bergerac = "Tribunal de commerce de Bergerac", "2401"
+    tcom_bernay = "Tribunal de commerce de Bernay", "2701"
+    tcom_besancon = "Tribunal de commerce de Besançon", "2501"
+    tcom_beziers = "Tribunal de commerce de Béziers", "3402"
+    tcom_blois = "Tribunal de commerce de Blois", "4101"
+    tcom_bobigny = "Tribunal de commerce de Bobigny", "9301"
+    tcom_bordeaux = "Tribunal de commerce de Bordeaux", "3302"
+    tcom_boulogne_sur_mer = "Tribunal de commerce de Boulogne-sur-Mer", "6202"
+    tcom_bourg_en_bresse = "Tribunal de commerce de Bourg-en-Bresse", "0101"
+    tcom_bourges = "Tribunal de commerce de Bourges", "1801"
+    tcom_brest = "Tribunal de commerce de Brest", "2901"
+    tcom_briey = "Tribunal de commerce de Briey", "5401"
+    tcom_brive_la_gaillarde = "Tribunal de commerce de Brive-la-Gaillarde", "1901"
+    tcom_caen = "Tribunal de commerce de Caen", "1402"
+    tcom_cahors = "Tribunal de commerce de Cahors", "4601"
+    tcom_cannes = "Tribunal de commerce de Cannes", "0602"
+    tcom_carcassonne = "Tribunal de commerce de Carcassonne", "1101"
+    tcom_castres = "Tribunal de commerce de Castres", "8102"
+    tcom_cayenne = "Tribunal de commerce de Cayenne", "9731"
+    tcom_chalon_sur_saone = "Tribunal de commerce de Chalon-sur-Saône", "7102"
+    tcom_chalons_en_champagne = "Tribunal de commerce de Chalons-en-Champagne", "5101"
+    tcom_chambery = "Tribunal de commerce de Chambéry", "7301"
+    tcom_chartres = "Tribunal de commerce de Chartres", "2801"
+    tcom_chateauroux = "Tribunal de commerce de Châteauroux", "3601"
+    tcom_chaumont = "Tribunal de commerce de Chaumont", "5201"
+    tcom_cherbourg = "Tribunal de commerce de Cherbourg", "5001"
+    tcom_clermont_ferrand = "Tribunal de commerce de Clermont-Ferrand", "6303"
+    tcom_compiegne = "Tribunal de commerce de Compiègne", "6002"
+    tcom_coutances = "Tribunal de commerce de Coutances", "5002"
+    tcom_creteil = "Tribunal de commerce de Créteil", "9401"
+    tcom_cusset = "Tribunal de commerce de Cusset", "0301"
+    tcom_dax = "Tribunal de commerce de Dax", "4001"
+    tcom_dieppe = "Tribunal de commerce de Dieppe", "7601"
+    tcom_dijon = "Tribunal de commerce de Dijon", "2104"
+    tcom_douai = "Tribunal de commerce de Douai", "5952"
+    tcom_draguignan = "Tribunal de commerce de Draguignan", "8302"
+    tcom_dunkerque = "Tribunal de commerce de Dunkerque", "5902"
+    tcom_epinal = "Tribunal de commerce d'Épinal", "8801"
+    tcom_evreux = "Tribunal de commerce d'Évreux", "2702"
+    tcom_evry = "Tribunal de commerce d'Évry", "7801"
+    tcom_foix = "Tribunal de commerce de Foix", "0901"
+    tcom_fort_de_france = "Tribunal de commerce de Fort-de-France", "9721"
+    tcom_frejus = "Tribunal de commerce de Fréjus", "8303"
+    tcom_gap = "Tribunal de commerce de Gap", "0501"
+    tcom_grasse = "Tribunal de commerce de Grasse", "0603"
+    tcom_grenoble = "Tribunal de commerce de Grenoble", "3801"
+    tcom_gueret = "Tribunal de commerce de Guéret", "2301"
+    tcom_la_roche_sur_yon = "Tribunal de commerce de La Roche-sur-Yon", "8501"
+    tcom_la_rochelle = "Tribunal de commerce de La Rochelle", "1704"
+    tcom_laval = "Tribunal de commerce de Laval", "5301"
+    tcom_tribunal_des_activites_economiques_du_havre = "Tribunal des activités économiques du Havre", "7606"
+    tcom_tribunal_des_activites_economiques_du_mans = "Tribunal des activités économiques du Mans", "7202"
+    tcom_puy_en_velay = "Tribunal de commerce du Puy-en-Velay", "4302"
+    tcom_libourne = "Tribunal de commerce de Libourne", "3303"
+    tcom_lille_metropole = "Tribunal de commerce de Lille Métropole", "5910"
+    tcom_tribunal_des_activites_economiques_de_limoges = "Tribunal des activités économiques de Limoges", "8701"
+    tcom_lisieux = "Tribunal de commerce de Lisieux", "1407"
+    tcom_lons_le_saunier = "Tribunal de commerce de Lons-le-Saunier", "3902"
+    tcom_lorient = "Tribunal de commerce de Lorient", "5601"
+    tcom_tribunal_des_activites_economiques_de_lyon = "Tribunal des activités économiques de Lyon", "6901"
+    tcom_macon = "Tribunal de commerce de Mâcon", "7106"
+    tcom_mamoudzou = "Tribunal de commerce de Mamoudzou", "9761"
+    tcom_manosque = "Tribunal de commerce de Manosque", "0401"
+    tcom_tribunal_des_activites_economiques_de_marseille = "Tribunal des activités économiques de Marseille", "1303"
+    tcom_meaux = "Tribunal de commerce de Meaux", "7701"
+    tcom_melun = "Tribunal de commerce de Melun", "7702"
+    tcom_mende = "Tribunal de commerce de Mende", "4801"
+    tcom_mont_de_marsan = "Tribunal de commerce de Mont-de-Marsan", "4002"
+    tcom_montauban = "Tribunal de commerce de Montauban", "8201"
+    tcom_montlucon = "Tribunal de commerce de Montluçon", "0303"
+    tcom_montpellier = "Tribunal de commerce de Montpellier", "3405"
+    tcom_tribunal_des_activites_economiques_de_nancy = "Tribunal des activités économiques de Nancy", "5402"
+    tcom_tribunal_des_activites_economiques_de_nanterre = "Tribunal des activités économiques de Nanterre", "9201"
+    tcom_nantes = "Tribunal de commerce de Nantes", "4401"
+    tcom_narbonne = "Tribunal de commerce de Narbonne", "1104"
+    tcom_nevers = "Tribunal de commerce de Nevers", "5802"
+    tcom_nice = "Tribunal de commerce de Nice", "0605"
+    tcom_nimes = "Tribunal de commerce de Nîmes", "3003"
+    tcom_niort = "Tribunal de commerce de Niort", "7901"
+    tcom_orleans = "Tribunal de commerce d'Orléans", "4502"
+    tcom_tribunal_des_activites_economiques_de_paris = "Tribunal des activités économiques de Paris", "7501"
+    tcom_pau = "Tribunal de commerce de Pau", "6403"
+    tcom_perigueux = "Tribunal de commerce de Périgueux", "2402"
+    tcom_perpignan = "Tribunal de commerce de Perpignan", "6601"
+    tcom_pointe_a_pitre = "Tribunal de commerce de Pointe-à-Pitre", "9712"
+    tcom_poitiers = "Tribunal de commerce de Poitiers", "8602"
+    tcom_pontoise = "Tribunal de commerce de Pontoise", "7802"
+    tcom_quimper = "Tribunal de commerce de Quimper", "2903"
+    tcom_reims = "Tribunal de commerce de Reims", "5103"
+    tcom_rennes = "Tribunal de commerce de Rennes", "3501"
+    tcom_roanne = "Tribunal de commerce de Roanne", "4201"
+    tcom_rodez = "Tribunal de commerce de Rodez", "1203"
+    tcom_romans = "Tribunal de commerce de Romans", "2602"
+    tcom_rouen = "Tribunal de commerce de Rouen", "7608"
+    tcom_tribunal_des_activites_economiques_de_saint_brieuc = (
+        "Tribunal des activités économiques de Saint-Brieuc",
+        "2202",
     )
-    tj_97801 = "Tribunal judiciaire de Saint-Martin (chambre détachée)", "tj97801"
-    tj_49328 = "Tribunal judiciaire de Saumur", "tj49328"
-    tj_67437 = "Tribunal judiciaire de Saverne", "tj67437"
-    tj_60612 = "Tribunal judiciaire de Senlis", "tj60612"
-    tj_89387 = "Tribunal judiciaire de Sens", "tj89387"
-    tj_02722 = "Tribunal judiciaire de Soissons", "tj2722", "tj02722"
-    tj_67482 = "Tribunal judiciaire de Strasbourg", "tj67482"
-    tj_13108 = "Tribunal judiciaire de Tarascon", "tj13108"
-    tj_65440 = "Tribunal judiciaire de Tarbes", "tj65440"
-    tj_57672 = "Tribunal judiciaire de Thionville", "tj57672"
-    tj_74281 = "Tribunal judiciaire de Thonon-les-Bains", "tj74281"
-    tj_83137 = "Tribunal judiciaire de Toulon", "tj83137"
-    tj_31555 = "Tribunal judiciaire de Toulouse", "tj31555"
-    tj_37261 = "Tribunal judiciaire de Tours", "tj37261"
-    tj_10387 = "Tribunal judiciaire de Troyes", "tj10387"
-    tj_26362 = "Tribunal judiciaire de Valence", "tj26362"
-    tj_59606 = "Tribunal judiciaire de Valenciennes", "tj59606"
-    tj_56260 = "Tribunal judiciaire de Vannes", "tj56260"
-    tj_55545 = "Tribunal judiciaire de Verdun", "tj55545"
-    tj_78646 = "Tribunal judiciaire de Versailles", "tj78646"
-    tj_70550 = "Tribunal judiciaire de Vesoul", "tj70550"
-    tj_38544 = "Tribunal judiciaire de Vienne", "tj38544"
-    tj_69264 = "Tribunal judiciaire de Villefranche-sur-Saône", "tj69264"
-
-
-class SearchOrderFieldEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
-    score = "Par pertinence", "score"
-    scorepub = "Par pertinence et niveau de publication", "scorepub"
-    date = "Par date", "date"
-
-
-class DecisionTypeEnum(MultiValueEnum, metaclass=JudilibreEnumMeta):
-    arret = "Arrêt", "arret"
-    avis = "Demande d'avis", "avis"
-    qpc = "Question prioritaire de constitutionnalité (QPC)", "qpc"
-    ordonnance = "Ordonnance", "ordonnance"
-    saisie = "Saisie", "saisie"
-    other = "Autre", "other"
+    tcom_saint_denis_de_la_reunion = "Tribunal de commerce de Saint-Denis de La Réunion", "9741"
+    tcom_saint_etienne = "Tribunal de commerce de Saint-Etienne", "4202"
+    tcom_saint_malo = "Tribunal de commerce de Saint-Malo", "3502"
+    tcom_saint_nazaire = "Tribunal de commerce de Saint-Nazaire", "4402"
+    tcom_saint_pierre_de_la_reunion = "Tribunal de commerce de Saint-Pierre de La Réunion", "9742"
+    tcom_saint_quentin = "Tribunal de commerce de Saint-Quentin", "0202"
+    tcom_saintes = "Tribunal de commerce de Saintes", "1708"
+    tcom_salon_de_provence = "Tribunal de commerce de Salon-de-Provence", "1304"
+    tcom_sedan = "Tribunal de commerce de Sedan", "0802"
+    tcom_sens = "Tribunal de commerce de Sens", "8903"
+    tcom_soissons = "Tribunal de commerce de Soissons", "0203"
+    tcom_tarascon = "Tribunal de commerce de Tarascon", "1305"
+    tcom_tarbes = "Tribunal de commerce de Tarbes", "6502"
+    tcom_thonon_les_bains = "Tribunal de commerce de Thonon-les-Bains", "7402"
+    tcom_toulon = "Tribunal de commerce de Toulon", "8305"
+    tcom_toulouse = "Tribunal de commerce de Toulouse", "3102"
+    tcom_tours = "Tribunal de commerce de Tours", "3701"
+    tcom_troyes = "Tribunal de commerce de Troyes", "1001"
+    tcom_valenciennes = "Tribunal de commerce de Valenciennes", "5906"
+    tcom_vannes = "Tribunal de commerce de Vannes", "5602"
+    tcom_vesoul___gray = "Tribunal de commerce de Vesoul - Gray", "7001"
+    tcom_tribunal_des_activites_economiques_de_versailles = "Tribunal des activités économiques de Versailles", "7803"
+    tcom_vienne = "Tribunal de commerce de Vienne", "3802"
+    tcom_villefranche_sur_saone___tarare = "Tribunal de commerce de Villefranche-sur-Saône - Tarare", "6903"

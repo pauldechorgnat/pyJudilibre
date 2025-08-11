@@ -1,12 +1,14 @@
-from typing import Optional, Union
+import datetime
 
 from pydantic import BaseModel, ConfigDict
 
 from pyjudilibre.enums import (
     LocationCAEnum,
     LocationTJEnum,
+    LocationTCOMEnum,
     SourceEnum,
     JurisdictionEnum,
+    JudilibreStatsAggregationKeysEnum,
 )
 
 
@@ -64,29 +66,29 @@ class File(BaseModel):
     name: str
     size: str
     url: str
-    rawUrl: Optional[str] = None
+    rawUrl: str | None = None
 
 
 class ShortDecision(BaseModel):
     """Class that represents a decision with only a few information
 
     Args:
-        id (Optional[str]): id of the decision if the decision is in Judilibre.
+        id (str | None): id of the decision if the decision is in Judilibre.
         date (str): date of the decision (YYYY-MM-DD).
         jurisdiction (str): name of the jurisdiction.
-        chamber (Optional[str]): name of the chamber in the jurisdiction.
+        chamber (str | None): name of the chamber in the jurisdiction.
         title (str): combination of the name of the jurisdiction and the chamber.
-        solution (Optional[str]): solution of the decision.
+        solution (str | None): solution of the decision.
         number (str): register number of the decision
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     date: str
-    jurisdiction: Optional[str] = None
-    chamber: Optional[str] = None
+    jurisdiction: str | None = None
+    chamber: str | None = None
     title: str
-    solution: Optional[str] = None
-    number: Optional[str] = None
+    solution: str | None = None
+    number: str | None = None
 
 
 class Article(BaseModel):
@@ -103,18 +105,18 @@ class Legacy(BaseModel):
     """Class
 
     Args:
-        matiereDeterminee (Optional[int]): ...
-        pourvoiLocal (Optional[int]): ...
-        pourvoiCcas (Optional[int]): ...
-        pourvoiLocal (Optional[int]): ...
-        pourvoiCcas (Optional[int]): ...
+        matiereDeterminee (int | None): ...
+        pourvoiLocal (int | None): ...
+        pourvoiCcas (int | None): ...
+        pourvoiLocal (int | None): ...
+        pourvoiCcas (int | None): ...
     """
 
-    matiereDeterminee: Optional[int] = None
-    pourvoiLocal: Optional[int] = None
-    pourvoiCcas: Optional[int] = None
-    pourvoiLocal: Optional[int] = None
-    pourvoiCcas: Optional[int] = None
+    matiereDeterminee: int | None = None
+    pourvoiLocal: int | None = None
+    pourvoiCcas: int | None = None
+    pourvoiLocal: int | None = None
+    pourvoiCcas: int | None = None
 
 
 class JudilibreShortDecision(BaseModel):
@@ -122,26 +124,26 @@ class JudilibreShortDecision(BaseModel):
     # Mandatory attributes
     ## decision attributes
     id: str
-    decision_date: str
-    jurisdiction: Optional[JurisdictionEnum] = None
+    decision_date: datetime.date
+    jurisdiction: JurisdictionEnum | None = None
     number: str
     numbers: list[str]
     publication: list[str] | None = None
-    solution: str  # TODO: remplacer par SolutionEnum
+    solution: str | None = None  # TODO: remplacer par SolutionEnum
     particularInterest: bool
 
     # Optional values
-    location: Optional[Union[LocationCAEnum, LocationTJEnum]] = None
-    chamber: Optional[str] = None
-    ecli: Optional[str] = None
-    formation: Optional[str] = None  # remplacer par FormationEnum ?
-    type: Optional[str] = None
-    solution_alt: Optional[str] = None
-    summary: Optional[str] = None
-    bulletin: Optional[str] = None
-    files: Optional[list] = None  # TODO: completer ces schémas
-    themes: Optional[list] = None  # TODO: completer ces schémas
-    titlesAndSummaries: Optional[list[dict]] = None  # TODO: completer ces schémas
+    location: LocationCAEnum | LocationTJEnum | LocationTCOMEnum | None = None
+    chamber: str | None = None
+    ecli: str | None = None
+    formation: str | None = None  # remplacer par FormationEnum ?
+    type: str | None = None
+    solution_alt: str | None = None
+    summary: str | None = None
+    bulletin: str | None = None
+    files: list | None = None  # TODO: completer ces schémas
+    themes: list | None = None  # TODO: completer ces schémas
+    titlesAndSummaries: list[dict] | None = None  # TODO: completer ces schémas
 
 
 class Highlights(BaseModel):
@@ -165,7 +167,7 @@ class JudilibreDecision(JudilibreShortDecision):
         chamber (str): chamber of the decision within the jurisdiction
         number (str): register number of the decision
         numbers (list[str]): list of alternative register numbers of the decision
-        ecli (Optional[str]): ECLI id
+        ecli (str | None): ECLI id
         publication (list[str]): list of publication types
         decision_date (str): date of the decision (YYYY-MM-DD)
         update_date (str): date of the last update of the decision (YYYY-MM-DD)
@@ -174,12 +176,12 @@ class JudilibreDecision(JudilibreShortDecision):
         solution (SolutionEnum): solution of the decision
         type (str): type of the decision
         themes (Optional[list[str]]): list of themes of the decision (CCass)
-        nac (Optional[str]): code of the nature of the decision (CA)
-        portalis (Optional[str]): portalis number of the decision
+        nac (str | None): code of the nature of the decision (CA)
+        portalis (str | None): portalis number of the decision
         files (list[File]): list of files
         zones (Optional[Zones]): dictionary of computed zones of the decision
         contested (Optional[ShortDecision]): ...
-        forward (Optional[str]): ...
+        forward (str | None): ...
         timeline (Optional[list[ShortDecision]]): list of related decisions
         partial (str): ...
         visa (list[Article]): list of law articles to base the pourvoi on
@@ -190,20 +192,47 @@ class JudilibreDecision(JudilibreShortDecision):
     source: SourceEnum
     text: str
     update_date: str
-    update_datetime: Optional[str] = None
-    decision_datetime: Optional[str] = None
-    themes: Optional[list[str]] = None
-    nac: Optional[str] = None
-    portalis: Optional[str] = None
-    files: Optional[list[File]] = None
-    zones: Optional[Zones] = None
-    contested: Optional[ShortDecision] = None
-    forward: Optional[str] = None
-    timeline: Optional[list[ShortDecision]] = None
-    partial: Optional[bool] = None
-    visa: Optional[list[Article]] = None
-    rapprochements: Optional[list[Article]] = None
-    legacy: Optional[Legacy] = None
+    update_datetime: str | None = None
+    decision_datetime: str | None = None
+    themes: list[str] | None = None
+    nac: str | None = None
+    portalis: str | None = None
+    files: list[File] | None = None
+    zones: Zones | None = None
+    contested: ShortDecision | None = None
+    forward: str | dict | None = None
+    timeline: list[ShortDecision] | None = None
+    partial: bool | None = None
+    visa: list[Article] | None = None
+    rapprochements: list[Article] | None = None
+    legacy: Legacy | None = None
+
+
+class JudilibreAggregatedData(BaseModel):
+    key: dict
+    decisions_count: int
+
+
+class JudilibreStatsResults(BaseModel):
+    min_decision_date: datetime.date
+    max_decision_date: datetime.date
+    total_decisions: int
+    aggregated_data: list[JudilibreAggregatedData] = []
+
+
+class JudilibreStatsQuery(BaseModel):
+    date_start: datetime.date | None = None
+    date_end: datetime.date | None = None
+    jurisdiction: JurisdictionEnum | None = None
+    location: LocationCAEnum | LocationTJEnum | LocationTCOMEnum | None = None
+    selection: bool | None = None
+
+    keys: list[JudilibreStatsAggregationKeysEnum] | JudilibreStatsAggregationKeysEnum | None = None
+
+
+class JudilibreStats(BaseModel):
+    results: JudilibreStatsResults
+    query: JudilibreStatsQuery
 
 
 dummy_short_decision = {

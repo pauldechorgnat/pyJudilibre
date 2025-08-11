@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyjudilibre"
-version = "0.5.4"
+version = "0.5.5"
 description = "Python client for the JUDILIBRE public API"
 readme = "README.md"
 license = {file = 'LICENSE'}
@@ -51,7 +51,7 @@ include = [
 ]
 
 [tool.bumpversion]
-current_version = "0.5.4"
+current_version = "0.5.5"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"

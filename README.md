@@ -76,6 +76,12 @@ print(
 
 ```
 
+## 03.4 - Stats
+
+## 03.5 - Search
+
+## 03.6 - Export
+
 
 ## 04 - Development
 

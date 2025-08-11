@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
+from pyjudilibre import JudilibreClient
+
 load_dotenv()
 
 
@@ -17,3 +19,8 @@ JUDILIBRE_API_KEY = get_env_variable("JUDILIBRE_API_KEY")
 
 DECISION_CC_ID = "5fca9e9f7fceed9498daf2cf"
 DECISION_CA_ID = "649e75f8f84a5e05db33e6af"
+
+client = JudilibreClient(
+    judilibre_api_url=JUDILIBRE_API_URL,
+    judilibre_api_key=JUDILIBRE_API_KEY,
+)
