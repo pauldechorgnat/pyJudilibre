@@ -1,1 +1,1 @@
-from pyjudilibre.pyjudilibre import JudilibreClient  # noqa
+from pyjudilibre.pyjudilibre import JudilibreClient, __version__  # noqa

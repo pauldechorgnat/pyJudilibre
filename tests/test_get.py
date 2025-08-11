@@ -7,7 +7,11 @@ from pyjudilibre.exceptions import (
     JudilibreWrongURLError,
 )
 
-from .config import JUDILIBRE_API_KEY, JUDILIBRE_API_URL, DECISION_CC_ID
+from .config import (
+    JUDILIBRE_API_KEY,
+    JUDILIBRE_API_URL,
+    DECISION_CC_ID,
+)
 
 
 def test_get():

@@ -1,23 +1,26 @@
 #! /usr/bin/bash
 
+python -m venv venv-build
+source venv-build/bin/activate
 
+# # Building the lib
+pip install '.[build]' 
+python -m build
+twine check dist/pyjudilibre-$VERSION*
+
+# # Setting parameters
 set -o allexport
 source .env
 set +o allexport
 
-# pip install '.[dev]'
-# python -m build
-# twine check dist/*
+VERSION=$(pip show pyjudilibre | grep -i version | awk '{print $2}')
 
+# Upload on PyPI:
+twine upload \
+ --verbose \
+ --password $JUDILIBRE_PYPI_TOKEN \
+ --user '__token__' \
+ dist/pyjudilibre-$VERSION*
 
-# TestPyPI first:
-twine upload --repository-url https://test.pypi.org/legacy/ dist/* --password $JUDILIBRE_TEST_PYPI_TOKEN --user '__token__' 
-
-# Verify install in fresh venv:
-python -m venv /tmp/jcli && source /tmp/jcli/bin/activate
-pip install -i https://test.pypi.org/simple/ pyjudilibre
-python -c "from pyjudilibre import JudilibreClient; print('ok', Client)"
-
-
-# Push to PyPI
-twine upload --repository-url https://test.pypi.org/legacy/ dist/* --password $JUDILIBRE_PYPI_TOKEN --user '__token__' 
+deactivate
+rm -r venv-build

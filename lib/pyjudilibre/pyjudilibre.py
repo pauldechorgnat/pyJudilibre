@@ -17,7 +17,7 @@ from pyjudilibre.models import (
 
 from httpx import Client
 
-__version__ = "0.5.0"
+__version__ = "0.5.4"
 
 
 def catch_response(response: requests.Response) -> requests.Response:
