@@ -1,6 +1,7 @@
 #! /usr/bin/bash
 source venv/bin/activate
-pip install -e ./lib --config-settings editable_mode=strict --no-deps
+echo "Installing latest version of the library"
+pip install -e . --no-deps -q
 
 test_files=${1:tests}
 echo Testing $test_files

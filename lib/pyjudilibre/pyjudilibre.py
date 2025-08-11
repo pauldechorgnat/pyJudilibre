@@ -83,7 +83,7 @@ class JudilibreClient:
 
         return response  # type: ignore
 
-    def get(
+    def decision(
         self,
         decision_id: str,
     ) -> JudilibreDecision:

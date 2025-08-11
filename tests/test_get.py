@@ -22,7 +22,7 @@ def test_get():
         judilibre_api_key=JUDILIBRE_API_KEY,
     )
 
-    decision = client.get(decision_id=decision_id)
+    decision = client.decision(decision_id=decision_id)
 
     assert decision.id == decision_id
 
@@ -36,7 +36,7 @@ def test_get_wrong_id():
     )
 
     with pytest.raises(JudilibreDecisionNotFoundError):
-        client.get(decision_id=decision_id)
+        client.decision(decision_id=decision_id)
 
 
 def test_get_wrong_url():
@@ -48,7 +48,7 @@ def test_get_wrong_url():
     )
 
     with pytest.raises(JudilibreWrongURLError):
-        client.get(decision_id=decision_id)
+        client.decision(decision_id=decision_id)
 
 
 def test_get_wrong_credentials():
@@ -60,4 +60,4 @@ def test_get_wrong_credentials():
     )
 
     with pytest.raises(JudilibreWrongCredentialsError):
-        client.get(decision_id=decision_id)
+        client.decision(decision_id=decision_id)
