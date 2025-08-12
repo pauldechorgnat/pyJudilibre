@@ -1,14 +1,20 @@
 # API Reference
 
-## JudilibreClient
-
-
 ::: pyjudilibre.pyjudilibre.JudilibreClient
 
 
-## Enums 
+::: pyjudilibre.enums
+    options:
+      members:
+      - JurisdictionEnum
+      - LocationCAEnum
+      - LocationTJEnum
+      - LocationTCOMEnum
+
+
 ::: pyjudilibre.models
     options:
       members:
       - JudilibreDecision
       - JudilibreSearchResult
+      - JudilibreStatsResults

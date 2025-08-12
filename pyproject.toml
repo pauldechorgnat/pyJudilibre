@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyjudilibre"
-version = "0.5.12"
+version = "0.6.0"
 description = "Python client for the JUDILIBRE public API"
 readme = "README.md"
 license = {file = 'LICENSE'}
@@ -20,6 +20,9 @@ dependencies = [
 dev = [
   "isort==6.0.1",
   "ruff==0.12.8",
+  "mypy>=1.17.1",
+  "bump-my-version==1.2.1",
+  "jupyterlab==4.4.5",
 ]
 build = [
   "twine<=6.0.1",
@@ -29,10 +32,15 @@ test = [
   "pytest==8.4.1",
   "python-dotenv==1.1.1",
 ]
+doc = [
+  "mkdocs>=1.6.1",
+  "mkdocs-material>=9.6.16",
+  "mkdocstrings-python>=1.16.12",
+]
 
 [project.urls]
-Homepage = "https://github.com/yourname/pyjudilibre"
-Issues   = "https://github.com/yourname/pyjudilibre/issues"
+Homepage = "https://github.com/pauldechorgnat/pyjudilibre"
+Issues   = "https://github.com/pauldechorgnat/pyjudilibre/issues"
 
 # Tell Hatchling where your package lives
 [tool.hatch.build.targets.wheel]

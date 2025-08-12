@@ -28,7 +28,7 @@ from pyjudilibre.models import (
     JudilibreTransaction,
 )
 
-__version__ = "0.5.12"
+__version__ = "0.6.0"
 
 
 def catch_response(response: Response) -> Response:

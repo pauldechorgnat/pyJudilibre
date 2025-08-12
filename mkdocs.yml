@@ -2,9 +2,9 @@ site_name: pyJudilibre - Documentation
 nav:
   - Home: index.md
   - Get Started: installation.md
-  - PISTE set up: piste-set-up.md
-  - API Documentation: api.md
-  - About: about.md
+  - First steps: first-steps.md
+  - Credentials: piste-set-up.md
+  - API Reference: api.md
 theme:
   name: material
   logo: images/logo-white.svg
@@ -14,6 +14,8 @@ theme:
     - navigation.indexes
     - toc.integrate
     - content.code.annotate
+    - content.code.copy
+
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -41,3 +43,12 @@ plugins:
             show_source: true
             docstring_style: google
             members_order: source
+
+markdown_extensions: 
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

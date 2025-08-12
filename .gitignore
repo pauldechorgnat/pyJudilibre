@@ -13,3 +13,5 @@ examples
 dist
 
 xx_*
+.ruff_cache
+.mypy_cache

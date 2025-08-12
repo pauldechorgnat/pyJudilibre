@@ -39,6 +39,8 @@ class SourceEnum(JudilibreMultiValueEnum):
 
 
 class JurisdictionEnum(JudilibreMultiValueEnum):
+    """Enum class for the different type of jurisdiction"""
+
     cour_de_cassation = "Cour de cassation", "cc"
     cours_d_appel = "Cour d'appel", "ca"
     tribunal_judiciaire = "Tribunal judiciaire", "tj"
@@ -202,6 +204,8 @@ class JudilibreOperatorEnum(JudilibreMultiValueEnum):
 
 
 class LocationCAEnum(JudilibreMultiValueEnum):
+    """Enum class for the different cours d'appel"""
+
     ca_agen = "Cour d'appel d'Agen", "ca_agen"
     ca_aix_provence = "Cour d'appel d'Aix-en-Provence", "ca_aix_provence"
     ca_amiens = "Cour d'appel d'Amiens", "ca_amiens"
@@ -244,6 +248,8 @@ class LocationCAEnum(JudilibreMultiValueEnum):
 
 
 class LocationTJEnum(JudilibreMultiValueEnum):
+    """Enum class for the different tribunaux judiciaire"""
+
     tj_agen = "Tribunal judiciaire d'Agen", "tj47001"
     tj_aix_en_provence = "Tribunal judiciaire d'Aix-en-Provence", "tj13001"
     tj_ajaccio = "Tribunal judiciaire d'Ajaccio", "tj2a004"
@@ -382,28 +388,16 @@ class LocationTJEnum(JudilibreMultiValueEnum):
     tj_rodez = "Tribunal judiciaire de Rodez", "tj12202"
     tj_rouen = "Tribunal judiciaire de Rouen", "tj76540"
     tj_saint_brieuc = "Tribunal judiciaire de Saint-Brieuc", "tj22278"
-    tj_saint_denis_de_la_reunion = (
-        "Tribunal judiciaire de Saint-Denis de La Réunion",
-        "tj97411",
-    )
+    tj_saint_denis_de_la_reunion = "Tribunal judiciaire de Saint-Denis de La Réunion", "tj97411"
     tj_saint_etienne = "Tribunal judiciaire de Saint-Etienne", "tj42218"
     tj_saint_gaudens = "Tribunal judiciaire de Saint-Gaudens", "tj31483"
     tj_saint_malo = "Tribunal judiciaire de Saint-Malo", "tj35288"
     tj_saint_nazaire = "Tribunal judiciaire de Saint-Nazaire", "tj44184"
     tj_saint_omer = "Tribunal judiciaire de Saint-Omer", "tj62765"
-    tj_saint_pierre_de_la_reunion = (
-        "Tribunal judiciaire de Saint-Pierre de La Réunion",
-        "tj97416",
-    )
+    tj_saint_pierre_de_la_reunion = "Tribunal judiciaire de Saint-Pierre de La Réunion", "tj97416"
     tj_saint_quentin = "Tribunal judiciaire de Saint-Quentin", "tj02691"
-    tj_saint_laurent_du_maroni = (
-        "Tribunal judiciaire de Saint-Laurent-Du-Maroni (chambre détachée)",
-        "tj97311",
-    )
-    tj_saint_martin = (
-        "Tribunal judiciaire de Saint-Martin (chambre détachée)",
-        "tj97801",
-    )
+    tj_saint_laurent_du_maroni = "Tribunal judiciaire de Saint-Laurent-Du-Maroni (chambre détachée)", "tj97311"
+    tj_saint_martin = "Tribunal judiciaire de Saint-Martin (chambre détachée)", "tj97801"
     tj_sarreguemines = "Tribunal judiciaire de Sarreguemines", "tj57631"
     tj_saumur = "Tribunal judiciaire de Saumur", "tj49328"
     tj_saverne = "Tribunal judiciaire de Saverne", "tj67437"
@@ -428,13 +422,12 @@ class LocationTJEnum(JudilibreMultiValueEnum):
     tj_versailles = "Tribunal judiciaire de Versailles", "tj78646"
     tj_vesoul = "Tribunal judiciaire de Vesoul", "tj70550"
     tj_vienne = "Tribunal judiciaire de Vienne", "tj38544"
-    tj_villefranche_sur_saone = (
-        "Tribunal judiciaire de Villefranche-sur-Saône",
-        "tj69264",
-    )
+    tj_villefranche_sur_saone = "Tribunal judiciaire de Villefranche-sur-Saône", "tj69264"
 
 
 class LocationTCOMEnum(JudilibreMultiValueEnum):
+    """Enum class for the different tribunaux de commerce"""
+
     tcom_agen = "Tribunal de commerce d'Agen", "4701"
     tcom_aix_en_provence = "Tribunal de commerce d'Aix-en-Provence", "1301"
     tcom_ajaccio = "Tribunal de commerce d'Ajaccio", "2001"
@@ -552,17 +545,11 @@ class LocationTCOMEnum(JudilibreMultiValueEnum):
     tcom_romans = "Tribunal de commerce de Romans", "2602"
     tcom_rouen = "Tribunal de commerce de Rouen", "7608"
     tae_de_saint_brieuc = "Tribunal des activités économiques de Saint-Brieuc", "2202"
-    tcom_saint_denis_de_la_reunion = (
-        "Tribunal de commerce de Saint-Denis de La Réunion",
-        "9741",
-    )
+    tcom_saint_denis_de_la_reunion = "Tribunal de commerce de Saint-Denis de La Réunion", "9741"
     tcom_saint_etienne = "Tribunal de commerce de Saint-Etienne", "4202"
     tcom_saint_malo = "Tribunal de commerce de Saint-Malo", "3502"
     tcom_saint_nazaire = "Tribunal de commerce de Saint-Nazaire", "4402"
-    tcom_saint_pierre_de_la_reunion = (
-        "Tribunal de commerce de Saint-Pierre de La Réunion",
-        "9742",
-    )
+    tcom_saint_pierre_de_la_reunion = "Tribunal de commerce de Saint-Pierre de La Réunion", "9742"
     tcom_saint_quentin = "Tribunal de commerce de Saint-Quentin", "0202"
     tcom_saintes = "Tribunal de commerce de Saintes", "1708"
     tcom_salon_de_provence = "Tribunal de commerce de Salon-de-Provence", "1304"
@@ -581,7 +568,4 @@ class LocationTCOMEnum(JudilibreMultiValueEnum):
     tcom_vesoul___gray = "Tribunal de commerce de Vesoul - Gray", "7001"
     tae_de_versailles = "Tribunal des activités économiques de Versailles", "7803"
     tcom_vienne = "Tribunal de commerce de Vienne", "3802"
-    tcom_villefranche_sur_saone___tarare = (
-        "Tribunal de commerce de Villefranche-sur-Saône - Tarare",
-        "6903",
-    )
+    tcom_villefranche_sur_saone___tarare = "Tribunal de commerce de Villefranche-sur-Saône - Tarare", "6903"
