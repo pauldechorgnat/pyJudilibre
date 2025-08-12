@@ -45,5 +45,4 @@ include = [
   "README.md",
   "LICENSE",
   "lib/pyjudilibre",
-  "tests",
 ]
