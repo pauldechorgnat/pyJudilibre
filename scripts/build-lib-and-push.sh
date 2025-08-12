@@ -5,15 +5,15 @@ source venv-build/bin/activate
 
 # # Building the lib
 pip install '.[build]' 
+VERSION=$(pip show pyjudilibre | awk '/^Version:/{print $2}')
 python -m build
-twine check dist/pyjudilibre-$VERSION*
+twine check dist/pyjudilibre-${VERSION}*
 
 # # Setting parameters
 set -o allexport
 source .env
 set +o allexport
 
-VERSION=$(pip show pyjudilibre | grep -i version | awk '{print $2}')
 
 # Upload on PyPI:
 twine upload \

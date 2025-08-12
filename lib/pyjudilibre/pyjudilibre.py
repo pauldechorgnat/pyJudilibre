@@ -25,7 +25,7 @@ from pyjudilibre.models import (
     JudilibreStats,
 )
 
-__version__ = "0.5.6"
+__version__ = "0.5.8"
 
 
 def catch_response(response: requests.Response) -> requests.Response:
@@ -275,7 +275,6 @@ class JudilibreClient:
         n_results = 0
 
         while next_page:
-            print(page_number)
             params["page"] = page_number
 
             response = self._query(
@@ -391,8 +390,6 @@ class JudilibreClient:
             url="/taxonomy",
             params=params,
         )
-        print(f"{response.status_code=}")
-        print(f"{response.content=}")
 
         response_data = response.json()
 
