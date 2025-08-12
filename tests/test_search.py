@@ -4,7 +4,11 @@ import pytest
 from pyjudilibre.enums import JurisdictionEnum
 from pyjudilibre.models import JudilibreSearchResult
 
-from .config import client
+from .config import (
+    client,
+    JURISDICTIONS,
+    LOCATIONS,
+)
 
 
 def test_search():
@@ -27,7 +31,7 @@ def test_search():
 
 @pytest.mark.parametrize(
     "jurisdiction",
-    [r for r in JurisdictionEnum],
+    JURISDICTIONS,
 )
 def test_search_jurisdiction(jurisdiction):
     total, results = client.search(
@@ -43,6 +47,46 @@ def test_search_jurisdiction(jurisdiction):
     for r in results:
         assert isinstance(r, JudilibreSearchResult)
         assert r.jurisdiction == jurisdiction
+
+
+@pytest.mark.parametrize(
+    "jurisdiction,location",
+    zip(JURISDICTIONS[1:], LOCATIONS),
+)
+def test_search_location(jurisdiction, location):
+    total, results = client.search(
+        query="peuple",
+        jurisdictions=[jurisdiction],
+        locations=[location],
+        page_number=0,
+        page_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreSearchResult)
+        assert r.jurisdiction == jurisdiction
+        assert r.location == location
+
+
+@pytest.mark.skip("L'erreur semble venir de l'API")
+def test_search_selection():
+    total, results = client.search(
+        query="peuple",
+        selection=True,
+        page_number=0,
+        page_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreSearchResult)
+        selection = r.particularInterest
+        assert selection
 
 
 def test_search_min_date():

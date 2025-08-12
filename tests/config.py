@@ -2,6 +2,12 @@ import os
 
 from dotenv import load_dotenv
 from pyjudilibre import JudilibreClient
+from pyjudilibre.enums import (
+    JurisdictionEnum,
+    LocationCAEnum,
+    LocationTJEnum,
+    LocationTCOMEnum,
+)
 
 load_dotenv()
 
@@ -23,3 +29,15 @@ client = JudilibreClient(
     judilibre_api_url=JUDILIBRE_API_URL,
     judilibre_api_key=JUDILIBRE_API_KEY,
 )
+
+JURISDICTIONS = [
+    JurisdictionEnum.cour_de_cassation,
+    JurisdictionEnum.cours_d_appel,
+    JurisdictionEnum.tribunal_judiciaire,
+    JurisdictionEnum.tribunal_de_commerce,
+]
+LOCATIONS = [
+    LocationCAEnum.ca_paris,
+    LocationTJEnum.tj_paris,
+    LocationTCOMEnum.tae_de_paris,
+]

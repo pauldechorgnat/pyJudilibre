@@ -4,7 +4,11 @@ import pytest
 from pyjudilibre.enums import JurisdictionEnum
 from pyjudilibre.models import JudilibreDecision
 
-from .config import client
+from .config import (
+    client,
+    JURISDICTIONS,
+    LOCATIONS,
+)
 
 
 def test_export():
@@ -22,7 +26,7 @@ def test_export():
 
 @pytest.mark.parametrize(
     "jurisdiction",
-    [r for r in JurisdictionEnum],  # type: ignore
+    JURISDICTIONS,
 )
 def test_export_jurisdiction(jurisdiction):
     total, results = client.export(
@@ -37,6 +41,44 @@ def test_export_jurisdiction(jurisdiction):
     for r in results:
         assert isinstance(r, JudilibreDecision)
         assert r.jurisdiction == jurisdiction
+
+
+@pytest.mark.parametrize(
+    "jurisdiction,location",
+    zip(JURISDICTIONS[1:], LOCATIONS),
+)
+def test_export_location(jurisdiction, location):
+    total, results = client.export(
+        jurisdictions=[jurisdiction],
+        locations=[location],
+        batch_number=0,
+        batch_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreDecision)
+        assert r.jurisdiction == jurisdiction
+        assert r.location == location
+
+
+@pytest.mark.skip("L'erreur semble venir de l'API")
+def test_export_selection():
+    total, results = client.export(
+        selection=True,
+        batch_number=0,
+        batch_size=9,
+    )
+
+    n_results = len(results)
+
+    assert n_results == 9
+    for r in results:
+        assert isinstance(r, JudilibreDecision)
+        selection = r.particularInterest
+        assert selection
 
 
 def test_export_min_date():

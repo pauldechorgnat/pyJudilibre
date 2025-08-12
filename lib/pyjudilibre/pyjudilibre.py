@@ -11,6 +11,7 @@ from pyjudilibre.enums import (
     JurisdictionEnum,
     LocationCAEnum,
     LocationTJEnum,
+    LocationTCOMEnum,
     replace_enums_in_dictionary,
 )
 from pyjudilibre.exceptions import (
@@ -144,7 +145,7 @@ class JudilibreClient:
         self,
         *,
         keys: list[JudilibreStatsAggregationKeysEnum] | None = None,
-        location: list[LocationCAEnum | LocationTJEnum] | None = None,
+        location: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
         jurisdictions: list[JurisdictionEnum] | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
@@ -171,6 +172,8 @@ class JudilibreClient:
         batch_size: int = 10,
         *,
         jurisdictions: list[JurisdictionEnum] | None = None,
+        locations: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
+        selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
         date_type: str | None = "creation",
@@ -178,8 +181,9 @@ class JudilibreClient:
     ) -> tuple[int, list[JudilibreDecision]]:
         params = {}
 
-        # adding more parameters
         params = {
+            **({"selection": selection} if selection else {}),
+            **({"location": locations} if locations else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **({"date_start": date_start} if date_start else {}),
             **({"date_end": date_end} if date_end else {}),
@@ -206,21 +210,25 @@ class JudilibreClient:
         page_number: int = 0,
         *,
         operator: str | None = None,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        locations: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
+        selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        jurisdictions: list[JurisdictionEnum] | None = None,
         **kwargs,
     ) -> tuple[int, list[JudilibreSearchResult]]:
         params = {
-            "query": query,
-            "page_size": page_size,
-            "page": page_number,
-            "resolve_references": True,
+            **({"selection": selection} if selection else {}),
+            **({"location": locations} if locations else {}),
             **({"date_start": date_start} if date_start else {}),
             **({"date_end": date_end} if date_end else {}),
             **({"operator": operator} if operator else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **kwargs,
+            "query": query,
+            "page_size": page_size,
+            "page": page_number,
+            "resolve_references": True,
         }
 
         response = self._query(
@@ -237,10 +245,12 @@ class JudilibreClient:
         query: str,
         max_results: int | None = None,
         *,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        locations: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
+        selection: bool | None = None,
         operator: str | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        jurisdictions: list[JurisdictionEnum] | None = None,
         **kwargs,
     ) -> list[JudilibreSearchResult]:
         page_size = 25
@@ -248,15 +258,17 @@ class JudilibreClient:
         next_page = True
 
         params = {
-            "query": query,
-            "page_size": page_size,
-            "page": page_number,
-            "resolve_references": True,
+            **({"selection": selection} if selection else {}),
+            **({"location": locations} if locations else {}),
             **({"date_start": date_start} if date_start else {}),
             **({"date_end": date_end} if date_end else {}),
             **({"operator": operator} if operator else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **kwargs,
+            "query": query,
+            "page_size": page_size,
+            "page": page_number,
+            "resolve_references": True,
         }
 
         results = []
@@ -295,6 +307,8 @@ class JudilibreClient:
         max_results: int | None = None,
         *,
         jurisdictions: list[JurisdictionEnum] | None = None,
+        locations: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
+        selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
         date_type: str | None = "creation",
@@ -305,13 +319,15 @@ class JudilibreClient:
         next_batch = True
 
         params = {
-            "batch_size": batch_size,
-            "batch": batch_number,
-            "resolve_references": True,
+            **({"selection": selection} if selection else {}),
+            **({"location": locations} if locations else {}),
+            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **({"date_start": date_start} if date_start else {}),
             **({"date_end": date_end} if date_end else {}),
             **({"date_type": date_type} if date_type else {}),
-            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            "resolve_references": True,
+            "batch": batch_number,
+            "batch_size": batch_size,
             **kwargs,
         }
 
