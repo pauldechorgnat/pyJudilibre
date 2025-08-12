@@ -2,9 +2,9 @@
 
 `pyJudilibre` is a small Python wrapper to query the `JUDILIBRE` API from the French Supreme Court, la Cour de cassation. `JUDILIBRE` aims to give access to judiciary decisions.
 
-<center>
+<div style="align=center">
 <img src="/docs/images/logo-white.svg" alt="Logo de pyjudilibre ?" width="200"/>
-</center>
+</div>
 
 ## Documentation
 
