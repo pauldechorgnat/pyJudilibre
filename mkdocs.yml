@@ -1,0 +1,43 @@
+site_name: pyJudilibre - Documentation
+nav:
+  - Home: index.md
+  - Get Started: installation.md
+  - PISTE set up: piste-set-up.md
+  - API Documentation: api.md
+  - About: about.md
+theme:
+  name: material
+  logo: images/logo-white.svg
+  favicon: images/logo-red.svg
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - toc.integrate
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Passer au mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Passer au mode clair
+
+extra_css:
+  - stylesheets/extra.css
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            docstring_style: google
+            members_order: source

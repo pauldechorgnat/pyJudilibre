@@ -39,11 +39,11 @@ set +o allexport
 
 # TestPyPI upload
 twine upload \
+  --verbose \
   --password "$JUDILIBRE_TEST_PYPI_TOKEN" \
   --user '__token__' \
   --repository-url https://test.pypi.org/legacy/ \
   "dist/pyjudilibre-${VERSION}-"*
-#  --verbose \
 
 # Removing building virtual environment
 deactivate
@@ -65,7 +65,7 @@ retry "$RETRIES" "$SLEEP" pip install \
 
 python -c "from pyjudilibre import JudilibreClient; print('ok', JudilibreClient)"
 
-pip install pytest
+pip install pytest==8.4.1 python-dotenv==1.1.1
 python -m pytest tests
 
 # Removing testing virtual environment

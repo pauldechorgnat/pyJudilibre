@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyjudilibre"
-version = "0.5.10"
+version = "0.5.12"
 description = "Python client for the JUDILIBRE public API"
 readme = "README.md"
 license = {file = 'LICENSE'}
@@ -13,9 +13,7 @@ requires-python = ">=3.9"
 authors = [{ name = "Paul", email = "you@example.com" }]
 dependencies = [
   "pydantic>=2.10.2", 
-  "requests==2.31.0", 
   "httpx==0.28.1",
-  "python-dotenv==1.1.1",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +27,7 @@ build = [
 ]
 test = [
   "pytest==8.4.1",
+  "python-dotenv==1.1.1",
 ]
 
 [project.urls]

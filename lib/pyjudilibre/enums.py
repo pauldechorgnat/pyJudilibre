@@ -45,7 +45,7 @@ class JurisdictionEnum(JudilibreMultiValueEnum):
     tribunal_de_commerce = "Tribunal de commerce", "tcom"
 
 
-class SolutionEnum(JudilibreMultiValueEnum):
+class SolutionCCEnum(JudilibreMultiValueEnum):
     cassation = "Cassation", "cassation"
     rejet = "Rejet", "rejet"
     annulation = "Annulation", "annulation"
@@ -62,7 +62,7 @@ class SolutionEnum(JudilibreMultiValueEnum):
     other = "Autre", "other"
 
 
-class ChamberEnum(JudilibreMultiValueEnum):
+class ChamberCCEnum(JudilibreMultiValueEnum):
     assemblee_pleniere = "Assemblée plénière", "pl"
     chamber_mixte = "Chambre mixte", "mi"
     premiere_chambre_civile = "Première chambre civile", "civ1"
@@ -77,7 +77,7 @@ class ChamberEnum(JudilibreMultiValueEnum):
     autres = "Autre", "other"
 
 
-class FormationEnum(JudilibreMultiValueEnum):
+class FormationCCEnum(JudilibreMultiValueEnum):
     formation_pleniere_chambre = "Formation plénière de chambre", "fp"
     formation_mixte = "Formation mixte", "fm"
     formation_section = "Formation de section", "fs"
@@ -86,7 +86,7 @@ class FormationEnum(JudilibreMultiValueEnum):
     formation_restreinte_rnsm_na = "Formation restreinte RNSM/NA", "frr"
 
 
-class PublicationEnum(JudilibreMultiValueEnum):
+class PublicationCCEnum(JudilibreMultiValueEnum):
     bulletin = "Publié au Bulletin", "b"
     rapport = "Publié au Rapport", "r"
     lettre_de_chambre = "Publié aux Lettres de chambre", "l"
@@ -94,18 +94,18 @@ class PublicationEnum(JudilibreMultiValueEnum):
     non_publie = "Non publié", "n"
 
 
-class SearchOrderFieldEnum(JudilibreMultiValueEnum):
-    par_score = "Par pertinence", "score"
-    par_score_et_publication = "Par pertinence et niveau de publication", "scorepub"
-    par_date = "Par date", "date"
-
-
-class DecisionTypeEnum(JudilibreMultiValueEnum):
+class DecisionTypeCCEnum(JudilibreMultiValueEnum):
     arret = "Arrêt", "arret"
     demande_avis = "Demande d'avis", "avis"
     qpc = "Question prioritaire de constitutionnalité (QPC)", "qpc"
     ordonnance = "Ordonnance", "ordonnance"
     saisie = "Saisie", "saisie"
+    other = "Autre", "other"
+
+
+class DecisionTypeCAEnum(JudilibreMultiValueEnum):
+    arret = "Arrêt", "arret"
+    ordonnance = "Ordonnance", "ordonnance"
     other = "Autre", "other"
 
 
@@ -124,27 +124,81 @@ class JudilibreStatsAggregationKeysEnum(JudilibreMultiValueEnum):
     publication = "publication"
 
 
+class JudilibreOrderEnum(JudilibreMultiValueEnum):
+    par_score = "Par pertinence", "score"
+    par_score_et_publication = "Par pertinence et niveau de publication", "scorepub"
+    par_date = "Par date", "date"
+
+
+class JudilibreSortEnum(JudilibreMultiValueEnum):
+    asc = "Croissant", "asc"
+    desc = "Décroissant", "desc"
+
+
+class JudilibreFieldEnum(JudilibreMultiValueEnum):
+    themes = "Titre", "themes"
+    text = "Texte entier", "text"
+    introduction = "Entête", "introduction"
+    expose = "Exposé du litige", "expose"
+    moyens = "Moyens", "moyens"
+    motivations = "Motivation", "motivations"
+    dispositif = "Dispositif", "dispositif"
+    annexes = "Moyens annexés", "annexes"
+    visa = "Textes appliqués", "visa"
+    summary = "Sommaire", "summary"
+
+
+class JudilibreFileTypeEnum(JudilibreMultiValueEnum):
+    prep_rapp = "Rapport du conseiller", "prep_rapp"
+    prep_raco = "Rapport complémentaire du conseiller", "prep_raco"
+    prep_avpg = "Avis du procureur général", "prep_avpg"
+    prep_avis = "Avis de l’avocat général", "prep_avis"
+    prep_oral = "Avis oral de l’avocat général", "prep_oral"
+    comm_comm = "Communiqué", "comm_comm"
+    comm_note = "Note explicative", "comm_note"
+    comm_nora = "Notice au rapport annuel", "comm_nora"
+    comm_lett = "Lettre de chambre", "comm_lett"
+    comm_trad = "Arrêt traduit", "comm_trad"
+
+
 class JudilibreTaxonEnum(JudilibreMultiValueEnum):
-    chamber = "chamber"
-    date_type = "date_type"
-    field = "field"
-    filetype = "filetype"
-    formation = "formation"
     jurisdiction = "jurisdiction"
-    location = "location"
-    operator = "operator"
-    order = "order"
+
+    # cour de cassation specific taxons
+    chamber = "chamber"
+    formation = "formation"
     publication = "publication"
     solution = "solution"
-    sort = "sort"
+    decision_type = "type"
+
+    # other court specific taxons
+    location = "location"
     theme = "theme"
-    type = "type"
+
+    # technical taxons
+    text_query_field = "field"
+    file_type = "filetype"
+    date_type = "date_type"
+    sort_order = "sort"
+    query_operator = "operator"
+    sort_variable = "order"
 
 
 class JudilibreTransactionActionEnum(JudilibreMultiValueEnum):
     created = "created"
     updated = "updated"
     deleted = "deleted"
+
+
+class JudilibreDateTypeEnum(JudilibreMultiValueEnum):
+    creation = "Date de création", "creation"
+    update = "Date de mise à jour", "update"
+
+
+class JudilibreOperatorEnum(JudilibreMultiValueEnum):
+    or_operator = "Ou", "or"
+    and_operator = "Et", "and"
+    exact_operator = "Expression exacte", "exact"
 
 
 class LocationCAEnum(JudilibreMultiValueEnum):
