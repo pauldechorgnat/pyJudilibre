@@ -6,6 +6,7 @@ import requests
 from httpx import Client
 from pyjudilibre.decorators import catch_wrong_url_error
 from pyjudilibre.enums import (
+    JudilibreTaxonEnum,
     JudilibreStatsAggregationKeysEnum,
     JurisdictionEnum,
     LocationCAEnum,
@@ -15,6 +16,7 @@ from pyjudilibre.enums import (
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
     JudilibreWrongCredentialsError,
+    JudilibreResourceNotFoundError,
 )
 from pyjudilibre.models import (
     JudilibreDecision,
@@ -33,7 +35,8 @@ def catch_response(response: requests.Response) -> requests.Response:
             ',error_description="Unable to find token in the message"'
         ):
             raise JudilibreWrongCredentialsError("Credentials are not valid.")
-
+    if response.status_code == 404:
+        raise JudilibreResourceNotFoundError("Resource is not found")
     return response
 
 
@@ -108,13 +111,14 @@ class JudilibreClient:
             "id": decision_id,
             "resolve_references": True,
         }
-        response = self._query(
-            method="GET",
-            url="/decision",
-            params=params,
-        )
-        if response.status_code == 404:
-            raise JudilibreDecisionNotFoundError(f"decision with ID {decision_id} not Found")
+        try:
+            response = self._query(
+                method="GET",
+                url="/decision",
+                params=params,
+            )
+        except JudilibreResourceNotFoundError as exc:
+            raise JudilibreDecisionNotFoundError(f"decision with ID {decision_id} not Found") from exc
 
         return JudilibreDecision(**response.json())
 
@@ -347,3 +351,42 @@ class JudilibreClient:
         if params is None:
             return {}
         return replace_enums_in_dictionary(params)  # type: ignore
+
+    def taxonomy(
+        self,
+        taxon_id: JudilibreTaxonEnum,
+        context: JurisdictionEnum,
+        *,
+        taxon_key: str | None = None,
+        taxon_value: str | None = None,
+    ) -> dict[str, str]:
+        if (taxon_key is not None) and (taxon_value is not None):
+            raise ValueError("At least one of taxon_key or taxon_value must be None")
+
+        params = {
+            "id": JudilibreTaxonEnum(taxon_id),
+            "context_value": JurisdictionEnum(context),
+            **({"key": taxon_key} if taxon_key else {}),
+            **({"value": taxon_value} if taxon_value else {}),
+        }
+
+        response = self._query(
+            method="GET",
+            url="/taxonomy",
+            params=params,
+        )
+        print(f"{response.status_code=}")
+        print(f"{response.content=}")
+
+        response_data = response.json()
+
+        taxons: dict[str, str] = {}
+
+        if taxon_key is not None:
+            taxons[taxon_key] = response_data["result"]["value"]
+        elif taxon_value is not None:
+            taxons[response_data["result"]["key"]] = taxon_value
+        else:
+            taxons = response_data["result"]
+
+        return taxons

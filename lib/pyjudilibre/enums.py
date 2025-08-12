@@ -151,6 +151,23 @@ class JudilibreStatsAggregationKeysEnum(
     publication = "publication"
 
 
+class JudilibreTaxonEnum(JudilibreMultiValueEnum):
+    chamber = "chamber"
+    date_type = "date_type"
+    field = "field"
+    filetype = "filetype"
+    formation = "formation"
+    jurisdiction = "jurisdiction"
+    location = "location"
+    operator = "operator"
+    order = "order"
+    publication = "publication"
+    solution = "solution"
+    sort = "sort"
+    theme = "theme"
+    type = "type"
+
+
 class LocationCAEnum(
     JudilibreMultiValueEnum,
     # metaclass=JudilibreEnumMeta,

@@ -20,3 +20,7 @@ class JudilibreValueWarning(Warning):
 
 class JudilibreValueError(ValueError):
     pass
+
+
+class JudilibreResourceNotFoundError(Exception):
+    pass
