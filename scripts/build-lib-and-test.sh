@@ -35,8 +35,9 @@ source venv-test/bin/activate
 pip install \
  --index-url https://test.pypi.org/simple/ \
  --extra-index-url https://pypi.org/simple \
- --no-cache-dir "pyjudilibre[test]==$VERSION"
+ --no-cache-dir "pyjudilibre==$VERSION"
 python -c "from pyjudilibre import JudilibreClient; print('ok', JudilibreClient)"
+pip install .[test]
 python -m pytest tests
 
 # cleaning
