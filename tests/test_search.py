@@ -160,7 +160,7 @@ def test_search_both_dates():
         assert (r.decision_date < max_date) and (r.decision_date >= min_date)
 
 
-def test_search_paginate():
+def test_paginate_search():
     query = "Uber"
     operator = "and"
     jurisdictions = [JurisdictionEnum.cour_de_cassation]
@@ -172,7 +172,7 @@ def test_search_paginate():
         page_size=1,
     )
 
-    results_paginate_search = client.search_paginate(
+    results_paginate_search = client.paginate_search(
         query=query,
         operator=operator,
         jurisdictions=jurisdictions,
@@ -187,10 +187,10 @@ def test_search_paginate():
         assert isinstance(r, JudilibreSearchResult)
 
 
-def test_search_paginate_with_max_results():
+def test_paginate_search_with_max_results():
     max_results = 10
 
-    decisions = client.search_paginate(
+    decisions = client.paginate_search(
         query="peuple",
         max_results=max_results,
     )

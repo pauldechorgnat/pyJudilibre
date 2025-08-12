@@ -149,7 +149,7 @@ def test_export_both_dates():
         assert (r.decision_date < max_date) and (r.decision_date >= min_date)
 
 
-def test_export_paginate():
+def test_paginate_export():
     jurisdictions = [JurisdictionEnum.cour_de_cassation]
     min_date = datetime.date(
         year=2020,
@@ -171,7 +171,7 @@ def test_export_paginate():
         page_size=1,
     )
 
-    decisions_paginate = client.export_paginate(
+    decisions_paginate = client.paginate_export(
         jurisdictions=jurisdictions,
         date_start=min_date,
         date_end=max_date,
@@ -186,10 +186,10 @@ def test_export_paginate():
         assert isinstance(r, JudilibreDecision)
 
 
-def test_export_paginate_with_max_results():
+def test_paginate_export_with_max_results():
     max_results = 10
 
-    decisions = client.export_paginate(
+    decisions = client.paginate_export(
         max_results=max_results,
     )
 

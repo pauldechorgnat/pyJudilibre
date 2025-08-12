@@ -12,7 +12,7 @@ def test_transactionalhistory():
         day=1,
         tzinfo=datetime.timezone.utc,
     )
-    total, transactions, _ = client.transactionalhistory(
+    total, transactions, _ = client.transactional_history(
         date_start=start_date,
         page_size=11,
     )
@@ -33,12 +33,12 @@ def test_transactionalhistory_from_id():
         day=1,
         tzinfo=datetime.timezone.utc,
     )
-    total1, transactions1, from_id = client.transactionalhistory(
+    total1, transactions1, from_id = client.transactional_history(
         date_start=start_date,
         page_size=11,
     )
 
-    total2, transactions2, _ = client.transactionalhistory(
+    total2, transactions2, _ = client.transactional_history(
         date_start=start_date,
         page_size=22,
         from_id=from_id,
@@ -54,3 +54,24 @@ def test_transactionalhistory_from_id():
         assert isinstance(t, JudilibreTransaction)
         assert t.date >= start_date
         assert t.date >= transactions1[-1].date
+
+
+def test_paginate_transactional_history():
+    start_date = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=3)
+
+    # getting the total number of transactions
+    total, _, _ = client.transactional_history(
+        date_start=start_date,
+        page_size=10,
+    )
+
+    # paginating
+    transactions = client.paginate_transactional_history(date_start=start_date)
+
+    n_transactions = len(transactions)
+
+    assert total == n_transactions
+
+    for t in transactions:
+        assert isinstance(t, JudilibreTransaction)
+        assert t.date >= start_date

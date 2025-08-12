@@ -27,7 +27,7 @@ from pyjudilibre.models import (
     JudilibreTransaction,
 )
 
-__version__ = "0.5.9"
+__version__ = "0.5.10"
 
 
 def catch_response(response: requests.Response) -> requests.Response:
@@ -248,7 +248,7 @@ class JudilibreClient:
             [JudilibreSearchResult(**r) for r in response_data["results"]],
         )
 
-    def search_paginate(
+    def paginate_search(
         self,
         query: str,
         max_results: int | None = None,
@@ -309,7 +309,7 @@ class JudilibreClient:
             return results[:max_results]
         return results
 
-    def export_paginate(
+    def paginate_export(
         self,
         max_results: int | None = None,
         *,
@@ -412,13 +412,29 @@ class JudilibreClient:
 
         return taxons
 
-    def transactionalhistory(
+    def transactional_history(
         self,
         date_start: datetime.date,
         *,
         page_size: int = 25,
         from_id: str | None = None,
-    ) -> tuple[int, list[JudilibreTransaction], str]:
+    ) -> tuple[int, list[JudilibreTransaction], str | None]:
+        """Returns the list of transactions after a given date
+
+        Args:
+            date_start (datetime.date): mininmal date for the transactions
+            page_size (int, optional): Number of results to return at once.
+                Defaults to 25.
+            from_id (str | None, optional): ID of the previous query to paginate results.
+                Defaults to None.
+
+        Returns:
+            tuple[int, list[JudilibreTransaction], str]: (
+                - total number of transactions after `start_date`
+                - list of transactions
+                - ID of the query to paginate results
+            )
+        """
         params = {
             "date": date_start,
             "page_size": page_size,
@@ -433,16 +449,53 @@ class JudilibreClient:
 
         response_data = response.json()
         total_transactions = response_data["total"]
-        next_from_id: str = parse_qs(response_data["next_page"])["from_id"][0]
+        next_from_id: str = parse_qs(response_data["next_page"]).get("from_id", [None])[0]
         transactions = [JudilibreTransaction(**t) for t in response_data["transactions"]]
-
-        # if response.status_code != 200:
-        # print(f"{response_data.keys()=}")
-        # print(f"{response_data['next_page']=}")
-        # print(f"{response_data['query_date']=}")
 
         return (
             total_transactions,
             transactions,
             next_from_id,
         )
+
+    def paginate_transactional_history(
+        self,
+        date_start: datetime.datetime,
+        *,
+        max_results: int | None = None,
+    ) -> list[JudilibreTransaction]:
+        page_size = 500
+
+        _, transactions, from_id = self.transactional_history(
+            date_start=date_start,
+            page_size=page_size,
+        )
+        n_transactions = len(transactions)
+
+        def end_condition(
+            from_id,
+            max_results,
+            n_transactions,
+        ):
+            if from_id is None:
+                return True
+            if max_results is None:
+                return False
+            if n_transactions >= max_results:
+                return True
+
+        while not end_condition(
+            from_id=from_id,
+            max_results=max_results,
+            n_transactions=n_transactions,
+        ):
+            _, tmp_transactions, from_id = self.transactional_history(
+                date_start=date_start,
+                from_id=from_id,
+            )
+            n_transactions += len(tmp_transactions)
+            transactions += tmp_transactions
+
+        transactions = transactions[:max_results]
+
+        return transactions

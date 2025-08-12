@@ -27,7 +27,7 @@ jurisdictions = [
 
 @pytest.fixture(scope="module")
 def decisions() -> list[JudilibreDecision]:
-    return client.export_paginate(
+    return client.paginate_export(
         jurisdictions=jurisdictions,
         date_start=min_date,
         date_end=max_date,

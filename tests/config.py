@@ -1,3 +1,4 @@
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -28,6 +29,7 @@ DECISION_CA_ID = "649e75f8f84a5e05db33e6af"
 client = JudilibreClient(
     judilibre_api_url=JUDILIBRE_API_URL,
     judilibre_api_key=JUDILIBRE_API_KEY,
+    logging_level=logging.DEBUG,
 )
 
 JURISDICTIONS = [
