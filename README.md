@@ -1,97 +1,82 @@
 # pyJudilibre
 
-pyJudilibre` is a small Python wrapper to query the `JUDILIBRE` API from the French Supreme Court, la Cour de cassation. `JUDILIBRE` aims to give access to judiciary decisions.
+`pyJudilibre` is a small Python wrapper to query the `JUDILIBRE` API from the French Supreme Court, la Cour de cassation. `JUDILIBRE` aims to give access to judiciary decisions.
 
-## 01 - Requirements
 
-In order to use this library, you need credentials from [https://piste.gouv.fr/](https://piste.gouv.fr/). You can find tutorials [here](https://github.com/cour-de-cassation/judilibre-tutoriels) on how to get them.
+<img src="/docs/images/logo-white.svg" alt="Logo de pyjudilibre ?" width="50"/>
 
-## 02 - Installation
+## Documentation
 
-To install `pyJudilibre`, you can use `pip`: 
+The documentation is [here](https://pyjudilibre.readthedocs.io/en/latest/).
+
+
+## Requirements
+
+This library relies on `pydantic` and `httpx` to perform queries to JUDILIBRE and to validate inputs and outputs.
+You also need credentials from [PISTE](https://piste.gouv.fr).
+
+## Installation
+
+You can install it from `pyjudilibre`.
 
 ```sh
 pip install pyjudilibre
 ```
 
-It has three different extras:
-- `[dev]` with development libraries
-- `[test]` with test libraries
-- `[build]` with build libraries
+## Simple usage
 
-## 03 - Usage
-
-The main class of this library is `JudilibreClient`. It serves as an interface for the whole API.
-It has the following methods:
-
-- `healthcheck`: returns the availability of the API
-- `decision`: returns a decision based on its ID
-- `search`: returns a list of search results based on a plain text search
-- `export`: returns a list of decisions
-- `stats`: returns aggregated data
-- `transaction_history`: @TODO
-- `scan`: @TODO
-
-
-
-### 03.1 - Client initialization
-
-To instantiate `JudilibreClient`, you need to pass the URL of the API and the key of the API:
+To instantiate the main class, `JudilibreClient`, you need to use your JUDILIBRE API key (see [here](https://pyjudilibre.readthedocs.io/en/latest/piste-set-up/)).
 
 ```python
-
+import logging
 from pyjudilibre import JudilibreClient
 
+JUDILIBRE_API_KEY = "***"
 client = JudilibreClient(
-    judilibre_api_url=JUDILIBRE_API_URL,
-    judilibre_api_url=JUDILIBRE_API_KEY,
+    judilibre_api_key=JUDILIBRE_API_KEY,
+    logging_level=logging.DEBUG,
 )
-
 ```
 
-### 03.2 - Healthcheck
-
-The `.healthcheck` method queries the `GET /healthcheck`. This method will return `True` if the API is available or `False` if not.
+To get a decision, you need to provide its ID: 
 
 ```python
-
-healthcheck: bool = client.healthcheck()
-print(healthchek)
-
-```
-
-## 03.3 - Decision
-
-The main endpoint of the API, `GET /decision` is available through the `.decision` method. It returns a [`JudilibreDecision`](/lib/pyjudilibre/models.py) if a decision ID is provided:
-
-```python
-
-DECISION_ID = "5fca9e9f7fceed9498daf2cf"
-
+DECISION_ID = "667e51a56430c94f3afa7d0e"
 decision = client.decision(decision_id=DECISION_ID)
-print(
-    decision.jurisdiction,
-    decision.date_decision,
-)
-
 ```
 
-## 03.4 - Stats
+## Description of the source code
 
-## 03.5 - Search
+The code of the library is in [lib/pyjudilibre](/lib/pyjudilibre/):
 
-## 03.6 - Export
+- the main class and its method are in `pyjudilibre.py`
+- the enums are in `enums.py`
+- the pydantic models are in `models.py`
+- spectific exceptions are defined in `exceptions.py`
+- `decorators.py` contains one decorator
 
+Other folders are as follow:
+- [tests](/tests) contains unit tests.
+- [docs](/docs) contains documentation files.
+- [scripts](/scripts/) contains useful scripts to develop the library
 
-## 04 - Development
+## Development setup
 
-To work on the library, you can use a virtual environment and install all the extras:
+To set up a development environment, you should create a virtual environment named `venv`:
 
 ```sh
-git clone https://github.com/pauldechorgnat/pyJudilibre.git
-cd pyJudilibre
-
 python3 -m venv venv
-pip install .[dev,test,build]
+source venv/bin/activate
+
+pip install '.[dev,build,doc,test]'
 ```
 
+In `scripts`, you can use:
+
+- [refresh-lib.sh](/scripts/refresh-lib.sh): To reinstall the latest local version of the library
+- [check-files.sh](/scripts/check-files.sh): To run `isort`, `ruff` and `mypy` on the files
+- [run-doc-server.sh](/scripts/run-doc-server.sh): To serve the doc on a live local server
+- [run-lib-tests.sh](/scripts/run-lib-tests.sh): To run every unit test
+- [bump-version.sh](/scripts/bump-version.sh): To bump versions in `pyproject.toml`, in the library files and in the documentation files.
+- [build-and-test.sh](/scripts/build-and-test.sh): To build the library, push it to [Test-PyPI](https://test.pypi.org/project/pyjudilibre/), pull it in a test environment and run tests.
+- [build-and-push.sh](/scripts/build-and-push.sh): To build the library, push it to [PyPI](https://pypi.org/project/pyjudilibre/).
