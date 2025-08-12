@@ -1,7 +1,6 @@
 import os
 
 from dotenv import load_dotenv
-
 from pyjudilibre import JudilibreClient
 
 load_dotenv()

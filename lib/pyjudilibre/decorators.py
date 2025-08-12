@@ -1,9 +1,8 @@
 import functools
 from typing import Callable
 
-
-from pyjudilibre.exceptions import JudilibreWrongURLError
 import httpx
+from pyjudilibre.exceptions import JudilibreWrongURLError
 
 
 def catch_wrong_url_error(function: Callable):

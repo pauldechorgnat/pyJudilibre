@@ -1,5 +1,4 @@
 import pytest
-
 from pyjudilibre import JudilibreClient
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
@@ -7,11 +6,7 @@ from pyjudilibre.exceptions import (
     JudilibreWrongURLError,
 )
 
-from .config import (
-    JUDILIBRE_API_KEY,
-    JUDILIBRE_API_URL,
-    DECISION_CC_ID,
-)
+from .config import DECISION_CC_ID, JUDILIBRE_API_KEY, JUDILIBRE_API_URL
 
 
 def test_get():

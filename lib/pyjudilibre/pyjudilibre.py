@@ -5,6 +5,13 @@ import os
 import requests
 from httpx import Client
 from pyjudilibre.decorators import catch_wrong_url_error
+from pyjudilibre.enums import (
+    JudilibreStatsAggregationKeysEnum,
+    JurisdictionEnum,
+    LocationCAEnum,
+    LocationTJEnum,
+    replace_enums_in_dictionary,
+)
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
     JudilibreWrongCredentialsError,
@@ -15,15 +22,7 @@ from pyjudilibre.models import (
     JudilibreStats,
 )
 
-from pyjudilibre.enums import (
-    JudilibreStatsAggregationKeysEnum,
-    JurisdictionEnum,
-    LocationCAEnum,
-    LocationTJEnum,
-    replace_enums_in_dictionary,
-)
-
-__version__ = "0.5.5"
+__version__ = "0.5.6"
 
 
 def catch_response(response: requests.Response) -> requests.Response:
@@ -95,7 +94,7 @@ class JudilibreClient:
 
         self._logger.debug(f"RESPONSE STATUS : {response.status_code}")
         self._logger.debug(f"RESPONSE HEADERS: {response.headers}")
-        self._logger.debug(f"RESPONSE CONTENT: {response.content}")
+        self._logger.debug(f"RESPONSE CONTENT: {response.content.decode('utf-8')}")
 
         response = catch_response(response=response)  # type: ignore
 

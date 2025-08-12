@@ -1,7 +1,8 @@
 import datetime
+
 import pytest
-from pyjudilibre.models import JudilibreDecision
 from pyjudilibre.enums import JurisdictionEnum
+from pyjudilibre.models import JudilibreDecision
 
 from .config import client
 
@@ -126,14 +127,14 @@ def test_export_paginate():
     total, decisions = client.export(
         batch_number=0,
         batch_size=10,
-        jurisdictions=jurisdictions,  # type: ignore
+        jurisdictions=jurisdictions,
         date_start=min_date,
         date_end=max_date,
         page_size=1,
     )
 
     decisions_paginate = client.export_paginate(
-        jurisdictions=jurisdictions,  # type: ignore
+        jurisdictions=jurisdictions,
         date_start=min_date,
         date_end=max_date,
         max_results=None,

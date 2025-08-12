@@ -1,14 +1,13 @@
 import datetime
 
 from pydantic import BaseModel, ConfigDict
-
 from pyjudilibre.enums import (
-    LocationCAEnum,
-    LocationTJEnum,
-    LocationTCOMEnum,
-    SourceEnum,
-    JurisdictionEnum,
     JudilibreStatsAggregationKeysEnum,
+    JurisdictionEnum,
+    LocationCAEnum,
+    LocationTCOMEnum,
+    LocationTJEnum,
+    SourceEnum,
 )
 
 
@@ -113,8 +112,6 @@ class Legacy(BaseModel):
     """
 
     matiereDeterminee: int | None = None
-    pourvoiLocal: int | None = None
-    pourvoiCcas: int | None = None
     pourvoiLocal: int | None = None
     pourvoiCcas: int | None = None
 

@@ -1,9 +1,8 @@
 import datetime
 
 import pytest
-
-from pyjudilibre.models import JudilibreSearchResult
 from pyjudilibre.enums import JurisdictionEnum
+from pyjudilibre.models import JudilibreSearchResult
 
 from .config import client
 
@@ -28,7 +27,7 @@ def test_search():
 
 @pytest.mark.parametrize(
     "jurisdiction",
-    [r for r in JurisdictionEnum],  # type: ignore
+    [r for r in JurisdictionEnum],
 )
 def test_search_jurisdiction(jurisdiction):
     total, results = client.search(
@@ -129,14 +128,14 @@ def test_search_paginate():
     total, results_search = client.search(
         query=query,
         operator=operator,
-        jurisdictions=jurisdictions,  # type: ignore
+        jurisdictions=jurisdictions,
         page_size=1,
     )
 
     results_paginate_search = client.search_paginate(
         query=query,
         operator=operator,
-        jurisdictions=jurisdictions,  # type: ignore
+        jurisdictions=jurisdictions,
         max_results=None,
     )
 

@@ -1,15 +1,11 @@
 import pytest
-
 from pyjudilibre import JudilibreClient
 from pyjudilibre.exceptions import (
     JudilibreWrongCredentialsError,
     JudilibreWrongURLError,
 )
 
-from .config import (
-    JUDILIBRE_API_KEY,
-    JUDILIBRE_API_URL,
-)
+from .config import JUDILIBRE_API_KEY, JUDILIBRE_API_URL
 
 
 def test_healthcheck():

@@ -1,30 +1,20 @@
-from aenum import (
-    # EnumMeta,
-    MultiValueEnum,
-)
-
-# from pyjudilibre.exceptions import JudilibreValueError
+from enum import Enum
 
 
-# class JudilibreEnumMeta(EnumMeta):  # type: ignore
-#     @classmethod
-#     def __call__(cls, value, *args, **kw):
-#         try:
-#             new_instance = super().__call__(value, *args, **kw)
-#             return new_instance
-#         except ValueError as exc:
-#             raise JudilibreValueError(f"Value '{value}' is not valid for {cls.__name__}") from exc
-
-
-class JudilibreMultiValueEnum(MultiValueEnum):
-    pass
-    # def __iter__(self):
-    #     super().__iter__(self)
+class JudilibreMultiValueEnum(Enum):
+    def __new__(cls, *values):
+        obj = object.__new__(cls)
+        # first value is canonical value
+        obj._value_ = values[0]
+        for other_value in values[1:]:
+            cls._value2member_map_[other_value] = obj
+        obj._all_values = values  # type: ignore
+        return obj
 
 
 def replace_enum(obj):
     if isinstance(obj, JudilibreMultiValueEnum):
-        return obj.values[-1]
+        return obj._all_values[-1]  # type: ignore
     else:
         return obj
 
