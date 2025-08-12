@@ -2,6 +2,7 @@
 
 source venv/bin/activate
 
-update_option=${1:patch}
+default_value="patch"
+update_option=${1:-$default_value}
 
-bump-my-version bump $(update_option) lib/pyjudilibre/pyjudilibre.py
+bump-my-version bump $update_option lib/pyjudilibre/pyjudilibre.py -v
