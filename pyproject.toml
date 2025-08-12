@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyjudilibre"
-version = "0.5.8"
+version = "0.5.9"
 description = "Python client for the JUDILIBRE public API"
 readme = "README.md"
 license = {file = 'LICENSE'}
