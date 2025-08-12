@@ -5,8 +5,8 @@ from pyjudilibre import JudilibreClient
 from pyjudilibre.enums import (
     JurisdictionEnum,
     LocationCAEnum,
-    LocationTJEnum,
     LocationTCOMEnum,
+    LocationTJEnum,
 )
 
 load_dotenv()

@@ -30,10 +30,7 @@ def replace_enums_in_dictionary(obj):
     return obj
 
 
-class SourceEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class SourceEnum(JudilibreMultiValueEnum):
     jurinet = "jurinet"
     jurica = "jurica"
     dila = "dila"
@@ -41,20 +38,14 @@ class SourceEnum(
     juritcom = "juritcom"
 
 
-class JurisdictionEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class JurisdictionEnum(JudilibreMultiValueEnum):
     cour_de_cassation = "Cour de cassation", "cc"
     cours_d_appel = "Cour d'appel", "ca"
     tribunal_judiciaire = "Tribunal judiciaire", "tj"
     tribunal_de_commerce = "Tribunal de commerce", "tcom"
 
 
-class SolutionEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class SolutionEnum(JudilibreMultiValueEnum):
     cassation = "Cassation", "cassation"
     rejet = "Rejet", "rejet"
     annulation = "Annulation", "annulation"
@@ -71,10 +62,7 @@ class SolutionEnum(
     other = "Autre", "other"
 
 
-class ChamberEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class ChamberEnum(JudilibreMultiValueEnum):
     assemblee_pleniere = "Assemblée plénière", "pl"
     chamber_mixte = "Chambre mixte", "mi"
     premiere_chambre_civile = "Première chambre civile", "civ1"
@@ -89,10 +77,7 @@ class ChamberEnum(
     autres = "Autre", "other"
 
 
-class FormationEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class FormationEnum(JudilibreMultiValueEnum):
     formation_pleniere_chambre = "Formation plénière de chambre", "fp"
     formation_mixte = "Formation mixte", "fm"
     formation_section = "Formation de section", "fs"
@@ -101,10 +86,7 @@ class FormationEnum(
     formation_restreinte_rnsm_na = "Formation restreinte RNSM/NA", "frr"
 
 
-class PublicationEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class PublicationEnum(JudilibreMultiValueEnum):
     bulletin = "Publié au Bulletin", "b"
     rapport = "Publié au Rapport", "r"
     lettre_de_chambre = "Publié aux Lettres de chambre", "l"
@@ -112,19 +94,13 @@ class PublicationEnum(
     non_publie = "Non publié", "n"
 
 
-class SearchOrderFieldEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class SearchOrderFieldEnum(JudilibreMultiValueEnum):
     par_score = "Par pertinence", "score"
     par_score_et_publication = "Par pertinence et niveau de publication", "scorepub"
     par_date = "Par date", "date"
 
 
-class DecisionTypeEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class DecisionTypeEnum(JudilibreMultiValueEnum):
     arret = "Arrêt", "arret"
     demande_avis = "Demande d'avis", "avis"
     qpc = "Question prioritaire de constitutionnalité (QPC)", "qpc"
@@ -133,10 +109,7 @@ class DecisionTypeEnum(
     other = "Autre", "other"
 
 
-class JudilibreStatsAggregationKeysEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class JudilibreStatsAggregationKeysEnum(JudilibreMultiValueEnum):
     jurisdiction = "jurisdiction"
     source = "source"
     location = "location"
@@ -168,10 +141,13 @@ class JudilibreTaxonEnum(JudilibreMultiValueEnum):
     type = "type"
 
 
-class LocationCAEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class JudilibreTransactionActionEnum(JudilibreMultiValueEnum):
+    created = "created"
+    updated = "updated"
+    deleted = "deleted"
+
+
+class LocationCAEnum(JudilibreMultiValueEnum):
     ca_agen = "Cour d'appel d'Agen", "ca_agen"
     ca_aix_provence = "Cour d'appel d'Aix-en-Provence", "ca_aix_provence"
     ca_amiens = "Cour d'appel d'Amiens", "ca_amiens"
@@ -205,15 +181,15 @@ class LocationCAEnum(
     ca_rennes = "Cour d'appel de Rennes", "ca_rennes"
     ca_riom = "Cour d'appel de Riom", "ca_riom"
     ca_rouen = "Cour d'appel de Rouen", "ca_rouen"
-    ca_st_denis_reunion = "Cour d'appel de Saint-Denis de la Réunion", "ca_st_denis_reunion"
+    ca_st_denis_reunion = (
+        "Cour d'appel de Saint-Denis de la Réunion",
+        "ca_st_denis_reunion",
+    )
     ca_toulouse = "Cour d'appel de Toulouse", "ca_toulouse"
     ca_versailles = "Cour d'appel de Versailles", "ca_versailles"
 
 
-class LocationTJEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class LocationTJEnum(JudilibreMultiValueEnum):
     tj_agen = "Tribunal judiciaire d'Agen", "tj47001"
     tj_aix_en_provence = "Tribunal judiciaire d'Aix-en-Provence", "tj13001"
     tj_ajaccio = "Tribunal judiciaire d'Ajaccio", "tj2a004"
@@ -352,16 +328,28 @@ class LocationTJEnum(
     tj_rodez = "Tribunal judiciaire de Rodez", "tj12202"
     tj_rouen = "Tribunal judiciaire de Rouen", "tj76540"
     tj_saint_brieuc = "Tribunal judiciaire de Saint-Brieuc", "tj22278"
-    tj_saint_denis_de_la_reunion = "Tribunal judiciaire de Saint-Denis de La Réunion", "tj97411"
+    tj_saint_denis_de_la_reunion = (
+        "Tribunal judiciaire de Saint-Denis de La Réunion",
+        "tj97411",
+    )
     tj_saint_etienne = "Tribunal judiciaire de Saint-Etienne", "tj42218"
     tj_saint_gaudens = "Tribunal judiciaire de Saint-Gaudens", "tj31483"
     tj_saint_malo = "Tribunal judiciaire de Saint-Malo", "tj35288"
     tj_saint_nazaire = "Tribunal judiciaire de Saint-Nazaire", "tj44184"
     tj_saint_omer = "Tribunal judiciaire de Saint-Omer", "tj62765"
-    tj_saint_pierre_de_la_reunion = "Tribunal judiciaire de Saint-Pierre de La Réunion", "tj97416"
+    tj_saint_pierre_de_la_reunion = (
+        "Tribunal judiciaire de Saint-Pierre de La Réunion",
+        "tj97416",
+    )
     tj_saint_quentin = "Tribunal judiciaire de Saint-Quentin", "tj02691"
-    tj_saint_laurent_du_maroni = "Tribunal judiciaire de Saint-Laurent-Du-Maroni (chambre détachée)", "tj97311"
-    tj_saint_martin = "Tribunal judiciaire de Saint-Martin (chambre détachée)", "tj97801"
+    tj_saint_laurent_du_maroni = (
+        "Tribunal judiciaire de Saint-Laurent-Du-Maroni (chambre détachée)",
+        "tj97311",
+    )
+    tj_saint_martin = (
+        "Tribunal judiciaire de Saint-Martin (chambre détachée)",
+        "tj97801",
+    )
     tj_sarreguemines = "Tribunal judiciaire de Sarreguemines", "tj57631"
     tj_saumur = "Tribunal judiciaire de Saumur", "tj49328"
     tj_saverne = "Tribunal judiciaire de Saverne", "tj67437"
@@ -386,13 +374,13 @@ class LocationTJEnum(
     tj_versailles = "Tribunal judiciaire de Versailles", "tj78646"
     tj_vesoul = "Tribunal judiciaire de Vesoul", "tj70550"
     tj_vienne = "Tribunal judiciaire de Vienne", "tj38544"
-    tj_villefranche_sur_saone = "Tribunal judiciaire de Villefranche-sur-Saône", "tj69264"
+    tj_villefranche_sur_saone = (
+        "Tribunal judiciaire de Villefranche-sur-Saône",
+        "tj69264",
+    )
 
 
-class LocationTCOMEnum(
-    JudilibreMultiValueEnum,
-    # metaclass=JudilibreEnumMeta,
-):
+class LocationTCOMEnum(JudilibreMultiValueEnum):
     tcom_agen = "Tribunal de commerce d'Agen", "4701"
     tcom_aix_en_provence = "Tribunal de commerce d'Aix-en-Provence", "1301"
     tcom_ajaccio = "Tribunal de commerce d'Ajaccio", "2001"
@@ -510,11 +498,17 @@ class LocationTCOMEnum(
     tcom_romans = "Tribunal de commerce de Romans", "2602"
     tcom_rouen = "Tribunal de commerce de Rouen", "7608"
     tae_de_saint_brieuc = "Tribunal des activités économiques de Saint-Brieuc", "2202"
-    tcom_saint_denis_de_la_reunion = "Tribunal de commerce de Saint-Denis de La Réunion", "9741"
+    tcom_saint_denis_de_la_reunion = (
+        "Tribunal de commerce de Saint-Denis de La Réunion",
+        "9741",
+    )
     tcom_saint_etienne = "Tribunal de commerce de Saint-Etienne", "4202"
     tcom_saint_malo = "Tribunal de commerce de Saint-Malo", "3502"
     tcom_saint_nazaire = "Tribunal de commerce de Saint-Nazaire", "4402"
-    tcom_saint_pierre_de_la_reunion = "Tribunal de commerce de Saint-Pierre de La Réunion", "9742"
+    tcom_saint_pierre_de_la_reunion = (
+        "Tribunal de commerce de Saint-Pierre de La Réunion",
+        "9742",
+    )
     tcom_saint_quentin = "Tribunal de commerce de Saint-Quentin", "0202"
     tcom_saintes = "Tribunal de commerce de Saintes", "1708"
     tcom_salon_de_provence = "Tribunal de commerce de Salon-de-Provence", "1304"
@@ -533,4 +527,7 @@ class LocationTCOMEnum(
     tcom_vesoul___gray = "Tribunal de commerce de Vesoul - Gray", "7001"
     tae_de_versailles = "Tribunal des activités économiques de Versailles", "7803"
     tcom_vienne = "Tribunal de commerce de Vienne", "3802"
-    tcom_villefranche_sur_saone___tarare = "Tribunal de commerce de Villefranche-sur-Saône - Tarare", "6903"
+    tcom_villefranche_sur_saone___tarare = (
+        "Tribunal de commerce de Villefranche-sur-Saône - Tarare",
+        "6903",
+    )

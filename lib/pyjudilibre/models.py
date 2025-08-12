@@ -3,6 +3,7 @@ import datetime
 from pydantic import BaseModel, ConfigDict
 from pyjudilibre.enums import (
     JudilibreStatsAggregationKeysEnum,
+    JudilibreTransactionActionEnum,
     JurisdictionEnum,
     LocationCAEnum,
     LocationTCOMEnum,
@@ -230,6 +231,12 @@ class JudilibreStatsQuery(BaseModel):
 class JudilibreStats(BaseModel):
     results: JudilibreStatsResults
     query: JudilibreStatsQuery
+
+
+class JudilibreTransaction(BaseModel):
+    id: str
+    action: JudilibreTransactionActionEnum
+    date: datetime.datetime
 
 
 dummy_short_decision = {

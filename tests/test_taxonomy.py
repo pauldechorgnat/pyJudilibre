@@ -1,11 +1,12 @@
 import pytest
-from .config import client
 from pyjudilibre.enums import (
-    LocationCAEnum,
-    JurisdictionEnum,
     JudilibreTaxonEnum,
+    JurisdictionEnum,
+    LocationCAEnum,
 )
 from pyjudilibre.exceptions import JudilibreResourceNotFoundError
+
+from .config import client
 
 
 def test_taxonomy_ca_locations():

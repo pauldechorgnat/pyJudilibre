@@ -1,28 +1,30 @@
 import datetime
 import logging
 import os
+from urllib.parse import parse_qs
 
 import requests
 from httpx import Client
 from pyjudilibre.decorators import catch_wrong_url_error
 from pyjudilibre.enums import (
-    JudilibreTaxonEnum,
     JudilibreStatsAggregationKeysEnum,
+    JudilibreTaxonEnum,
     JurisdictionEnum,
     LocationCAEnum,
-    LocationTJEnum,
     LocationTCOMEnum,
+    LocationTJEnum,
     replace_enums_in_dictionary,
 )
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
-    JudilibreWrongCredentialsError,
     JudilibreResourceNotFoundError,
+    JudilibreWrongCredentialsError,
 )
 from pyjudilibre.models import (
     JudilibreDecision,
     JudilibreSearchResult,
     JudilibreStats,
+    JudilibreTransaction,
 )
 
 __version__ = "0.5.8"
@@ -201,7 +203,10 @@ class JudilibreClient:
         )
         response_data = response.json()
 
-        return response_data["total"], [JudilibreDecision(**r) for r in response_data["results"]]
+        return (
+            response_data["total"],
+            [JudilibreDecision(**r) for r in response_data["results"]],
+        )
 
     def search(
         self,
@@ -238,7 +243,10 @@ class JudilibreClient:
         )
         response_data = response.json()
 
-        return response_data["total"], [JudilibreSearchResult(**r) for r in response_data["results"]]
+        return (
+            response_data["total"],
+            [JudilibreSearchResult(**r) for r in response_data["results"]],
+        )
 
     def search_paginate(
         self,
@@ -403,3 +411,38 @@ class JudilibreClient:
             taxons = response_data["result"]
 
         return taxons
+
+    def transactionalhistory(
+        self,
+        date_start: datetime.date,
+        *,
+        page_size: int = 25,
+        from_id: str | None = None,
+    ) -> tuple[int, list[JudilibreTransaction], str]:
+        params = {
+            "date": date_start,
+            "page_size": page_size,
+            **({"from_id": from_id} if from_id else {}),
+        }
+
+        response = self._query(
+            method="GET",
+            url="transactionalhistory",
+            params=params,
+        )
+
+        response_data = response.json()
+        total_transactions = response_data["total"]
+        next_from_id: str = parse_qs(response_data["next_page"])["from_id"][0]
+        transactions = [JudilibreTransaction(**t) for t in response_data["transactions"]]
+
+        # if response.status_code != 200:
+        # print(f"{response_data.keys()=}")
+        # print(f"{response_data['next_page']=}")
+        # print(f"{response_data['query_date']=}")
+
+        return (
+            total_transactions,
+            transactions,
+            next_from_id,
+        )

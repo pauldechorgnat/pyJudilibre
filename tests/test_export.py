@@ -4,11 +4,7 @@ import pytest
 from pyjudilibre.enums import JurisdictionEnum
 from pyjudilibre.models import JudilibreDecision
 
-from .config import (
-    client,
-    JURISDICTIONS,
-    LOCATIONS,
-)
+from .config import JURISDICTIONS, LOCATIONS, client
 
 
 def test_export():
