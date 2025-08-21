@@ -1,4 +1,4 @@
-# pyJudilibre `0.6.0`
+# pyJudilibre `0.7.0`
 
 ## Presentation
 
@@ -42,6 +42,7 @@ client = JudilibreClient(
 - `client.taxonomy(...)`: `GET /taxonomy`
 - `client.search(...)`: `GET /search`
 - `client.export(...)`: `GET /export`
+- `client.scan(...)`: `GET /scan`
 - `client.transactional_history(...)`: `GET /transactionalhistory`
 
 We have created other methods that can help paginate through `search`, `export` and `transactional_history` results:
@@ -49,6 +50,7 @@ We have created other methods that can help paginate through `search`, `export` 
 - `client.paginate_search(...)`
 - `client.paginate_export(...)`
 - `client.paginate_transactional_history(...)`
+- `client.paginate_scan(...)`
 
 ### Models and Enums
 

@@ -146,6 +146,20 @@ total, decisions = client.export(
     locations=[LocationTCOMEnum.tae_paris],
 )
 ```
+Another way to get theses decisions is to use `.scan(...)` and to provide an id:
+
+```python
+metadata_params = {}
+total, decisions_batch1, search_after_id1 = client.scan(
+    **metadata_params, 
+    search_after=None,
+)
+
+total, decisions_batch2, search_after_id2 = client.scan(
+    **metadata_params, 
+    search_after=search_after_id1,
+)
+```
 
 It also returns the total number of results.
 
@@ -154,7 +168,7 @@ It also returns the total number of results.
 You can also use `.paginate_export(...)` to avoid paginating `batch_number` yourself:
 
 ```python
-decisions = client.export(
+decisions = client.paginate_export(
     date_start=datetime.date(day=2025, month=1, day=1),
     date_end=datetime.date(day=2025, month=2, day=1),
     locations=[LocationTCOMEnum.tae_paris],
@@ -164,6 +178,18 @@ decisions = client.export(
 
 > Be aware that results are limited to the first 10 000 results of a query.
 
+You can also use `.paginate_scan(...)`. This one is not limited to 10 000 results.
+
+```python
+decisions = client.paginate_scan(
+    date_start=datetime.date(day=2025, month=1, day=1),
+    date_end=datetime.date(day=2025, month=2, day=1),
+    locations=[LocationTCOMEnum.tae_paris],
+)
+
+```
+
+> This one is not limited to the first 10 000 results.
 
 ## Transactional history
 

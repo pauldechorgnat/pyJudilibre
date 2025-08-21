@@ -28,7 +28,7 @@ from pyjudilibre.models import (
     JudilibreTransaction,
 )
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 
 def catch_response(response: Response) -> Response:
@@ -364,6 +364,80 @@ class JudilibreClient:
             [JudilibreSearchResult(**r) for r in response_data["results"]],
         )
 
+    def scan(
+        self,
+        batch_size: int = 100,
+        *,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        locations: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
+        selection: bool | None = None,
+        date_start: datetime.date | None = None,
+        date_end: datetime.date | None = None,
+        date_type: JudilibreDateTypeEnum | None = None,
+        search_after: str | None = None,
+        **kwargs,
+    ) -> tuple[int, list[JudilibreDecision], str | None]:
+        """Returns a list of decisions based on a metadata query
+
+        Args:
+            search_after (str, optional): ID of the decision that will start the batch.
+                Defaults to 0.
+            batch_size (int, optional): Size of the batch to get.
+                Defaults to 10.
+            jurisdictions (list[JurisdictionEnum] | None, optional): list of jurisdictions to return results from.
+                If `None`, it will default to **JUDILIBRE** default settings.
+                Defaults to None.
+            locations (list[LocationCAEnum  |  LocationTJEnum  |  LocationTCOMEnum] | None, optional): list of locations (courts) to return results from.
+                If `None`, it will defaul to **JUDILIBRE** default settings.
+                Defaults to None.
+            selection (bool | None, optional): Returns only results about decisions with a particular interest if true.
+                If False, returns all the results
+                Defaults to None.
+            date_start (datetime.date | None, optional): minimal date to return results from.
+                If `None` returns all the results.
+                Defaults to None.
+            date_end (datetime.date | None, optional): maximal date to return results from.
+                If `None` returns all the results.
+                Defaults to None.
+            date_type (str | None, optional): Type of date to use for the filters. Defaults to "creation".
+
+        Returns:
+            tuple[int, list[JudilibreDecision], str | None]: a tuple containing:
+                - the total number of decisions
+                - the decisions corresponding to the current batch
+                - the id to provide for the next batch
+        """
+        params = {
+            **({"selection": selection} if selection else {}),
+            **({"location": locations} if locations else {}),
+            **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **({"date_start": date_start} if date_start else {}),
+            **({"date_end": date_end} if date_end else {}),
+            **({"date_type": date_type} if date_type else {}),
+            **({"searchAfter": search_after} if search_after else {}),
+            "resolve_references": True,
+            "batch_size": batch_size,
+            **kwargs,
+        }
+
+        response = self._query(
+            method="GET",
+            url="/scan",
+            params=params,
+        )
+
+        response_data = response.json()
+
+        total_decisions = response_data["total"]
+        decisions = [JudilibreDecision(**d) for d in response_data["results"]]
+        search_after = parse_qs(response_data["next_batch"]).get("searchAfter", [None])[0]
+
+        return (
+            total_decisions,
+            decisions,
+            search_after,
+        )
+
     @staticmethod
     def _clean_params(params: dict | None) -> dict:
         if params is None:
@@ -646,6 +720,96 @@ class JudilibreClient:
         if max_results is not None:
             return decisions[:max_results]
 
+        return decisions
+
+    def paginate_scan(
+        self,
+        batch_size: int = 100,
+        *,
+        jurisdictions: list[JurisdictionEnum] | None = None,
+        locations: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None,
+        selection: bool | None = None,
+        date_start: datetime.date | None = None,
+        date_end: datetime.date | None = None,
+        date_type: JudilibreDateTypeEnum | None = None,
+        max_results: int | None = None,
+        **kwargs,
+    ) -> list[JudilibreDecision]:
+        """Paginates through the results of a metadata query
+
+        Args:
+            max_results (int | None, optional):  maximal number of results that should be returned.
+                If `None` all results are returned.
+                Defaults to None.
+            jurisdictions (list[JurisdictionEnum] | None, optional): list of jurisdictions to return results from.
+                If `None`, it will default to **JUDILIBRE** default settings.
+                Defaults to None.
+            locations (list[LocationCAEnum  |  LocationTJEnum  |  LocationTCOMEnum] | None, optional): list of locations (courts) to return results from.
+                If `None`, it will default to **JUDILIBRE** default settings.
+                Defaults to None.
+            selection (bool | None, optional): Returns only results about decisions with a particular interest if true.
+                If False, returns all the results
+                Defaults to None.
+            date_start (datetime.date | None, optional): minimal date to return results from.
+                If `None` returns all the results.
+                Defaults to None.
+            date_end (datetime.date | None, optional): maximal date to return results from.
+                If `None` returns all the results.
+                Defaults to None.
+            date_type (JudilibreDateTypeEnum | None, optional): type of date to use for the date filters.
+                If `None`, it will default to **JUDILIBRE** default settings.
+                Defaults to None.
+
+        Returns:
+            list[JudilibreDecision]: list of decisions corresponding to the query
+        """
+        decisions = []
+        n_decisions = 0
+
+        _, decisions_tmp, search_after = self.scan(
+            jurisdictions=jurisdictions,
+            locations=locations,
+            selection=selection,
+            date_start=date_start,
+            date_end=date_end,
+            date_type=date_type,
+            **kwargs,
+        )
+
+        n_decisions += len(decisions_tmp)
+        decisions.extend(decisions_tmp)
+
+        def end_condition(
+            search_after,
+            max_results,
+            n_decisions,
+        ):
+            if search_after is None:
+                return True
+            if max_results is None:
+                return False
+            if n_decisions >= max_results:
+                return True
+
+        while not end_condition(
+            search_after=search_after,
+            max_results=max_results,
+            n_decisions=n_decisions,
+        ):
+            _, decisions_tmp, search_after = self.scan(
+                jurisdictions=jurisdictions,
+                locations=locations,
+                selection=selection,
+                date_start=date_start,
+                date_end=date_end,
+                date_type=date_type,
+                **kwargs,
+            )
+
+            n_decisions += len(decisions_tmp)
+            decisions.extend(decisions_tmp)
+        if max_results is not None:
+            return decisions[:max_results]
         return decisions
 
     def paginate_transactional_history(
