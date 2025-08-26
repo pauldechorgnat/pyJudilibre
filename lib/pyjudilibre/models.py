@@ -1,6 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, ConfigDict
+
 from pyjudilibre.enums import (
     JudilibreStatsAggregationKeysEnum,
     JudilibreTransactionActionEnum,

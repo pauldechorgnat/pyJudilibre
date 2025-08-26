@@ -4,6 +4,7 @@ import os
 from urllib.parse import parse_qs
 
 from httpx import Client, Response
+
 from pyjudilibre.decorators import catch_wrong_url_error
 from pyjudilibre.enums import (
     JudilibreDateTypeEnum,
@@ -28,7 +29,7 @@ from pyjudilibre.models import (
     JudilibreTransaction,
 )
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 
 def catch_response(response: Response) -> Response:
@@ -51,7 +52,7 @@ class JudilibreClient:
         self,
         judilibre_api_key: str | None = None,
         judilibre_api_url: str | None = "https://api.piste.gouv.fr/cassation/judilibre/v1.0",
-        logging_level: int = logging.INFO,
+        logging_level: int = logging.ERROR,
     ):
         """Constructor of the `JudilibreClient` class
 
@@ -114,8 +115,8 @@ class JudilibreClient:
 
         params = self._clean_params(params)
 
-        self._logger.debug(f"REQUEST METHOD URL:            {method} {url}")
-        self._logger.debug(f"REQUEST PARAMETERS: {params}")
+        self._logger.info(f"REQUEST METHOD URL:            {method} {url}")
+        self._logger.info(f"REQUEST PARAMETERS: {params}")
 
         response = self._client.request(
             method=method,
@@ -123,8 +124,8 @@ class JudilibreClient:
             params=params,
         )
 
-        self._logger.debug(f"RESPONSE STATUS : {response.status_code}")
-        self._logger.debug(f"RESPONSE HEADERS: {response.headers}")
+        self._logger.info(f"RESPONSE STATUS : {response.status_code}")
+        self._logger.info(f"RESPONSE HEADERS: {response.headers}")
         self._logger.debug(f"RESPONSE CONTENT: {response.content.decode('utf-8')}")
 
         response = catch_response(response=response)
@@ -373,7 +374,7 @@ class JudilibreClient:
         selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        date_type: JudilibreDateTypeEnum | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         search_after: str | None = None,
         **kwargs,
     ) -> tuple[int, list[JudilibreDecision], str | None]:
@@ -399,7 +400,9 @@ class JudilibreClient:
             date_end (datetime.date | None, optional): maximal date to return results from.
                 If `None` returns all the results.
                 Defaults to None.
-            date_type (str | None, optional): Type of date to use for the filters. Defaults to "creation".
+            date_type (JudilibreDateTypeEnum | None, optional): Type of date to use for the filters.
+                If `None`, it will default to **JUDILIBRE** default settings.
+                Defaults to JudilibreDateTypeEnum.creation.
 
         Returns:
             tuple[int, list[JudilibreDecision], str | None]: a tuple containing:
@@ -643,7 +646,7 @@ class JudilibreClient:
         selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        date_type: JudilibreDateTypeEnum | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         **kwargs,
     ) -> list[JudilibreDecision]:
         """Paginates through the results of a metadata query
@@ -669,7 +672,7 @@ class JudilibreClient:
                 Defaults to None.
             date_type (JudilibreDateTypeEnum | None, optional): type of date to use for the date filters.
                 If `None`, it will default to **JUDILIBRE** default settings.
-                Defaults to None.
+                Defaults to JudilibreDateTypeEnum.creation.
 
         Returns:
             list[JudilibreDecision]: list of decisions corresponding to the query
@@ -731,7 +734,7 @@ class JudilibreClient:
         selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        date_type: JudilibreDateTypeEnum | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         max_results: int | None = None,
         **kwargs,
     ) -> list[JudilibreDecision]:
@@ -758,7 +761,7 @@ class JudilibreClient:
                 Defaults to None.
             date_type (JudilibreDateTypeEnum | None, optional): type of date to use for the date filters.
                 If `None`, it will default to **JUDILIBRE** default settings.
-                Defaults to None.
+                Defaults to JudilibreDateTypeEnum.creation.
 
         Returns:
             list[JudilibreDecision]: list of decisions corresponding to the query
@@ -766,13 +769,14 @@ class JudilibreClient:
         decisions = []
         n_decisions = 0
 
-        _, decisions_tmp, search_after = self.scan(
+        total, decisions_tmp, search_after = self.scan(
             jurisdictions=jurisdictions,
             locations=locations,
             selection=selection,
             date_start=date_start,
             date_end=date_end,
             date_type=date_type,
+            batch_size=batch_size,
             **kwargs,
         )
 
@@ -796,13 +800,15 @@ class JudilibreClient:
             max_results=max_results,
             n_decisions=n_decisions,
         ):
-            _, decisions_tmp, search_after = self.scan(
+            total, decisions_tmp, search_after = self.scan(
                 jurisdictions=jurisdictions,
                 locations=locations,
                 selection=selection,
                 date_start=date_start,
                 date_end=date_end,
                 date_type=date_type,
+                search_after=search_after,
+                batch_size=batch_size,
                 **kwargs,
             )
 

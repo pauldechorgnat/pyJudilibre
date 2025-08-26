@@ -2,6 +2,7 @@ import functools
 from typing import Callable
 
 import httpx
+
 from pyjudilibre.exceptions import JudilibreWrongURLError
 
 

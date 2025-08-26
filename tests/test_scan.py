@@ -1,7 +1,8 @@
 import datetime
 
 import pytest
-from pyjudilibre.enums import JurisdictionEnum
+
+from pyjudilibre.enums import JudilibreDateTypeEnum, JurisdictionEnum
 from pyjudilibre.models import JudilibreDecision
 
 from .config import JURISDICTIONS, LOCATIONS, client
@@ -53,6 +54,45 @@ def test_scan_location(jurisdiction, location):
         assert d.location == location
 
 
+# @pytest.mark.skip("Test takes too long to run (comment this line to run it)")
+def test_scan_paginate_over_10_000():
+    # stats
+    min_date = datetime.date(
+        year=2024,
+        month=1,
+        day=1,
+    )
+    max_date = datetime.date(
+        year=2024,
+        month=12,
+        day=31,
+    )
+
+    stats = client.stats(
+        jurisdictions=[JurisdictionEnum.cour_de_cassation],
+        date_start=min_date,
+        date_end=max_date,
+    )
+
+    decisions = client.paginate_scan(
+        jurisdictions=[JurisdictionEnum.cour_de_cassation],
+        date_start=min_date,
+        date_end=max_date,
+        date_type=JudilibreDateTypeEnum.creation,
+        batch_size=1_000,
+    )
+
+    n_decisions = len(decisions)
+
+    assert n_decisions == stats.results.total_decisions
+
+    for d in decisions:
+        assert isinstance(d, JudilibreDecision)
+        assert d.jurisdiction == JurisdictionEnum.cour_de_cassation
+        assert d.decision_date >= min_date
+        assert d.decision_date <= max_date
+
+
 def test_scan_paginate():
     # stats
     min_date = datetime.date(
@@ -61,8 +101,8 @@ def test_scan_paginate():
         day=1,
     )
     max_date = datetime.date(
-        year=2025,
-        month=1,
+        year=2024,
+        month=6,
         day=1,
     )
 
@@ -76,6 +116,8 @@ def test_scan_paginate():
         jurisdictions=[JurisdictionEnum.cour_de_cassation],
         date_start=min_date,
         date_end=max_date,
+        date_type=JudilibreDateTypeEnum.creation,
+        batch_size=1_000,
     )
 
     n_decisions = len(decisions)

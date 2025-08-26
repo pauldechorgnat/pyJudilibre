@@ -2,6 +2,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
+
 from pyjudilibre import JudilibreClient
 from pyjudilibre.enums import (
     JurisdictionEnum,

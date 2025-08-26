@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+
 from pyjudilibre.enums import JurisdictionEnum
 from pyjudilibre.models import JudilibreSearchResult
 

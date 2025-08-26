@@ -1,4 +1,5 @@
 import pytest
+
 from pyjudilibre import JudilibreClient
 from pyjudilibre.exceptions import (
     JudilibreWrongCredentialsError,
