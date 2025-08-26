@@ -24,3 +24,7 @@ class JudilibreValueError(ValueError):
 
 class JudilibreResourceNotFoundError(Exception):
     pass
+
+
+class JudilibreDownloadFileError(Exception):
+    pass

@@ -1,8 +1,11 @@
 import datetime
+import os
+import urllib.request
 
 from pydantic import BaseModel, ConfigDict
 
 from pyjudilibre.enums import (
+    JudilibreFileTypeEnum,
     JudilibreStatsAggregationKeysEnum,
     JudilibreTransactionActionEnum,
     JurisdictionEnum,
@@ -11,6 +14,7 @@ from pyjudilibre.enums import (
     LocationTJEnum,
     SourceEnum,
 )
+from pyjudilibre.exceptions import JudilibreDownloadFileError
 
 
 class Zone(BaseModel):
@@ -61,13 +65,30 @@ class File(BaseModel):
     """
 
     id: str
-    type: str
+    type: JudilibreFileTypeEnum
     isCommunication: bool
     date: str
     name: str
     size: str
     url: str
     rawUrl: str | None = None
+
+    def download(
+        self,
+        filename: str | None = None,
+        folder: str = ".",
+    ) -> str:
+        if self.rawUrl is None:
+            raise JudilibreDownloadFileError("rawUrl is not defined")
+        with urllib.request.urlopen(self.rawUrl) as web_file:
+            content = web_file.read()
+
+        filename = os.path.join(folder, (filename or self.name))
+
+        with open(filename, "wb") as local_file:
+            local_file.write(content)
+
+        return filename
 
 
 class ShortDecision(BaseModel):
@@ -140,9 +161,16 @@ class JudilibreShortDecision(BaseModel):
     solution_alt: str | None = None
     summary: str | None = None
     bulletin: str | None = None
-    files: list | None = None  # TODO: completer ces schémas
+    files: list[File] | None = None  # TODO: completer ces schémas
     themes: list | None = None  # TODO: completer ces schémas
     titlesAndSummaries: list[dict] | None = None  # TODO: completer ces schémas
+
+    def download_all_files(self, folder: str = ".") -> list[str]:
+        filenames = []
+        if self.files is not None:
+            for file in self.files:
+                filenames.append(file.download(folder=folder))
+        return filenames
 
 
 class Highlights(BaseModel):
@@ -196,7 +224,6 @@ class JudilibreDecision(JudilibreShortDecision):
     themes: list[str] | None = None
     nac: str | None = None
     portalis: str | None = None
-    files: list[File] | None = None
     zones: Zones | None = None
     contested: ShortDecision | None = None
     forward: str | dict | None = None

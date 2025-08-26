@@ -26,6 +26,7 @@ JUDILIBRE_API_KEY = get_env_variable("JUDILIBRE_API_KEY")
 
 DECISION_CC_ID = "5fca9e9f7fceed9498daf2cf"
 DECISION_CA_ID = "649e75f8f84a5e05db33e6af"
+DECISION_CC_WITH_FILE_ID = "6763c1909097d8d545954277"
 
 client = JudilibreClient(
     judilibre_api_url=JUDILIBRE_API_URL,
