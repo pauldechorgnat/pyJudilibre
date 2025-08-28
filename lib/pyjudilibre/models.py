@@ -65,11 +65,13 @@ class File(BaseModel):
     """
 
     id: str
+    name: str
     type: JudilibreFileTypeEnum
     isCommunication: bool
+
     date: str
-    name: str
     size: str
+
     url: str
     rawUrl: str | None = None
 

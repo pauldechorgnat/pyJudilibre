@@ -246,6 +246,22 @@ class LocationCAEnum(JudilibreMultiValueEnum):
     ca_toulouse = "Cour d'appel de Toulouse", "ca_toulouse"
     ca_versailles = "Cour d'appel de Versailles", "ca_versailles"
 
+    @property
+    def city(self) -> str:
+        string = self.value
+        replacements = [
+            ("Cour d'appel de ", ""),
+            ("Cour d'appel d'", ""),
+            ("Cour d'appel du", "Le"),
+            ("Cour d'appel des", "Les"),
+        ]
+
+        for pattern, replacement in replacements:
+            string = string.replace(pattern, replacement)
+
+        string = string.split("(")[0]
+        return string.strip()
+
 
 class LocationTJEnum(JudilibreMultiValueEnum):
     """Enum class for the different tribunaux judiciaire"""
@@ -424,6 +440,22 @@ class LocationTJEnum(JudilibreMultiValueEnum):
     tj_vienne = "Tribunal judiciaire de Vienne", "tj38544"
     tj_villefranche_sur_saone = "Tribunal judiciaire de Villefranche-sur-Saône", "tj69264"
 
+    @property
+    def city(self) -> str:
+        string = self.value
+        replacements = [
+            ("Tribunal judiciaire de ", ""),
+            ("Tribunal judiciaire d'", ""),
+            ("Tribunal judiciaire du", "Le"),
+            ("Tribunal judiciaire des", "Les"),
+        ]
+
+        for pattern, replacement in replacements:
+            string = string.replace(pattern, replacement)
+
+        string = string.split("(")[0]
+        return string.strip()
+
 
 class LocationTCOMEnum(JudilibreMultiValueEnum):
     """Enum class for the different tribunaux de commerce"""
@@ -569,3 +601,23 @@ class LocationTCOMEnum(JudilibreMultiValueEnum):
     tae_de_versailles = "Tribunal des activités économiques de Versailles", "7803"
     tcom_vienne = "Tribunal de commerce de Vienne", "3802"
     tcom_villefranche_sur_saone___tarare = "Tribunal de commerce de Villefranche-sur-Saône - Tarare", "6903"
+
+    @property
+    def city(self) -> str:
+        string = self.value
+        replacements = [
+            ("Tribunal de commerce de ", ""),
+            ("Tribunal de commerce d'", ""),
+            ("Tribunal de commerce du", "Le"),
+            ("Tribunal de commerce des", "Les"),
+            ("Tribunal des activités économiques de ", ""),
+            ("Tribunal des activités économiques d'", ""),
+            ("Tribunal des activités économiques du", "Le"),
+            ("Tribunal des activités économiques des", "Les"),
+        ]
+
+        for pattern, replacement in replacements:
+            string = string.replace(pattern, replacement)
+
+        string = string.split("(")[0]
+        return string.strip()

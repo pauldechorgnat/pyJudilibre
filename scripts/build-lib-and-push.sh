@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-python -m venv venv-build
+python3 -m venv venv-build
 source venv-build/bin/activate
 
 # # Building the lib

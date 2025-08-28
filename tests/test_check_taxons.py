@@ -63,3 +63,27 @@ def test_check_taxons(
 
     for e in enum:  # type: ignore
         assert e._all_values[-1] in computed_taxons
+
+
+CITY_NAMES_PARAMETERS = [
+    (LocationCAEnum.ca_agen, "Agen"),
+    (LocationCAEnum.ca_paris, "Paris"),
+    (LocationTJEnum.tj_paris, "Paris"),
+    (LocationTJEnum.tj_agen, "Agen"),
+    (LocationTJEnum.tj_sables_d_olonne, "Les Sables-d'Olonne"),
+    (LocationTJEnum.tj_mans, "Le Mans"),
+    (LocationTCOMEnum.tae_de_paris, "Paris"),
+    (LocationTCOMEnum.tae_d_avignon, "Avignon"),
+    (LocationTCOMEnum.tae_du_mans, "Le Mans"),
+    (LocationTCOMEnum.tcom_puy_en_velay, "Le Puy-en-Velay"),
+    (LocationTCOMEnum.tcom_rennes, "Rennes"),
+    (LocationTCOMEnum.tcom_agen, "Agen"),
+]
+
+
+@pytest.mark.parametrize(
+    "location, city_name",
+    CITY_NAMES_PARAMETERS,
+)
+def test_city_names(location, city_name):
+    assert location.city == city_name
