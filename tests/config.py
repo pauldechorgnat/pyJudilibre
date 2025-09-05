@@ -37,8 +37,8 @@ client = JudilibreClient(
 JURISDICTIONS = [
     JurisdictionEnum.cour_de_cassation,
     JurisdictionEnum.cours_d_appel,
-    JurisdictionEnum.tribunal_judiciaire,
-    JurisdictionEnum.tribunal_de_commerce,
+    JurisdictionEnum.tribunaux_judiciaires,
+    JurisdictionEnum.tribunaux_de_commerce,
 ]
 LOCATIONS = [
     LocationCAEnum.ca_paris,

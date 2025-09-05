@@ -22,6 +22,7 @@ This library relies on:
 
 - `pydantic>=2.10.2"`: [`pydantic` for typing](https://docs.pydantic.dev/latest/)
 - `httpx==0.28.1`: [`httpx` for HTTP requests](https://www.python-httpx.org/)
+- `tqdm==4.67.1`: [`tqdm` for progress bars](https://tqdm.github.io/)
 
 
 ## Extras

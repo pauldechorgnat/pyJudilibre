@@ -61,10 +61,10 @@ def test_export_location(jurisdiction, location):
         assert r.location == location
 
 
-@pytest.mark.skip("L'erreur semble venir de l'API")
 def test_export_selection():
     total, results = client.export(
         selection=True,
+        jurisdictions=[j for j in JurisdictionEnum],
         batch_number=0,
         batch_size=9,
     )

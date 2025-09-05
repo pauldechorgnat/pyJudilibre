@@ -1,3 +1,6 @@
+#! /usr/bin/bash
+source venv/bin/activate
+
 echo Sorting imports
 python3 -m isort tests lib --trailing-comma
 

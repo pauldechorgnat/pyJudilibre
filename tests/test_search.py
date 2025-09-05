@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from pyjudilibre.enums import JurisdictionEnum
+from pyjudilibre.enums import JudilibreOperatorEnum, JurisdictionEnum
 from pyjudilibre.models import JudilibreSearchResult
 
 from .config import JURISDICTIONS, LOCATIONS, client
@@ -11,7 +11,7 @@ from .config import JURISDICTIONS, LOCATIONS, client
 def test_search():
     total, results = client.search(
         query="accident de voiture",
-        operator="exact",
+        operator=JudilibreOperatorEnum.exact_operator,
         page_number=0,
         page_size=25,
         verbose=False,
@@ -68,11 +68,12 @@ def test_search_location(jurisdiction, location):
         assert r.location == location
 
 
-@pytest.mark.skip("L'erreur semble venir de l'API")
+# @pytest.mark.skip("L'erreur semble venir de l'API")
 def test_search_selection():
     total, results = client.search(
         query="peuple",
         selection=True,
+        jurisdictions=[j for j in JurisdictionEnum],
         page_number=0,
         page_size=9,
     )
@@ -131,14 +132,11 @@ def test_search_max_date():
 
 
 def test_search_both_dates():
-    # MIN DATE
     min_date = datetime.date(
         year=2020,
         month=1,
         day=1,
     )
-
-    # MAX DATE
     max_date = datetime.date(
         year=2024,
         month=1,
@@ -163,7 +161,7 @@ def test_search_both_dates():
 
 def test_paginate_search():
     query = "Uber"
-    operator = "and"
+    operator = JudilibreOperatorEnum.exact_operator
     jurisdictions = [JurisdictionEnum.cour_de_cassation]
 
     total, results_search = client.search(

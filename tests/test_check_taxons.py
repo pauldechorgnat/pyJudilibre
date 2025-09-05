@@ -26,8 +26,8 @@ from .config import client
 PARAMETERS = [
     # LOCATIONS
     (JudilibreTaxonEnum.location, JurisdictionEnum.cours_d_appel, LocationCAEnum),
-    (JudilibreTaxonEnum.location, JurisdictionEnum.tribunal_judiciaire, LocationTJEnum),
-    (JudilibreTaxonEnum.location, JurisdictionEnum.tribunal_de_commerce, LocationTCOMEnum),
+    (JudilibreTaxonEnum.location, JurisdictionEnum.tribunaux_judiciaires, LocationTJEnum),
+    (JudilibreTaxonEnum.location, JurisdictionEnum.tribunaux_de_commerce, LocationTCOMEnum),
     # TECHNICAL FIELDS
     (JudilibreTaxonEnum.date_type, JurisdictionEnum.cour_de_cassation, JudilibreDateTypeEnum),
     (JudilibreTaxonEnum.query_operator, JurisdictionEnum.cour_de_cassation, JudilibreOperatorEnum),

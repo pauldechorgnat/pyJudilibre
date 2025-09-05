@@ -2,7 +2,10 @@ from enum import Enum
 
 
 class JudilibreMultiValueEnum(Enum):
+    """General class for Judilibre Enums"""
+
     def __new__(cls, *values):
+        """Instantiation function"""
         obj = object.__new__(cls)
         # first value is canonical value
         obj._value_ = values[0]
@@ -13,6 +16,15 @@ class JudilibreMultiValueEnum(Enum):
 
 
 def replace_enum(obj):
+    """Functions that replaces `JudilibreMultiValueEnum` by their last values.
+    If this object is not of this class, it returns the object unchanged.
+
+    Args:
+        obj (_type_): An object
+
+    Returns:
+        _type_: The last value of the `JudilibreMultiValueEnum` or the unchanged object
+    """
     if isinstance(obj, JudilibreMultiValueEnum):
         return obj._all_values[-1]  # type: ignore
     else:
@@ -20,6 +32,14 @@ def replace_enum(obj):
 
 
 def replace_enums_in_dictionary(obj):
+    """Replaces all the `JudilibreMultiValueEnum` by their last values
+
+    Args:
+        obj (_type_): An object
+
+    Returns:
+        _type_: A changed object
+    """
     if isinstance(obj, dict):
         for k, v in obj.items():
             obj[k] = replace_enums_in_dictionary(v)
@@ -31,6 +51,8 @@ def replace_enums_in_dictionary(obj):
 
 
 class SourceEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `SOURCE` attribute"""
+
     jurinet = "jurinet"
     jurica = "jurica"
     dila = "dila"
@@ -39,15 +61,17 @@ class SourceEnum(JudilibreMultiValueEnum):
 
 
 class JurisdictionEnum(JudilibreMultiValueEnum):
-    """Enum class for the different type of jurisdiction"""
+    """Enumeration for the `JURISDICTION` attribute"""
 
     cour_de_cassation = "Cour de cassation", "cc"
     cours_d_appel = "Cour d'appel", "ca"
-    tribunal_judiciaire = "Tribunal judiciaire", "tj"
-    tribunal_de_commerce = "Tribunal de commerce", "tcom"
+    tribunaux_judiciaires = "Tribunal judiciaire", "tj"
+    tribunaux_de_commerce = "Tribunal de commerce", "tcom"
 
 
 class SolutionCCEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `SOLUTION` attribute for the Cour de cassation"""
+
     cassation = "Cassation", "cassation"
     rejet = "Rejet", "rejet"
     annulation = "Annulation", "annulation"
@@ -65,6 +89,8 @@ class SolutionCCEnum(JudilibreMultiValueEnum):
 
 
 class ChamberCCEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `CHAMBER` attribute for the Cour de cassation"""
+
     assemblee_pleniere = "Assemblée plénière", "pl"
     chamber_mixte = "Chambre mixte", "mi"
     premiere_chambre_civile = "Première chambre civile", "civ1"
@@ -80,6 +106,8 @@ class ChamberCCEnum(JudilibreMultiValueEnum):
 
 
 class FormationCCEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `FORMATION` attribute for the Cour de cassation"""
+
     formation_pleniere_chambre = "Formation plénière de chambre", "fp"
     formation_mixte = "Formation mixte", "fm"
     formation_section = "Formation de section", "fs"
@@ -89,6 +117,8 @@ class FormationCCEnum(JudilibreMultiValueEnum):
 
 
 class PublicationCCEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `PUBLICATION` attribute for the Cour de cassation"""
+
     bulletin = "Publié au Bulletin", "b"
     rapport = "Publié au Rapport", "r"
     lettre_de_chambre = "Publié aux Lettres de chambre", "l"
@@ -97,6 +127,8 @@ class PublicationCCEnum(JudilibreMultiValueEnum):
 
 
 class DecisionTypeCCEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `TYPE` attribute for the Cour de cassation"""
+
     arret = "Arrêt", "arret"
     demande_avis = "Demande d'avis", "avis"
     qpc = "Question prioritaire de constitutionnalité (QPC)", "qpc"
@@ -106,12 +138,16 @@ class DecisionTypeCCEnum(JudilibreMultiValueEnum):
 
 
 class DecisionTypeCAEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `TYPE` attribute for the Cours d'appel"""
+
     arret = "Arrêt", "arret"
     ordonnance = "Ordonnance", "ordonnance"
     other = "Autre", "other"
 
 
 class JudilibreStatsAggregationKeysEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `KEY` attribute to aggregate data"""
+
     jurisdiction = "jurisdiction"
     source = "source"
     location = "location"
@@ -122,22 +158,28 @@ class JudilibreStatsAggregationKeysEnum(JudilibreMultiValueEnum):
     solution = "solution"
     type = "type"
     nac = "nac"
-    themes = "themes"
+    # themes = "themes"
     publication = "publication"
 
 
 class JudilibreOrderEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `ORDER` attribute to return data"""
+
     par_score = "Par pertinence", "score"
     par_score_et_publication = "Par pertinence et niveau de publication", "scorepub"
     par_date = "Par date", "date"
 
 
 class JudilibreSortEnum(JudilibreMultiValueEnum):
-    asc = "Croissant", "asc"
-    desc = "Décroissant", "desc"
+    """Enumeration for the `SORT` attribute to return data"""
+
+    ascending = "Croissant", "asc"
+    descending = "Décroissant", "desc"
 
 
 class JudilibreFieldEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `FIELD` attribute to return data"""
+
     themes = "Titre", "themes"
     text = "Texte entier", "text"
     introduction = "Entête", "introduction"
@@ -151,19 +193,23 @@ class JudilibreFieldEnum(JudilibreMultiValueEnum):
 
 
 class JudilibreFileTypeEnum(JudilibreMultiValueEnum):
-    prep_rapp = "Rapport du conseiller", "prep_rapp"
-    prep_raco = "Rapport complémentaire du conseiller", "prep_raco"
-    prep_avpg = "Avis du procureur général", "prep_avpg"
-    prep_avis = "Avis de l’avocat général", "prep_avis"
-    prep_oral = "Avis oral de l’avocat général", "prep_oral"
-    comm_comm = "Communiqué", "comm_comm"
-    comm_note = "Note explicative", "comm_note"
-    comm_nora = "Notice au rapport annuel", "comm_nora"
-    comm_lett = "Lettre de chambre", "comm_lett"
-    comm_trad = "Arrêt traduit", "comm_trad"
+    """Enumeration for the `FILETYPE` attribute to search data"""
+
+    rapport_du_conseiller = "Rapport du conseiller", "prep_rapp"
+    rapport_complementaire_du_conseiller = "Rapport complémentaire du conseiller", "prep_raco"
+    avis_du_procureur_general = "Avis du procureur général", "prep_avpg"
+    avis_de_l_avocat_general = "Avis de l’avocat général", "prep_avis"
+    avis_oral_de_l_avocat_general = "Avis oral de l’avocat général", "prep_oral"
+    communique = "Communiqué", "comm_comm"
+    note_explicative = "Note explicative", "comm_note"
+    notice_au_rapport_annuel = "Notice au rapport annuel", "comm_nora"
+    lettre_de_chambre = "Lettre de chambre", "comm_lett"
+    arret_traduit = "Arrêt traduit", "comm_trad"
 
 
 class JudilibreTaxonEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `TAXON` attribute"""
+
     jurisdiction = "jurisdiction"
 
     # cour de cassation specific taxons
@@ -187,24 +233,30 @@ class JudilibreTaxonEnum(JudilibreMultiValueEnum):
 
 
 class JudilibreTransactionActionEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `ACTION` attribute of the transactions"""
+
     created = "created"
     updated = "updated"
     deleted = "deleted"
 
 
 class JudilibreDateTypeEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `DATETYPE` attribute to look for data"""
+
     creation = "Date de création", "creation"
     update = "Date de mise à jour", "update"
 
 
 class JudilibreOperatorEnum(JudilibreMultiValueEnum):
+    """Enumeration for the `OPERATOR` attribute to look for data"""
+
     or_operator = "Ou", "or"
     and_operator = "Et", "and"
     exact_operator = "Expression exacte", "exact"
 
 
 class LocationCAEnum(JudilibreMultiValueEnum):
-    """Enum class for the different cours d'appel"""
+    """Enumeration for the `LOCATION` attribute for Cours d'appel"""
 
     ca_agen = "Cour d'appel d'Agen", "ca_agen"
     ca_aix_provence = "Cour d'appel d'Aix-en-Provence", "ca_aix_provence"
@@ -248,6 +300,7 @@ class LocationCAEnum(JudilibreMultiValueEnum):
 
     @property
     def city(self) -> str:
+        """Name of the city in which the court is located"""
         string = self.value
         replacements = [
             ("Cour d'appel de ", ""),
@@ -264,7 +317,7 @@ class LocationCAEnum(JudilibreMultiValueEnum):
 
 
 class LocationTJEnum(JudilibreMultiValueEnum):
-    """Enum class for the different tribunaux judiciaire"""
+    """Enumeration for the `LOCATION` attribute for tribunaux judiciaires"""
 
     tj_agen = "Tribunal judiciaire d'Agen", "tj47001"
     tj_aix_en_provence = "Tribunal judiciaire d'Aix-en-Provence", "tj13001"
@@ -442,6 +495,7 @@ class LocationTJEnum(JudilibreMultiValueEnum):
 
     @property
     def city(self) -> str:
+        """Name of the city in which the court is located"""
         string = self.value
         replacements = [
             ("Tribunal judiciaire de ", ""),
@@ -458,7 +512,7 @@ class LocationTJEnum(JudilibreMultiValueEnum):
 
 
 class LocationTCOMEnum(JudilibreMultiValueEnum):
-    """Enum class for the different tribunaux de commerce"""
+    """Enumeration for the `LOCATION` attribute for tribunaux de commerce"""
 
     tcom_agen = "Tribunal de commerce d'Agen", "4701"
     tcom_aix_en_provence = "Tribunal de commerce d'Aix-en-Provence", "1301"
@@ -604,6 +658,7 @@ class LocationTCOMEnum(JudilibreMultiValueEnum):
 
     @property
     def city(self) -> str:
+        """Name of the city in which the court is located"""
         string = self.value
         replacements = [
             ("Tribunal de commerce de ", ""),

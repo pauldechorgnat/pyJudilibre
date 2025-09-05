@@ -4,6 +4,7 @@ import os
 from urllib.parse import parse_qs
 
 from httpx import Client, Response
+from tqdm import tqdm
 
 from pyjudilibre.decorators import catch_wrong_url_error
 from pyjudilibre.enums import (
@@ -29,7 +30,7 @@ from pyjudilibre.models import (
     JudilibreTransaction,
 )
 
-__version__ = "0.7.3"
+__version__ = "0.8.4"
 
 
 def catch_response(response: Response) -> Response:
@@ -51,7 +52,7 @@ class JudilibreClient:
     def __init__(
         self,
         judilibre_api_key: str | None = None,
-        judilibre_api_url: str | None = "https://api.piste.gouv.fr/cassation/judilibre/v1.0",
+        judilibre_api_url: str | None = None,
         logging_level: int = logging.ERROR,
     ):
         """Constructor of the `JudilibreClient` class
@@ -62,7 +63,7 @@ class JudilibreClient:
                 Defaults to None.
             judilibre_api_url (_type_, optional): JUDLIBRE API URL.
                 If `None`, `pyjudilibre` will try to use the `JUDILIBRE_API_URL` environment variable.
-                Defaults to "https://api.piste.gouv.fr/cassation/judilibre/v1.0".
+                Defaults to None.
             logging_level (int, optional): Level of logs that you want to get from `JudilibreClient`.
                 Defaults to logging.INFO.
         """
@@ -86,10 +87,11 @@ class JudilibreClient:
 
         # LOGGING
         self._logger = logging.getLogger("judilibre-client")
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        handler.setFormatter(formatter)
-        self._logger.addHandler(handler)
+        if len(self._logger.handlers) == 0:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            handler.setFormatter(formatter)
+            self._logger.addHandler(handler)
         self._logger.setLevel(level=logging_level)
 
     @catch_wrong_url_error
@@ -188,6 +190,7 @@ class JudilibreClient:
         jurisdictions: list[JurisdictionEnum] | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         selection: bool | None = None,
     ) -> JudilibreStats:
         """Returns aggregated statistics on the decisions available in **JUDILIBRE**
@@ -207,6 +210,8 @@ class JudilibreClient:
             date_end (datetime.date | None, optional): maximal date to return results from.
                 If `None` returns all the results.
                 Defaults to None.
+            date_type (str | None, optional): Type of date to use for the filters. Defaults to "creation".
+
             selection (bool | None, optional): Returns only results about decisions with a particular interest if true.
                 If False, returns all the results
                 Defaults to None.
@@ -218,9 +223,10 @@ class JudilibreClient:
             **({"keys": keys} if keys is not None else {}),
             **({"date_start": date_start} if date_start is not None else {}),
             **({"date_end": date_end} if date_end is not None else {}),
+            **({"date_type": date_type} if date_type else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions is not None else {}),
             **({"location": locations} if locations is not None else {}),
-            **({"selection": selection} if selection is not None else {}),
+            **({"particularInterest": "true"} if selection else {}),
         }
         response = self._query(
             method="GET",
@@ -239,7 +245,7 @@ class JudilibreClient:
         selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
-        date_type: JudilibreDateTypeEnum | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         **kwargs,
     ) -> tuple[int, list[JudilibreDecision]]:
         """Returns a list of decisions based on a metadata query
@@ -264,7 +270,8 @@ class JudilibreClient:
             date_end (datetime.date | None, optional): maximal date to return results from.
                 If `None` returns all the results.
                 Defaults to None.
-            date_type (str | None, optional): Type of date to use for the filters. Defaults to "creation".
+            date_type (JudilibreDateTypeEnum | None, optional): Type of date to use for the filters.
+                Defaults to `None`.
 
         Returns:
             tuple[int, list[JudilibreDecision]]: a tuple containing the total number of decisions and the decisions corresponding to the current batch
@@ -272,7 +279,7 @@ class JudilibreClient:
         params = {}
 
         params = {
-            **({"selection": selection} if selection else {}),
+            **({"particularInterest": "true"} if selection else {}),
             **({"location": locations} if locations else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **({"date_start": date_start} if date_start else {}),
@@ -308,6 +315,7 @@ class JudilibreClient:
         selection: bool | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         **kwargs,
     ) -> tuple[int, list[JudilibreSearchResult]]:
         """Returns search results based on a plain text query
@@ -340,12 +348,13 @@ class JudilibreClient:
             tuple[int, list[JudilibreSearchResult]]: a tuple containing the total number of search results and the list of results corresponding to the current page
         """
         params = {
-            **({"selection": selection} if selection else {}),
+            **({"particularInterest": "true"} if selection else {}),
             **({"location": locations} if locations else {}),
             **({"date_start": date_start} if date_start else {}),
             **({"date_end": date_end} if date_end else {}),
             **({"operator": operator} if operator else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **({"date_type": date_type} if date_type else {}),
             **kwargs,
             "query": query,
             "page_size": page_size,
@@ -411,7 +420,7 @@ class JudilibreClient:
                 - the id to provide for the next batch
         """
         params = {
-            **({"selection": selection} if selection else {}),
+            **({"particularInterest": "true"} if selection else {}),
             **({"location": locations} if locations else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **({"date_start": date_start} if date_start else {}),
@@ -558,6 +567,7 @@ class JudilibreClient:
         operator: JudilibreOperatorEnum | None = None,
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
+        date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         **kwargs,
     ) -> list[JudilibreSearchResult]:
         """Paginates through all the results from a plain text query
@@ -594,12 +604,13 @@ class JudilibreClient:
         next_page = True
 
         params = {
-            **({"selection": selection} if selection else {}),
+            **({"particularInterest": "true"} if selection else {}),
             **({"location": locations} if locations else {}),
             **({"date_start": date_start} if date_start else {}),
             **({"date_end": date_end} if date_end else {}),
             **({"operator": operator} if operator else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
+            **({"date_type": date_type} if date_type else {}),
             **kwargs,
             "query": query,
             "page_size": page_size,
@@ -682,7 +693,7 @@ class JudilibreClient:
         next_batch = True
 
         params = {
-            **({"selection": selection} if selection else {}),
+            **({"particularInterest": "true"} if selection else {}),
             **({"location": locations} if locations else {}),
             **({"jurisdiction": jurisdictions} if jurisdictions else {}),
             **({"date_start": date_start} if date_start else {}),
@@ -736,6 +747,7 @@ class JudilibreClient:
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         max_results: int | None = None,
+        verbose: bool = False,
         **kwargs,
     ) -> list[JudilibreDecision]:
         """Paginates through the results of a metadata query
@@ -769,6 +781,27 @@ class JudilibreClient:
         decisions = []
         n_decisions = 0
 
+        progression_bar = None
+
+        stats = self.stats(
+            jurisdictions=jurisdictions,
+            locations=locations,
+            date_start=date_start,
+            date_end=date_end,
+            date_type=date_type,
+        )
+
+        if verbose:
+            if (max_results is not None) and (stats.results.total_decisions is not None):
+                progression_bar = tqdm(
+                    total=min(
+                        max_results,
+                        stats.results.total_decisions,
+                    )
+                )
+            else:
+                progression_bar = tqdm(total=stats.results.total_decisions)
+
         total, decisions_tmp, search_after = self.scan(
             jurisdictions=jurisdictions,
             locations=locations,
@@ -781,6 +814,10 @@ class JudilibreClient:
         )
 
         n_decisions += len(decisions_tmp)
+
+        if verbose and progression_bar:
+            progression_bar.update(len(decisions_tmp))
+
         decisions.extend(decisions_tmp)
 
         def end_condition(
@@ -811,6 +848,9 @@ class JudilibreClient:
                 batch_size=batch_size,
                 **kwargs,
             )
+
+            if verbose and progression_bar:
+                progression_bar.update(len(decisions_tmp))
 
             n_decisions += len(decisions_tmp)
             decisions.extend(decisions_tmp)
