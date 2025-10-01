@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from pyjudilibre.enums import (
     ChamberCCEnum,
     FormationCCEnum,
+    JudilibreDateTypeEnum,
     JudilibreFileTypeEnum,
     JudilibreStatsAggregationKeysEnum,
     JudilibreTransactionActionEnum,
@@ -24,12 +25,16 @@ from pyjudilibre.exceptions import JudilibreDownloadFileError
 class Zone(BaseModel):
     """Class representing zone index data"""
 
+    model_config = ConfigDict(extra="forbid")
+
     start: int
     end: int
 
 
 class Zones(BaseModel):
     """Class representing zone data"""
+
+    model_config = ConfigDict(extra="forbid")
 
     introduction: list[Zone] = []
     moyens: list[Zone] = []
@@ -42,10 +47,14 @@ class Zones(BaseModel):
 class File(BaseModel):
     """Class representing file data"""
 
+    model_config = ConfigDict(extra="forbid")
+
     id: str
     name: str
     type: JudilibreFileTypeEnum
     isCommunication: bool
+    isAttache: bool | None = None
+    isPreparatoire: bool | None = None
 
     date: str
     size: str | None = None
@@ -88,6 +97,8 @@ class File(BaseModel):
 class ShortDecision(BaseModel):
     """Class representing decisions in timelines and forward"""
 
+    model_config = ConfigDict(extra="forbid")
+
     id: str | None = None
     date: str
     jurisdiction: str | None = None
@@ -106,9 +117,12 @@ class Article(BaseModel):
 class Legacy(BaseModel):
     """Class representing legacy data"""
 
+    model_config = ConfigDict(extra="forbid")
+
     matiereDeterminee: int | None = None
     pourvoiLocal: int | None = None
     pourvoiCcas: int | None = None
+    selection: int | None = None
 
 
 class JudilibreShortDecision(BaseModel):
@@ -176,12 +190,14 @@ class JudilibreShortDecision(BaseModel):
 
 
 class Highlights(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     """Class representing Search Highlights"""
 
     text: list[str] = []
 
 
 class JudilibreSearchResult(JudilibreShortDecision):
+    model_config = ConfigDict(extra="forbid")
     """Class representing Search Results"""
 
     score: float
@@ -189,6 +205,7 @@ class JudilibreSearchResult(JudilibreShortDecision):
 
 
 class JudilibreDecision(JudilibreShortDecision):
+    model_config = ConfigDict(extra="forbid")
     """Class representing a full Judilibre Decision"""
 
     source: SourceEnum
@@ -211,6 +228,8 @@ class JudilibreDecision(JudilibreShortDecision):
 
 class JudilibreStatsAggregationKey(BaseModel):
     """Class representing Aggregation Key data"""
+
+    model_config = ConfigDict(extra="forbid")
 
     year: int | None = None
     month: str | None = None
@@ -248,12 +267,16 @@ class JudilibreStatsAggregationKey(BaseModel):
 class JudilibreAggregatedData(BaseModel):
     """Class representing Aggregation Data results"""
 
+    model_config = ConfigDict(extra="forbid")
+
     key: JudilibreStatsAggregationKey
     decisions_count: int
 
 
 class JudilibreStatsResults(BaseModel):
     """Class representing Aggregation results"""
+
+    model_config = ConfigDict(extra="forbid")
 
     min_decision_date: datetime.date | None = None
     max_decision_date: datetime.date | None = None
@@ -264,8 +287,11 @@ class JudilibreStatsResults(BaseModel):
 class JudilibreStatsQuery(BaseModel):
     """Class representing STATS query data"""
 
+    model_config = ConfigDict(extra="forbid")
+
     date_start: datetime.date | None = None
     date_end: datetime.date | None = None
+    date_type: JudilibreDateTypeEnum | None = None
     jurisdiction: list[JurisdictionEnum] | None = None
     location: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None
     selection: bool | None = None
@@ -276,12 +302,16 @@ class JudilibreStatsQuery(BaseModel):
 class JudilibreStats(BaseModel):
     """Class representing STATS results"""
 
+    model_config = ConfigDict(extra="forbid")
+
     results: JudilibreStatsResults
     query: JudilibreStatsQuery
 
 
 class JudilibreTransaction(BaseModel):
     """Class representing Transaction data"""
+
+    model_config = ConfigDict(extra="forbid")
 
     id: str
     action: JudilibreTransactionActionEnum

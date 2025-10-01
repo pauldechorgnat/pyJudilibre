@@ -200,11 +200,14 @@ class JudilibreFileTypeEnum(JudilibreMultiValueEnum):
     avis_du_procureur_general = "Avis du procureur général", "prep_avpg"
     avis_de_l_avocat_general = "Avis de l’avocat général", "prep_avis"
     avis_oral_de_l_avocat_general = "Avis oral de l’avocat général", "prep_oral"
+    prep_avco = "Avis complémentaire de l’avocat général", "prep_avco"
     communique = "Communiqué", "comm_comm"
     note_explicative = "Note explicative", "comm_note"
     notice_au_rapport_annuel = "Notice au rapport annuel", "comm_nora"
     lettre_de_chambre = "Lettre de chambre", "comm_lett"
     arret_traduit = "Arrêt traduit", "comm_trad"
+    datt_deci = "Décision avec graphiques", "datt_deci"
+    datt_grph = "Graphique", "datt_grph"
 
 
 class JudilibreTaxonEnum(JudilibreMultiValueEnum):
