@@ -30,7 +30,7 @@ from pyjudilibre.models import (
     JudilibreTransaction,
 )
 
-__version__ = "0.8.5"
+__version__ = "0.9.0"
 
 
 def catch_response(response: Response) -> Response:
@@ -53,6 +53,7 @@ class JudilibreClient:
         self,
         judilibre_api_key: str | None = None,
         judilibre_api_url: str | None = None,
+        judilibre_api_headers: dict = {},
         logging_level: int = logging.ERROR,
     ):
         """Constructor of the `JudilibreClient` class
@@ -76,6 +77,7 @@ class JudilibreClient:
         self.__version__ = __version__
 
         self.api_headers = {
+            **judilibre_api_headers,
             "KeyId": self.judilibre_api_key,
             "User-Agent": f"pyJudilibre {self.__version__}",
         }
