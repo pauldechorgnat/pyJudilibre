@@ -153,6 +153,11 @@ class JudilibreShortDecision(BaseModel):
     themes: list | None = None  # TODO: completer ces schémas
     titlesAndSummaries: list[dict] | None = None  # TODO: completer ces schémas
 
+    # Other
+    decision_datetime: str | None = None
+    nac: str | None = None
+    portalis: str | None = None
+
     @field_validator("chamber", mode="before")
     def validate_chamber(cls, v):
         """Validator to enforce ChamberCCEnum"""
@@ -212,10 +217,10 @@ class JudilibreDecision(JudilibreShortDecision):
     text: str
     update_date: str
     update_datetime: str | None = None
-    decision_datetime: str | None = None
+    # decision_datetime: str | None = None
     themes: list[str] | None = None
-    nac: str | None = None
-    portalis: str | None = None
+    # nac: str | None = None
+    # portalis: str | None = None
     zones: Zones | None = None
     contested: ShortDecision | None = None
     forward: str | dict | None = None

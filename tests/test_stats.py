@@ -11,6 +11,7 @@ from pyjudilibre.enums import (
 from pyjudilibre.models import (
     JudilibreAggregatedData,
     JudilibreDecision,
+    JudilibreShortDecision,
     JudilibreStatsAggregationKey,
 )
 
@@ -34,14 +35,16 @@ jurisdictions = [
 
 
 @pytest.fixture(scope="module")
-def decisions_all() -> list[JudilibreDecision]:
-    return client.paginate_scan(
+def decisions_all() -> list[JudilibreDecision] | list[JudilibreShortDecision]:
+    decisions = client.paginate_scan(
         jurisdictions=jurisdictions,
         date_start=start_date,
         date_end=end_date,
         batch_size=1000,
         date_type=JudilibreDateTypeEnum.creation,
     )
+
+    return decisions
 
 
 @pytest.fixture(scope="module")

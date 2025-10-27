@@ -26,11 +26,12 @@ from pyjudilibre.exceptions import (
 from pyjudilibre.models import (
     JudilibreDecision,
     JudilibreSearchResult,
+    JudilibreShortDecision,
     JudilibreStats,
     JudilibreTransaction,
 )
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"
 
 
 def catch_response(response: Response) -> Response:
@@ -106,6 +107,7 @@ class JudilibreClient:
         url: str,
         method: str = "GET",
         params: dict | None = None,
+        timeout: int | None = 5,
     ) -> Response:
         """Internal method to query the **JUDILIBRE** API constistently trhoughout methods.
 
@@ -115,6 +117,9 @@ class JudilibreClient:
                 Defaults to "GET".
             params (dict | None, optional): query string parameters.
                 Defaults to None.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             Response: Raw response from the JUDLIBRE API.
@@ -130,6 +135,7 @@ class JudilibreClient:
             method=method,
             url=url,
             params=params,
+            timeout=timeout,
         )
 
         self._logger.info(f"RESPONSE STATUS : {response.status_code}")
@@ -161,11 +167,16 @@ class JudilibreClient:
     def decision(
         self,
         decision_id: str,
+        *,
+        timeout: int | None = 5,
     ) -> JudilibreDecision:
         """Retrieves a decision from **JUDILIBRE** based on its ID
 
         Args:
             decision_id (str): ID of the decision on **JUDILIBRE** ("5fca9d7b5f8d5e93418f86af" for example)
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Raises:
             JudilibreDecisionNotFoundError: raised if the decision is not found on **JUDILIBRE**
@@ -182,6 +193,7 @@ class JudilibreClient:
                 method="GET",
                 url="/decision",
                 params=params,
+                timeout=timeout,
             )
         except JudilibreResourceNotFoundError as exc:
             raise JudilibreDecisionNotFoundError(f"decision with ID {decision_id} not Found") from exc
@@ -198,6 +210,7 @@ class JudilibreClient:
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         selection: bool | None = None,
+        timeout: int | None = 5,
     ) -> JudilibreStats:
         """Returns aggregated statistics on the decisions available in **JUDILIBRE**
 
@@ -221,6 +234,9 @@ class JudilibreClient:
             selection (bool | None, optional): Returns only results about decisions with a particular interest if true.
                 If False, returns all the results
                 Defaults to None.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             JudilibreStats: A set of statistics correponding to the given aggregation keys and filters
@@ -252,8 +268,9 @@ class JudilibreClient:
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
+        timeout: int | None = 5,
         **kwargs,
-    ) -> tuple[int, list[JudilibreDecision]]:
+    ) -> tuple[int, list[JudilibreDecision] | list[JudilibreShortDecision]]:
         """Returns a list of decisions based on a metadata query
 
         Args:
@@ -278,6 +295,9 @@ class JudilibreClient:
                 Defaults to None.
             date_type (JudilibreDateTypeEnum | None, optional): Type of date to use for the filters.
                 Defaults to `None`.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             tuple[int, list[JudilibreDecision]]: a tuple containing the total number of decisions and the decisions corresponding to the current batch
@@ -301,12 +321,18 @@ class JudilibreClient:
             method="GET",
             url="/export",
             params=params,
+            timeout=timeout,
         )
         response_data = response.json()
 
+        if params.get("abridged") is True:
+            decisions = [JudilibreShortDecision(**d) for d in response_data["results"]]
+        else:
+            decisions = [JudilibreDecision(**d) for d in response_data["results"]]
+
         return (
             response_data["total"],
-            [JudilibreDecision(**r) for r in response_data["results"]],
+            decisions,
         )
 
     def search(
@@ -322,6 +348,7 @@ class JudilibreClient:
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
+        timeout: int | None = 5,
         **kwargs,
     ) -> tuple[int, list[JudilibreSearchResult]]:
         """Returns search results based on a plain text query
@@ -349,6 +376,9 @@ class JudilibreClient:
             date_end (datetime.date | None, optional): maximal date to return results from.
                 If `None` returns all the results.
                 Defaults to None.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             tuple[int, list[JudilibreSearchResult]]: a tuple containing the total number of search results and the list of results corresponding to the current page
@@ -372,6 +402,7 @@ class JudilibreClient:
             method="GET",
             url="/search",
             params=params,
+            timeout=timeout,
         )
         response_data = response.json()
 
@@ -391,8 +422,9 @@ class JudilibreClient:
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         search_after: str | None = None,
+        timeout: int | None = 5,
         **kwargs,
-    ) -> tuple[int, list[JudilibreDecision], str | None]:
+    ) -> tuple[int, list[JudilibreDecision] | list[JudilibreShortDecision], str | None]:
         """Returns a list of decisions based on a metadata query
 
         Args:
@@ -418,6 +450,9 @@ class JudilibreClient:
             date_type (JudilibreDateTypeEnum | None, optional): Type of date to use for the filters.
                 If `None`, it will default to **JUDILIBRE** default settings.
                 Defaults to JudilibreDateTypeEnum.creation.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             tuple[int, list[JudilibreDecision], str | None]: a tuple containing:
@@ -442,12 +477,16 @@ class JudilibreClient:
             method="GET",
             url="/scan",
             params=params,
+            timeout=timeout,
         )
 
         response_data = response.json()
 
         total_decisions = response_data["total"]
-        decisions = [JudilibreDecision(**d) for d in response_data["results"]]
+        if params.get("abridged") is True:
+            decisions = [JudilibreShortDecision(**d) for d in response_data["results"]]
+        else:
+            decisions = [JudilibreDecision(**d) for d in response_data["results"]]
         search_after = parse_qs(response_data["next_batch"]).get("searchAfter", [None])[0]
 
         return (
@@ -469,6 +508,7 @@ class JudilibreClient:
         *,
         taxon_key: str | None = None,
         taxon_value: str | None = None,
+        timeout: int | None = 5,
     ) -> dict[str, str]:
         """Returns a dictionary of key-value pairs corresponding to a taxon.
         If a `taxon_key` or a `taxon_value` is given, it will only return the dictionary for this particular key or value.
@@ -480,6 +520,9 @@ class JudilibreClient:
                 Defaults to None.
             taxon_value (str | None, optional): a value of a taxon we want the value to.
                 Defaults to None.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Raises:
             ValueError: if both `taxon_key` and `taxon_value` are given
@@ -501,6 +544,7 @@ class JudilibreClient:
             method="GET",
             url="/taxonomy",
             params=params,
+            timeout=timeout,
         )
 
         response_data = response.json()
@@ -522,6 +566,7 @@ class JudilibreClient:
         *,
         page_size: int = 25,
         from_id: str | None = None,
+        timeout: int | None = 5,
     ) -> tuple[int, list[JudilibreTransaction], str | None]:
         """Returns the list of transactions after a given date
 
@@ -531,6 +576,9 @@ class JudilibreClient:
                 Defaults to 25.
             from_id (str | None, optional): ID of the previous query to paginate results.
                 Defaults to None.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             tuple[int, list[JudilibreTransaction], str]: (
@@ -549,6 +597,7 @@ class JudilibreClient:
             method="GET",
             url="transactionalhistory",
             params=params,
+            timeout=timeout,
         )
 
         response_data = response.json()
@@ -574,6 +623,7 @@ class JudilibreClient:
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
+        timeout: int | None = 5,
         **kwargs,
     ) -> list[JudilibreSearchResult]:
         """Paginates through all the results from a plain text query
@@ -601,6 +651,9 @@ class JudilibreClient:
             date_end (datetime.date | None, optional): maximal date to return results from.
                 If `None` returns all the results.
                 Defaults to None.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             list[JudilibreSearchResult]: list of search results corresponding to the query
@@ -634,6 +687,7 @@ class JudilibreClient:
                 method="GET",
                 url="/search",
                 params=params,
+                timeout=timeout,
             )
 
             response_data = response.json()
@@ -664,8 +718,9 @@ class JudilibreClient:
         date_start: datetime.date | None = None,
         date_end: datetime.date | None = None,
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
+        timeout: int | None = 5,
         **kwargs,
-    ) -> list[JudilibreDecision]:
+    ) -> list[JudilibreDecision] | list[JudilibreShortDecision]:
         """Paginates through the results of a metadata query
 
         Args:
@@ -690,6 +745,9 @@ class JudilibreClient:
             date_type (JudilibreDateTypeEnum | None, optional): type of date to use for the date filters.
                 If `None`, it will default to **JUDILIBRE** default settings.
                 Defaults to JudilibreDateTypeEnum.creation.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             list[JudilibreDecision]: list of decisions corresponding to the query
@@ -721,10 +779,14 @@ class JudilibreClient:
                 method="GET",
                 url="/export",
                 params=params,
+                timeout=timeout,
             )
 
             response_data = response.json()
-            new_decisions = [JudilibreDecision(**r) for r in response_data["results"]]
+            if params.get("abridged") is True:
+                new_decisions = [JudilibreShortDecision(**r) for r in response_data["results"]]
+            else:
+                new_decisions = [JudilibreDecision(**r) for r in response_data["results"]]
             n_decisions += len(new_decisions)
 
             decisions.extend(new_decisions)
@@ -754,8 +816,9 @@ class JudilibreClient:
         date_type: JudilibreDateTypeEnum | None = JudilibreDateTypeEnum.creation,
         max_results: int | None = None,
         verbose: bool = False,
+        timeout: int | None = 5,
         **kwargs,
-    ) -> list[JudilibreDecision]:
+    ) -> list[JudilibreDecision] | list[JudilibreShortDecision]:
         """Paginates through the results of a metadata query
 
         Args:
@@ -780,11 +843,14 @@ class JudilibreClient:
             date_type (JudilibreDateTypeEnum | None, optional): type of date to use for the date filters.
                 If `None`, it will default to **JUDILIBRE** default settings.
                 Defaults to JudilibreDateTypeEnum.creation.
+            timeout (int | None, optional): Number of seconds before timeout.
+                If `None`, it will default to httpx.Client default 5 seconds.
+                Defaults to 5.
 
         Returns:
             list[JudilibreDecision]: list of decisions corresponding to the query
         """
-        decisions = []
+        decisions: list[JudilibreDecision | JudilibreShortDecision] = []
         n_decisions = 0
 
         progression_bar = None
@@ -795,6 +861,7 @@ class JudilibreClient:
             date_start=date_start,
             date_end=date_end,
             date_type=date_type,
+            timeout=timeout,
         )
 
         if verbose:
@@ -816,6 +883,7 @@ class JudilibreClient:
             date_end=date_end,
             date_type=date_type,
             batch_size=batch_size,
+            timeout=timeout,
             **kwargs,
         )
 
@@ -852,6 +920,7 @@ class JudilibreClient:
                 date_type=date_type,
                 search_after=search_after,
                 batch_size=batch_size,
+                timeout=timeout,
                 **kwargs,
             )
 
@@ -869,6 +938,7 @@ class JudilibreClient:
         date_start: datetime.datetime,
         *,
         max_results: int | None = None,
+        timeout: int | None = 5,
     ) -> list[JudilibreTransaction]:
         """Paginates through the transactional history results
 
@@ -887,6 +957,7 @@ class JudilibreClient:
         _, transactions, from_id = self.transactional_history(
             date_start=date_start,
             page_size=page_size,
+            timeout=timeout,
         )
         n_transactions = len(transactions)
 
@@ -910,6 +981,7 @@ class JudilibreClient:
             _, tmp_transactions, from_id = self.transactional_history(
                 date_start=date_start,
                 from_id=from_id,
+                timeout=timeout,
             )
             n_transactions += len(tmp_transactions)
             transactions += tmp_transactions
