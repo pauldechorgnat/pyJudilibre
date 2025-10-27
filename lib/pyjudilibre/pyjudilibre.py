@@ -4,7 +4,6 @@ import os
 from urllib.parse import parse_qs
 
 from httpx import Client, Response
-from tqdm import tqdm
 
 from pyjudilibre.decorators import catch_wrong_url_error
 from pyjudilibre.enums import (
@@ -30,8 +29,9 @@ from pyjudilibre.models import (
     JudilibreStats,
     JudilibreTransaction,
 )
+from tqdm import tqdm
 
-__version__ = "0.12.1"
+__version__ = "0.12.2"
 
 
 def catch_response(response: Response) -> Response:

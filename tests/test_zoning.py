@@ -1,5 +1,9 @@
-from pyjudilibre.models import JudilibreDecision, test_decision_data, ZoneWithText
 from pyjudilibre.enums import ZoneTypeEnum
+from pyjudilibre.models import (
+    JudilibreDecision,
+    ZoneWithText,
+    test_decision_data,
+)
 
 
 def test_zoning():

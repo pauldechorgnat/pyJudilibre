@@ -29,7 +29,7 @@ class Zone(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     start: int
-    end: int
+    end: int | None
 
 
 class ZoneWithText(Zone):
@@ -57,21 +57,22 @@ class Zoning:
         zones: Zones | None,
     ):
         self.text = text
-        self.zones = zones
+        all_zones: list[ZoneWithText] = []
 
-        all_zones = [
-            *[self._get_zone_with_text(z, type=ZoneTypeEnum.introduction) for z in self.zones.introduction],
-            *[self._get_zone_with_text(z, type=ZoneTypeEnum.expose_du_litige) for z in self.zones.expose],
-            *[self._get_zone_with_text(z, type=ZoneTypeEnum.moyen) for z in self.zones.moyens],
-            *[self._get_zone_with_text(z, type=ZoneTypeEnum.motivation) for z in self.zones.motivations],
-            *[self._get_zone_with_text(z, type=ZoneTypeEnum.dispositif) for z in self.zones.dispositif],
-            *[self._get_zone_with_text(z, type=ZoneTypeEnum.moyen_annexe) for z in self.zones.annexes],
-        ]
+        if zones is not None:
+            _all_zones = [
+                *[self._get_zone_with_text(z, type=ZoneTypeEnum.introduction) for z in zones.introduction],
+                *[self._get_zone_with_text(z, type=ZoneTypeEnum.expose_du_litige) for z in zones.expose],
+                *[self._get_zone_with_text(z, type=ZoneTypeEnum.moyen) for z in zones.moyens],
+                *[self._get_zone_with_text(z, type=ZoneTypeEnum.motivation) for z in zones.motivations],
+                *[self._get_zone_with_text(z, type=ZoneTypeEnum.dispositif) for z in zones.dispositif],
+                *[self._get_zone_with_text(z, type=ZoneTypeEnum.moyen_annexe) for z in zones.annexes],
+            ]
 
-        all_zones = sorted(
-            [z for z in all_zones if z is not None],
-            key=lambda zone: zone.start,
-        )
+            all_zones = sorted(
+                [z for z in _all_zones if z is not None],
+                key=lambda zone: zone.start,
+            )
 
         self.all: list[ZoneWithText] = all_zones
 
@@ -123,7 +124,7 @@ class Zoning:
 
     def _get_zone_with_text(
         self,
-        zone: Zone,
+        zone: Zone | None,
         type: ZoneTypeEnum,
     ) -> ZoneWithText | None:
         if zone is None:
@@ -203,7 +204,7 @@ class ShortDecision(BaseModel):
     id: str | None = None
     date: str
     jurisdiction: str | None = None
-    chamber: str | None = None
+    chamber: str | int | None = None
     title: str
     solution: str | None = None
     number: str | None = None
