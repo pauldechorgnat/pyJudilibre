@@ -319,6 +319,15 @@ class LocationCAEnum(JudilibreMultiValueEnum):
         return string.strip()
 
 
+class ZoneTypeEnum(JudilibreMultiValueEnum):
+    introduction = "introduction"
+    expose_du_litige = "exposé du litige"
+    moyen = "moyen"
+    motivation = "motivation"
+    dispositif = "dispositif"
+    moyen_annexe = "moyen annexe"
+
+
 class LocationTJEnum(JudilibreMultiValueEnum):
     """Enumeration for the `LOCATION` attribute for tribunaux judiciaires"""
 
@@ -421,7 +430,7 @@ class LocationTJEnum(JudilibreMultiValueEnum):
     tj_marmande = "Tribunal judiciaire de Marmande (chambre détachée)", "tj47157"
     tj_marseille = "Tribunal judiciaire de Marseille", "tj13055"
     tj_mata_utu = "Tribunal judiciaire de Mata-Utu", "tj98613"
-    tj_meaux = "Tribunal judiciaire de Meaux", "tj77284"
+    tj_meaux = "Tribunal judiciaire de Meaux", "tj77291", "tj77284"
     tj_melun = "Tribunal judiciaire de Melun", "tj77288"
     tj_mende = "Tribunal judiciaire de Mende", "tj48095"
     tj_metz = "Tribunal judiciaire de Metz", "tj57463"
