@@ -18,6 +18,7 @@ from pyjudilibre.enums import (
     PublicationCCEnum,
     SolutionCCEnum,
     SourceEnum,
+    ZoneTypeEnum,
 )
 from pyjudilibre.exceptions import JudilibreDownloadFileError
 
@@ -31,6 +32,11 @@ class Zone(BaseModel):
     end: int
 
 
+class ZoneWithText(Zone):
+    text: str
+    type: ZoneTypeEnum
+
+
 class Zones(BaseModel):
     """Class representing zone data"""
 
@@ -42,6 +48,101 @@ class Zones(BaseModel):
     expose: list[Zone] = []
     motivations: list[Zone] = []
     annexes: list[Zone] = []
+
+
+class Zoning:
+    def __init__(
+        self,
+        text: str,
+        zones: Zones | None,
+    ):
+        self.text = text
+        self.zones = zones
+
+        all_zones = [
+            *[self._get_zone_with_text(z, type=ZoneTypeEnum.introduction) for z in self.zones.introduction],
+            *[self._get_zone_with_text(z, type=ZoneTypeEnum.expose_du_litige) for z in self.zones.expose],
+            *[self._get_zone_with_text(z, type=ZoneTypeEnum.moyen) for z in self.zones.moyens],
+            *[self._get_zone_with_text(z, type=ZoneTypeEnum.motivation) for z in self.zones.motivations],
+            *[self._get_zone_with_text(z, type=ZoneTypeEnum.dispositif) for z in self.zones.dispositif],
+            *[self._get_zone_with_text(z, type=ZoneTypeEnum.moyen_annexe) for z in self.zones.annexes],
+        ]
+
+        all_zones = sorted(
+            [z for z in all_zones if z is not None],
+            key=lambda zone: zone.start,
+        )
+
+        self.all: list[ZoneWithText] = all_zones
+
+        self.introduction = self._get_unique_zone(
+            list(
+                filter(
+                    lambda zone: zone.type == ZoneTypeEnum.introduction,
+                    all_zones,
+                ),
+            )
+        )
+        self.expose_du_litige = self._get_unique_zone(
+            list(
+                filter(
+                    lambda zone: zone.type == ZoneTypeEnum.expose_du_litige,
+                    all_zones,
+                ),
+            )
+        )
+        self.dispositif = self._get_unique_zone(
+            list(
+                filter(
+                    lambda zone: zone.type == ZoneTypeEnum.dispositif,
+                    all_zones,
+                ),
+            )
+        )
+
+        self.moyens = list(
+            filter(
+                lambda zone: zone.type == ZoneTypeEnum.moyen,
+                all_zones,
+            ),
+        )
+
+        self.motivations = list(
+            filter(
+                lambda zone: zone.type == ZoneTypeEnum.motivation,
+                all_zones,
+            ),
+        )
+
+        self.moyens_annexes = list(
+            filter(
+                lambda zone: zone.type == ZoneTypeEnum.moyen_annexe,
+                all_zones,
+            ),
+        )
+
+    def _get_zone_with_text(
+        self,
+        zone: Zone,
+        type: ZoneTypeEnum,
+    ) -> ZoneWithText | None:
+        if zone is None:
+            return None
+        return ZoneWithText(
+            start=zone.start,
+            end=zone.end,
+            text=self.text[zone.start : zone.end],
+            type=type,
+        )
+
+    def _get_unique_zone(
+        self,
+        zones: list[ZoneWithText],
+    ) -> ZoneWithText | None:
+        if len(zones) == 0:
+            return None
+        else:
+            return zones[0]
 
 
 class File(BaseModel):
@@ -230,6 +331,10 @@ class JudilibreDecision(JudilibreShortDecision):
     rapprochements: list[Article] | None = None
     legacy: Legacy | None = None
 
+    @property
+    def zoning(self):
+        return Zoning(text=self.text, zones=self.zones)
+
 
 class JudilibreStatsAggregationKey(BaseModel):
     """Class representing Aggregation Key data"""
@@ -321,3 +426,16 @@ class JudilibreTransaction(BaseModel):
     id: str
     action: JudilibreTransactionActionEnum
     date: datetime.datetime
+
+
+test_decision_data = dict(
+    id="1234",
+    jurisdiction="cc",
+    text="",
+    number="1234",
+    numbers=["1234"],
+    particularInterest=True,
+    source="jurinet",
+    update_date=str(datetime.datetime.now()),
+    decision_date=str(datetime.date.today()),
+)
