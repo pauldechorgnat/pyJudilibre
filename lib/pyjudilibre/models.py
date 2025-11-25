@@ -348,6 +348,7 @@ class JudilibreStatsAggregationKey(BaseModel):
     source: SourceEnum | None = None
     jurisdiction: JurisdictionEnum | None = None
     location: LocationCAEnum | LocationTCOMEnum | LocationTJEnum | None = None
+    particularInterest: bool | None = None
 
     # TODO: Remplacer par des Enums
     chamber: ChamberCCEnum | str | None = None
