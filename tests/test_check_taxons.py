@@ -58,8 +58,8 @@ def test_check_taxons(
     )
 
     for key, value in computed_taxons.items():
-        assert enum(key)._all_values == (value, key)  # type: ignore
-        assert enum(value)._all_values == (value, key)  # type: ignore
+        assert (enum(key)._all_values[0], enum(key)._all_values[-1]) == (value, key)  # type: ignore
+        assert (enum(value)._all_values[0], enum(value)._all_values[-1]) == (value, key)  # type: ignore
 
     for e in enum:  # type: ignore
         assert e._all_values[-1] in computed_taxons

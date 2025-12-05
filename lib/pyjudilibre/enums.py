@@ -160,6 +160,7 @@ class JudilibreStatsAggregationKeysEnum(JudilibreMultiValueEnum):
     nac = "nac"
     # themes = "themes"
     publication = "publication"
+    filetype = "filetype"
 
 
 class JudilibreOrderEnum(JudilibreMultiValueEnum):
@@ -195,19 +196,19 @@ class JudilibreFieldEnum(JudilibreMultiValueEnum):
 class JudilibreFileTypeEnum(JudilibreMultiValueEnum):
     """Enumeration for the `FILETYPE` attribute to search data"""
 
-    rapport_du_conseiller = "Rapport du conseiller", "prep_rapp"
-    rapport_complementaire_du_conseiller = "Rapport complémentaire du conseiller", "prep_raco"
-    avis_du_procureur_general = "Avis du procureur général", "prep_avpg"
-    avis_de_l_avocat_general = "Avis de l’avocat général", "prep_avis"
-    avis_oral_de_l_avocat_general = "Avis oral de l’avocat général", "prep_oral"
-    prep_avco = "Avis complémentaire de l’avocat général", "prep_avco"
-    communique = "Communiqué", "comm_comm"
-    note_explicative = "Note explicative", "comm_note"
-    notice_au_rapport_annuel = "Notice au rapport annuel", "comm_nora"
-    lettre_de_chambre = "Lettre de chambre", "comm_lett"
-    arret_traduit = "Arrêt traduit", "comm_trad"
-    datt_deci = "Décision avec graphiques", "datt_deci"
-    datt_grph = "Graphique", "datt_grph"
+    rapport_du_conseiller = "Rapport du conseiller", "1", "prep_rapp"
+    rapport_complementaire_du_conseiller = "Rapport complémentaire du conseiller", "9", "prep_raco"
+    avis_du_procureur_general = "Avis du procureur général", "10", "prep_avpg"
+    avis_de_l_avocat_general = "Avis de l’avocat général", "2", "prep_avis"
+    avis_oral_de_l_avocat_general = "Avis oral de l’avocat général", "3", "prep_oral"
+    prep_avco = "Avis complémentaire de l’avocat général", "11", "prep_avco"
+    communique = "Communiqué", "4", "comm_comm"
+    note_explicative = "Note explicative", "5", "comm_note"
+    notice_au_rapport_annuel = "Notice au rapport annuel", "8", "comm_nora"
+    lettre_de_chambre = "Lettre de chambre", "6", "comm_lett"
+    arret_traduit = "Arrêt traduit", "7", "comm_trad"
+    datt_deci = "Décision avec graphiques", "13", "datt_deci"
+    datt_grph = "Graphique", "12", "datt_grph"
 
 
 class JudilibreTaxonEnum(JudilibreMultiValueEnum):

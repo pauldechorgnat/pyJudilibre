@@ -359,6 +359,8 @@ class JudilibreStatsAggregationKey(BaseModel):
     nac: str | None = None
     theme: str | None = None
 
+    filetype: JudilibreFileTypeEnum | None = None
+
     @field_validator("chamber", mode="before")
     def validate_chamber(cls, v):
         """Validator to enforce ChamberCCEnum"""
