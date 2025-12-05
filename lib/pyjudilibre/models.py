@@ -408,7 +408,7 @@ class JudilibreStatsQuery(BaseModel):
     date_type: JudilibreDateTypeEnum | None = None
     jurisdiction: list[JurisdictionEnum] | None = None
     location: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None
-    selection: bool | None = None
+    particularInterest: bool | None = None
 
     keys: list[JudilibreStatsAggregationKeysEnum] | JudilibreStatsAggregationKeysEnum | None = None
 

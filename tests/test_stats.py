@@ -352,3 +352,32 @@ def test_stats_aggregated_by_nac(decisions_ca):
     )
 
     assert expected_stats == computed_stats
+
+
+def test_stats_particular_interest(decisions_ca):
+    stats = client.stats(
+        date_start=start_date,
+        date_end=end_date,
+        jurisdictions=[JurisdictionEnum.cours_d_appel],
+        selection=True,
+        keys=[
+            JudilibreStatsAggregationKeysEnum.month,
+        ],
+        date_type=JudilibreDateTypeEnum.creation,
+    )
+
+    counter = Counter(str(d.decision_date)[:7] for d in decisions_ca if d.particularInterest is True)
+
+    expected_stats = [
+        JudilibreAggregatedData(
+            key=JudilibreStatsAggregationKey(month=key),
+            decisions_count=counter[key],
+        )
+        for key in sorted(counter.keys())
+    ]
+
+    computed_stats = sorted(
+        stats.results.aggregated_data,
+        key=lambda x: x.key.month,
+    )
+    assert expected_stats == computed_stats
