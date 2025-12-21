@@ -3,7 +3,7 @@ import pytest
 from pyjudilibre import JudilibreClient
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
-    JudilibreWrongCredentialsError,
+    JudilibreInvalidCredentialsError,
     JudilibreWrongURLError,
 )
 
@@ -55,5 +55,5 @@ def test_get_wrong_credentials():
         judilibre_api_key="obviously_wrong_credentials",
     )
 
-    with pytest.raises(JudilibreWrongCredentialsError):
+    with pytest.raises(JudilibreInvalidCredentialsError):
         client.decision(decision_id=decision_id)

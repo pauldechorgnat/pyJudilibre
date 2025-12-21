@@ -11,12 +11,12 @@ def test_download_file():
     assert isinstance(decision.files, list)
 
     for file in decision.files:
-        filename = file.download()
+        filename = client.download_file(file)
         assert os.stat(filename)
         os.remove(filename)
 
     for file in decision.files:
-        filename = file.download(filename="test.pdf")
+        filename = client.download_file(file, filename="test.pdf")
         assert os.stat(filename)
         os.remove(filename)
 
@@ -24,7 +24,7 @@ def test_download_file():
 def test_download_all_files():
     decision = client.decision(decision_id=DECISION_CC_WITH_FILE_ID)
 
-    filenames = decision.download_all_files()
+    filenames = client.download_decision_files(decision=decision)
     for filename in filenames:
         assert os.stat(filename)
         os.remove(filename)

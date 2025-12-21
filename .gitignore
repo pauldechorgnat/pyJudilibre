@@ -19,3 +19,4 @@ xx_*
 .env-prod
 .env-sandbox
 .env-local
+.env-dev

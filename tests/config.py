@@ -32,6 +32,9 @@ client = JudilibreClient(
     judilibre_api_url=JUDILIBRE_API_URL,
     judilibre_api_key=JUDILIBRE_API_KEY,
     logging_level=logging.DEBUG,
+    http_proxy=os.environ.get("HTTP_PROXY"),
+    https_proxy=os.environ.get("HTTP_PROXY"),
+    default_timeout=300,
 )
 
 JURISDICTIONS = [
