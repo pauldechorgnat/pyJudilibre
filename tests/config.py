@@ -2,7 +2,6 @@ import logging
 import os
 
 from dotenv import load_dotenv
-
 from pyjudilibre import JudilibreClient
 from pyjudilibre.enums import (
     JurisdictionEnum,
@@ -34,7 +33,7 @@ client = JudilibreClient(
     logging_level=logging.DEBUG,
     http_proxy=os.environ.get("HTTP_PROXY"),
     https_proxy=os.environ.get("HTTP_PROXY"),
-    default_timeout=300,
+    default_timeout=20,
 )
 
 JURISDICTIONS = [

@@ -23,6 +23,7 @@ def test_download_file():
 
 def test_download_all_files():
     decision = client.decision(decision_id=DECISION_CC_WITH_FILE_ID)
+    print("FILES", decision.files)
 
     filenames = client.download_decision_files(decision=decision)
     for filename in filenames:

@@ -3,7 +3,6 @@ import os
 import urllib.request
 
 from pydantic import BaseModel, ConfigDict, field_validator
-
 from pyjudilibre.enums import (
     ChamberCCEnum,
     FormationCCEnum,

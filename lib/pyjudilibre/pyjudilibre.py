@@ -1,18 +1,16 @@
 import datetime
+import json
 import logging
 import os
-import json
-from urllib.parse import parse_qs
-import urllib.request
 import urllib.error
+import urllib.request
 import warnings
-from tqdm import TqdmExperimentalWarning
-
-
-from tqdm.autonotebook import tqdm
+from urllib.parse import parse_qs
 
 from pyjudilibre.enums import (
     JudilibreDateTypeEnum,
+    JudilibreFileTypeEnum,
+    JudilibreMultiValueEnum,
     JudilibreOperatorEnum,
     JudilibreStatsAggregationKeysEnum,
     JudilibreTaxonEnum,
@@ -20,25 +18,25 @@ from pyjudilibre.enums import (
     LocationCAEnum,
     LocationTCOMEnum,
     LocationTJEnum,
-    JudilibreFileTypeEnum,
-    replace_enums_in_dictionary,
 )
 from pyjudilibre.exceptions import (
-    JudilibreDecisionNotFoundError,
-    JudilibreResourceNotFoundError,
-    JudilibreDownloadFileError,
     ERROR_CODES_TO_EXCEPTIONS,
+    JudilibreDecisionNotFoundError,
+    JudilibreDownloadFileError,
+    JudilibreResourceNotFoundError,
 )
 from pyjudilibre.models import (
+    File,
     JudilibreDecision,
     JudilibreSearchResult,
     JudilibreShortDecision,
     JudilibreStats,
     JudilibreTransaction,
-    File,
 )
+from tqdm import TqdmExperimentalWarning
+from tqdm.autonotebook import tqdm
 
-__version__ = "0.13.1"
+__version__ = "0.14.0"
 
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 
@@ -108,7 +106,7 @@ class JudilibreClient:
         method: str = "GET",
         query_parameters: dict = {},
         timeout: int | None = None,
-    ) -> dict | list[dict]:
+    ) -> dict:
         """Internal method to query the **JUDILIBRE** API constistently trhoughout methods.
 
         Args:
@@ -123,22 +121,32 @@ class JudilibreClient:
             Response: Raw response from the JUDLIBRE API.
         """
 
-        query_parameters = urllib.parse.urlencode(self._clean_query_parameters(query_parameters))
-        url = f"{self.judilibre_api_url.rstrip('/')}/{url.lstrip('/')}?{query_parameters}".rstrip("?")
+        query_string = urllib.parse.urlencode(
+            self._clean_query_parameters(query_parameters.copy()),
+            doseq=True,
+        )
+        url = f"{self.judilibre_api_url.rstrip('/')}/{url.lstrip('/')}?{query_string}".rstrip("?")
 
         self._logger.info(f"REQUEST METHOD URL: {method} {url}")
-        self._logger.info(f"REQUEST PARAMETERS: {query_parameters}")
+        self._logger.info(f"REQUEST PARAMETERS: {query_string}")
 
         request = urllib.request.Request(
             method=method,
             url=url,
-            headers=self.client_headers,
         )
+        for key, value in self.client_headers.items():
+            request.add_header(key, value)
 
         try:
             with self.url_opener.open(request, timeout=timeout or self.default_timeout) as response:
                 content = response.read()
-            data = json.dumps(content)
+
+                self._logger.info(f"RESPONSE STATUS : {response.status}")
+                self._logger.info(f"RESPONSE HEADERS: {response.headers}")
+                self._logger.debug(f"RESPONSE CONTENT: {content.decode('utf-8')}")
+
+                data = json.loads(content)
+
         except urllib.error.HTTPError as exc:
             if exc.status in ERROR_CODES_TO_EXCEPTIONS:
                 exception = ERROR_CODES_TO_EXCEPTIONS[exc.status]
@@ -147,10 +155,6 @@ class JudilibreClient:
                 raise exc
         except Exception as exc:
             raise exc
-
-        self._logger.info(f"RESPONSE STATUS : {response.status_code}")
-        self._logger.info(f"RESPONSE HEADERS: {response.headers}")
-        self._logger.debug(f"RESPONSE CONTENT: {response.content.decode('utf-8')}")
 
         return data
 
@@ -168,7 +172,7 @@ class JudilibreClient:
             url="/healthcheck",
         )
 
-        if response.json()["status"]:
+        if response["status"] == "disponible":
             return True
 
         return False
@@ -205,7 +209,7 @@ class JudilibreClient:
         except JudilibreResourceNotFoundError as exc:
             raise JudilibreDecisionNotFoundError(f"decision with ID {decision_id} not Found") from exc
 
-        return JudilibreDecision(**response.json())
+        return JudilibreDecision(**response)
 
     def stats(
         self,
@@ -262,7 +266,7 @@ class JudilibreClient:
             query_parameters=query_parameters,
             timeout=timeout or self.default_timeout,
         )
-        return JudilibreStats(**response.json())
+        return JudilibreStats(**response)
 
     def export(
         self,
@@ -322,6 +326,7 @@ class JudilibreClient:
             "batch_size": batch_size,
             **kwargs,
         }
+        print(query_parameters)
 
         response = self._query(
             method="GET",
@@ -329,15 +334,16 @@ class JudilibreClient:
             query_parameters=query_parameters,
             timeout=timeout or self.default_timeout,
         )
-        response_data = response.json()
 
         if query_parameters.get("abridged") is True:
-            decisions = [JudilibreShortDecision(**d) for d in response_data["results"]]
+            print("ABRIDGED")
+            decisions = [JudilibreShortDecision(**d) for d in response["results"]]
         else:
-            decisions = [JudilibreDecision(**d) for d in response_data["results"]]
+            print("NOT ABRIDGED", query_parameters.get("abridged"), type(query_parameters.get("abridged")))
+            decisions = [JudilibreDecision(**d) for d in response["results"]]
 
         return (
-            response_data["total"],
+            response["total"],
             decisions,
         )
 
@@ -409,11 +415,10 @@ class JudilibreClient:
             query_parameters=query_parameters,
             timeout=timeout or self.default_timeout,
         )
-        response_data = response.json()
 
         return (
-            response_data["total"],
-            [JudilibreSearchResult(**r) for r in response_data["results"]],
+            response["total"],
+            [JudilibreSearchResult(**r) for r in response["results"]],
         )
 
     def scan(
@@ -484,14 +489,12 @@ class JudilibreClient:
             timeout=timeout or self.default_timeout,
         )
 
-        response_data = response.json()
-
-        total_decisions = response_data["total"]
+        total_decisions = response["total"]
         if query_parameters.get("abridged") is True:
-            decisions = [JudilibreShortDecision(**d) for d in response_data["results"]]
+            decisions = [JudilibreShortDecision(**d) for d in response["results"]]
         else:
-            decisions = [JudilibreDecision(**d) for d in response_data["results"]]
-        search_after = parse_qs(response_data["next_batch"]).get("searchAfter", [None])[0]
+            decisions = [JudilibreDecision(**d) for d in response["results"]]
+        search_after = parse_qs(response["next_batch"]).get("searchAfter", [None])[0]
 
         return (
             total_decisions,
@@ -503,7 +506,18 @@ class JudilibreClient:
     def _clean_query_parameters(query_parameters: dict | None) -> dict:
         if query_parameters is None:
             return {}
-        return replace_enums_in_dictionary(query_parameters)  # type: ignore
+        if isinstance(query_parameters, dict):
+            for k, v in query_parameters.items():
+                query_parameters[k] = JudilibreClient._clean_query_parameters(v)
+        elif isinstance(query_parameters, list):
+            return [JudilibreClient._clean_query_parameters(i) for i in query_parameters]
+        elif query_parameters is True:
+            return "true"
+        elif query_parameters is False:
+            return "false"
+        else:
+            return JudilibreMultiValueEnum.replace_enum(query_parameters)
+        return query_parameters
 
     def taxonomy(
         self,
@@ -550,16 +564,14 @@ class JudilibreClient:
             timeout=timeout or self.default_timeout,
         )
 
-        response_data = response.json()
-
         taxons: dict[str, str] = {}
 
         if taxon_key is not None:
-            taxons[taxon_key] = response_data["result"]["value"]
+            taxons[taxon_key] = response["result"]["value"]
         elif taxon_value is not None:
-            taxons[response_data["result"]["key"]] = taxon_value
+            taxons[response["result"]["key"]] = taxon_value
         else:
-            taxons = response_data["result"]
+            taxons = response["result"]
 
         return taxons
 
@@ -602,10 +614,9 @@ class JudilibreClient:
             timeout=timeout or self.default_timeout,
         )
 
-        response_data = response.json()
-        total_transactions = response_data["total"]
-        next_from_id: str = parse_qs(response_data["next_page"]).get("from_id", [None])[0]
-        transactions = [JudilibreTransaction(**t) for t in response_data["transactions"]]
+        total_transactions = response["total"]
+        next_from_id: str = parse_qs(response["next_page"]).get("from_id", [None])[0]
+        transactions = [JudilibreTransaction(**t) for t in response["transactions"]]
 
         return (
             total_transactions,
@@ -691,13 +702,12 @@ class JudilibreClient:
                 timeout=timeout or self.default_timeout,
             )
 
-            response_data = response.json()
-            new_results = [JudilibreSearchResult(**r) for r in response_data["results"]]
+            new_results = [JudilibreSearchResult(**r) for r in response["results"]]
             n_results += len(new_results)
 
             results.extend(new_results)
 
-            if response_data.get("next_page") is None:
+            if response.get("next_page") is None:
                 next_page = False
 
             if (max_results is not None) and (n_results >= max_results):
@@ -782,16 +792,15 @@ class JudilibreClient:
                 timeout=timeout or self.default_timeout,
             )
 
-            response_data = response.json()
             if query_parameters.get("abridged") is True:
-                new_decisions = [JudilibreShortDecision(**r) for r in response_data["results"]]
+                new_decisions = [JudilibreShortDecision(**r) for r in response["results"]]
             else:
-                new_decisions = [JudilibreDecision(**r) for r in response_data["results"]]
+                new_decisions = [JudilibreDecision(**r) for r in response["results"]]
             n_decisions += len(new_decisions)
 
             decisions.extend(new_decisions)
 
-            if response_data.get("next_batch") is None:
+            if response.get("next_batch") is None:
                 next_batch = False
 
             if (max_results is not None) and (n_decisions >= max_results):
@@ -1015,7 +1024,7 @@ class JudilibreClient:
         if filename is None:
             filename = file.name
 
-        if self.rawUrl is None:
+        if file.rawUrl is None:
             raise JudilibreDownloadFileError("rawUrl is not defined")
 
         request = urllib.request.Request(
@@ -1055,7 +1064,9 @@ class JudilibreClient:
         Returns:
             list[str]: list of paths to downloaded files
         """
-        files = [f for f in (decision.files or []) if f.type in types]
+        if decision.files is None:
+            return []
+        files = [f for f in decision.files if f.type in types]
 
         filenames = []
 
@@ -1067,3 +1078,5 @@ class JudilibreClient:
             )
 
             filenames.append(filename)
+
+        return filenames

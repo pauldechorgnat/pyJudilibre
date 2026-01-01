@@ -2,7 +2,6 @@ import datetime
 from collections import Counter
 
 import pytest
-
 from pyjudilibre.enums import (
     JudilibreDateTypeEnum,
     JudilibreStatsAggregationKeysEnum,

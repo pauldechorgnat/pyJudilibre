@@ -14,40 +14,12 @@ class JudilibreMultiValueEnum(Enum):
         obj._all_values = values  # type: ignore
         return obj
 
-
-def replace_enum(obj):
-    """Functions that replaces `JudilibreMultiValueEnum` by their last values.
-    If this object is not of this class, it returns the object unchanged.
-
-    Args:
-        obj (_type_): An object
-
-    Returns:
-        _type_: The last value of the `JudilibreMultiValueEnum` or the unchanged object
-    """
-    if isinstance(obj, JudilibreMultiValueEnum):
-        return obj._all_values[-1]  # type: ignore
-    else:
-        return obj
-
-
-def replace_enums_in_dictionary(obj):
-    """Replaces all the `JudilibreMultiValueEnum` by their last values
-
-    Args:
-        obj (_type_): An object
-
-    Returns:
-        _type_: A changed object
-    """
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = replace_enums_in_dictionary(v)
-    elif isinstance(obj, list):
-        return [replace_enums_in_dictionary(i) for i in obj]
-    else:
-        return replace_enum(obj)
-    return obj
+    @classmethod
+    def replace_enum(cls, obj):
+        if isinstance(obj, cls):
+            return obj._all_values[-1]  # type: ignore
+        else:
+            return obj
 
 
 class SourceEnum(JudilibreMultiValueEnum):

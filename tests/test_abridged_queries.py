@@ -1,5 +1,4 @@
 import pytest
-
 from pyjudilibre.enums import JurisdictionEnum, SourceEnum
 from pyjudilibre.models import JudilibreShortDecision
 

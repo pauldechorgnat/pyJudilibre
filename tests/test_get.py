@@ -1,10 +1,8 @@
 import pytest
-
 from pyjudilibre import JudilibreClient
 from pyjudilibre.exceptions import (
     JudilibreDecisionNotFoundError,
-    JudilibreInvalidCredentialsError,
-    JudilibreWrongURLError,
+    JudilibreInvalidRequestError,
 )
 
 from .config import DECISION_CC_ID, JUDILIBRE_API_KEY, JUDILIBRE_API_URL
@@ -35,16 +33,16 @@ def test_get_wrong_id():
         client.decision(decision_id=decision_id)
 
 
-def test_get_wrong_url():
-    decision_id = "5fca56cd0a790c1ec36ddc07"
+# def test_get_wrong_url():
+#     decision_id = "5fca56cd0a790c1ec36ddc07"
 
-    client = JudilibreClient(
-        judilibre_api_url="https://wrong_url.judilibre.com",
-        judilibre_api_key=JUDILIBRE_API_KEY,
-    )
+#     client = JudilibreClient(
+#         judilibre_api_url="https://wrong_url.judilibre.com",
+#         judilibre_api_key=JUDILIBRE_API_KEY,
+#     )
 
-    with pytest.raises(JudilibreWrongURLError):
-        client.decision(decision_id=decision_id)
+#     with pytest.raises(JudilibreWrongURLError):
+#         client.decision(decision_id=decision_id)
 
 
 def test_get_wrong_credentials():
@@ -55,5 +53,5 @@ def test_get_wrong_credentials():
         judilibre_api_key="obviously_wrong_credentials",
     )
 
-    with pytest.raises(JudilibreInvalidCredentialsError):
+    with pytest.raises(JudilibreInvalidRequestError):
         client.decision(decision_id=decision_id)

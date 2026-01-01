@@ -1,5 +1,4 @@
 import pytest
-
 from pyjudilibre.enums import (
     JudilibreTaxonEnum,
     JurisdictionEnum,

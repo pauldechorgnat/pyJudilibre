@@ -1,15 +1,8 @@
 import pytest
-
 from pyjudilibre import JudilibreClient
-from pyjudilibre.exceptions import (
-    JudilibreInvalidCredentialsError,
-    JudilibreWrongURLError,
-)
+from pyjudilibre.exceptions import JudilibreInvalidRequestError
 
-from .config import (
-    JUDILIBRE_API_KEY,
-    JUDILIBRE_API_URL,
-)
+from .config import JUDILIBRE_API_KEY, JUDILIBRE_API_URL
 
 
 def test_healthcheck():
@@ -38,8 +31,8 @@ def test_healthcheck_wrong_credentials():
         judilibre_api_key="obvisouly_wrong_credentials",
     )
 
-    with pytest.raises(JudilibreInvalidCredentialsError):
+    with pytest.raises(JudilibreInvalidRequestError):
         client.healthcheck()
 
-    with pytest.raises(JudilibreInvalidCredentialsError):
+    with pytest.raises(JudilibreInvalidRequestError):
         client.healthcheck()
