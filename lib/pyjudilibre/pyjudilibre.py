@@ -36,7 +36,7 @@ from pyjudilibre.models import (
 from tqdm import TqdmExperimentalWarning
 from tqdm.autonotebook import tqdm
 
-__version__ = "0.14.0"
+__version__ = "0.14.1"
 
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 
@@ -1047,7 +1047,10 @@ class JudilibreClient:
     def download_decision_files(
         self,
         decision: JudilibreDecision,
-        types: list[JudilibreFileTypeEnum] = [j for j in JudilibreFileTypeEnum],
+        types: list[JudilibreFileTypeEnum] = [
+            JudilibreFileTypeEnum.rapport_du_conseiller,
+            JudilibreFileTypeEnum.avis_de_l_avocat_general,
+        ],
         folder: str = ".",
         timeout: int | None = None,
     ) -> list[str]:
