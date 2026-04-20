@@ -441,6 +441,7 @@ class LocationTJEnum(JudilibreMultiValueEnum):
     tj_roanne = "Tribunal judiciaire de Roanne", "tj42187"
     tj_rodez = "Tribunal judiciaire de Rodez", "tj12202"
     tj_rouen = "Tribunal judiciaire de Rouen", "tj76540"
+    tj_saintes = "Tribunal judiciaire de Saintes", "tj17415"
     tj_saint_brieuc = "Tribunal judiciaire de Saint-Brieuc", "tj22278"
     tj_saint_denis_de_la_reunion = "Tribunal judiciaire de Saint-Denis de La Réunion", "tj97411"
     tj_saint_etienne = "Tribunal judiciaire de Saint-Etienne", "tj42218"
