@@ -1,0 +1,28 @@
+name: Publish to TestPyPI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test-publish:
+    name: Build, publish to TestPyPI & verify install
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Le script source .env pour lire les tokens — on le crée depuis les secrets
+      - name: Create .env from secrets
+        run: |
+          echo "JUDILIBRE_TEST_PYPI_TOKEN=${{ secrets.JUDILIBRE_TEST_PYPI_TOKEN }}" >> .env
+          echo "JUDILIBRE_API_KEY=${{ secrets.JUDILIBRE_API_KEY }}" >> .env
+
+      - name: Run build-lib-and-test.sh
+        run: bash scripts/build-lib-and-test.sh

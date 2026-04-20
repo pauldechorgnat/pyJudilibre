@@ -1,0 +1,27 @@
+name: Publish to PyPI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-publish:
+    name: Build & publish to PyPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Le script source .env pour lire les tokens — on le crée depuis les secrets
+      - name: Create .env from secrets
+        run: |
+          echo "JUDILIBRE_PYPI_TOKEN=${{ secrets.JUDILIBRE_PYPI_TOKEN }}" >> .env
+
+      - name: Run build-lib-and-push.sh
+        run: bash scripts/build-lib-and-push.sh
