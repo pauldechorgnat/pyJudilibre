@@ -67,6 +67,9 @@ jobs:
           with urllib.request.urlopen(req) as r:
               print('Status:', r.status)
           "
+        env:
+          JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
+
 
       - name: Test API directly
         run: |
@@ -80,5 +83,3 @@ jobs:
 
       # - name: Run run-lib-tests.sh
       #   run: bash scripts/run-lib-tests.sh
-      #   env:
-      #     JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
