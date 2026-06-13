@@ -67,14 +67,15 @@ jobs:
           with urllib.request.urlopen(req) as r:
               print('Status:', r.status)
           "
-        env:
-          JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
-
 
       - name: Test API directly
         run: |
           curl -v -H "KeyId: ${{ secrets.JUDILIBRE_API_KEY }}" \
             "https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation"
+        env:
+          JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
+
+
       # - name: Create venv & install test dependencies
       #   run: |
       #     python3 -m venv venv
