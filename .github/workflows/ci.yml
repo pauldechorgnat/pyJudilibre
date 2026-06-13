@@ -55,6 +55,19 @@ jobs:
       #     python -c "import urllib.request; print(urllib.request.getproxies())"
       #     env | grep -i proxy
 
+      - name: Test Python request
+        env:
+          JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
+        run: |
+          python -c "
+          import urllib.request
+          req = urllib.request.Request('https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation')
+          req.add_header('KeyId', '${{ secrets.JUDILIBRE_API_KEY }}')
+          print('Headers envoyés:', dict(req.headers))
+          with urllib.request.urlopen(req) as r:
+              print('Status:', r.status)
+          "
+
       - name: Test API directly
         run: |
           curl -v -H "KeyId: ${{ secrets.JUDILIBRE_API_KEY }}" \
