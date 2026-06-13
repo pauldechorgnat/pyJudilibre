@@ -8,6 +8,7 @@ from pyjudilibre.enums import (
     LocationCAEnum,
     LocationTCOMEnum,
     LocationTJEnum,
+    LocationCPHEnum,
 )
 
 load_dotenv()
@@ -49,9 +50,11 @@ JURISDICTIONS = [
     JurisdictionEnum.cours_d_appel,
     JurisdictionEnum.tribunaux_judiciaires,
     JurisdictionEnum.tribunaux_de_commerce,
+    JurisdictionEnum.conseils_de_prud_hommes,
 ]
 LOCATIONS = [
     LocationCAEnum.ca_paris,
     LocationTJEnum.tj_paris,
     LocationTCOMEnum.tae_de_paris,
+    LocationCPHEnum.cph_toulouse,
 ]
