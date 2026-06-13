@@ -61,26 +61,30 @@ jobs:
       #   run: |
       #     python -c "
       #     import urllib.request
+      #     import os
+      #     from pprint import pprint
+      #     pprint(dict(os.environ))
       #     req = urllib.request.Request('https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation')
-      #     req.add_header('KeyId', '${{ secrets.JUDILIBRE_API_KEY }}')
+      #     req.add_header('KeyId', os.environ['JUDILIBRE_API_KEY'])
       #     print('Headers envoyés:', dict(req.headers))
       #     with urllib.request.urlopen(req) as r:
       #         print('Status:', r.status)
       #     "
 
-      - name: Test API directly
+      # # - name: Test API directly
+      # #   run: |
+      # #     curl -v -H "KeyId: ${{ secrets.JUDILIBRE_API_KEY }}" \
+      # #       "https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation"
+
+
+
+      - name: Create venv & install test dependencies
         run: |
-          curl -v -H "KeyId: ${{ secrets.JUDILIBRE_API_KEY }}" \
-            "https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation"
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install '.[dev,test]'
+
+      - name: Run run-lib-tests.sh
+        run: bash scripts/run-lib-tests.sh
         env:
           JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
-
-
-      # - name: Create venv & install test dependencies
-      #   run: |
-      #     python3 -m venv venv
-      #     source venv/bin/activate
-      #     pip install '.[dev,test]'
-
-      # - name: Run run-lib-tests.sh
-      #   run: bash scripts/run-lib-tests.sh
