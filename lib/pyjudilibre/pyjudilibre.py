@@ -36,7 +36,7 @@ from pyjudilibre.models import (
 from tqdm import TqdmExperimentalWarning
 from tqdm.autonotebook import tqdm
 
-__version__ = "0.14.3"
+__version__ = "0.14.4"
 
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 

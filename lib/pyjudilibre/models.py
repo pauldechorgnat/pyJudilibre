@@ -208,6 +208,7 @@ class ShortDecision(BaseModel):
     solution: str | None = None
     number: str | None = None
     url: str | None = None
+    sourceId: str | None = None
 
 
 class Article(BaseModel):
