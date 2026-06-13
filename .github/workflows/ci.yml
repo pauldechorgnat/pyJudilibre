@@ -1,35 +1,32 @@
 name: CI
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
 
 jobs:
-  # quality:
-  #   name: Lint & Type check
-  #   runs-on: ubuntu-latest
+  quality:
+    name: Lint & Type check
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.12"
-  #         cache: "pip"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
 
-  #     - name: Create venv & install dev dependencies
-  #       run: |
-  #         python3 -m venv venv
-  #         source venv/bin/activate
-  #         pip install '.[dev,test]'
+      - name: Create venv & install dev dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install '.[dev,test]'
 
-  #     - name: Run check-files.sh
-  #       run: bash scripts/check-files.sh
+      - name: Run check-files.sh
+        run: bash scripts/check-files.sh
 
   tests:
     name: Unit tests
@@ -44,39 +41,6 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          
-      # - run: date && python -c "import datetime; print(datetime.datetime.now())"
-      # - name: Test network
-      #   run: |
-      #     curl -v https://example.org
-      #     curl -v https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats
-      # - name: Debug proxy
-      #   run: |
-      #     python -c "import urllib.request; print(urllib.request.getproxies())"
-      #     env | grep -i proxy
-
-      # - name: Test Python request
-      #   env:
-      #     JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
-      #   run: |
-      #     python -c "
-      #     import urllib.request
-      #     import os
-      #     from pprint import pprint
-      #     pprint(dict(os.environ))
-      #     req = urllib.request.Request('https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation')
-      #     req.add_header('KeyId', os.environ['JUDILIBRE_API_KEY'])
-      #     print('Headers envoyés:', dict(req.headers))
-      #     with urllib.request.urlopen(req) as r:
-      #         print('Status:', r.status)
-      #     "
-
-      # # - name: Test API directly
-      # #   run: |
-      # #     curl -v -H "KeyId: ${{ secrets.JUDILIBRE_API_KEY }}" \
-      # #       "https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation"
-
-
 
       - name: Create venv & install test dependencies
         run: |
