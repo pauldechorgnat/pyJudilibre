@@ -31,6 +31,7 @@ build = [
 test = [
   "pytest==8.4.1",
   "python-dotenv==1.1.1",
+  "types-tqdm",
 ]
 doc = [
   "mkdocs>=1.6.1",
