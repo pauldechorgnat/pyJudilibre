@@ -45,15 +45,20 @@ jobs:
           python-version: "3.12"
           cache: "pip"
           
-      - run: date && python -c "import datetime; print(datetime.datetime.now())"
-      - name: Test network
+      # - run: date && python -c "import datetime; print(datetime.datetime.now())"
+      # - name: Test network
+      #   run: |
+      #     curl -v https://example.org
+      #     curl -v https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats
+      # - name: Debug proxy
+      #   run: |
+      #     python -c "import urllib.request; print(urllib.request.getproxies())"
+      #     env | grep -i proxy
+
+      - name: Test API directly
         run: |
-          curl -v https://example.org
-          curl -v https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats
-      - name: Debug proxy
-        run: |
-          python -c "import urllib.request; print(urllib.request.getproxies())"
-          env | grep -i proxy
+          curl -v -H "KeyId: ${{ secrets.JUDILIBRE_API_KEY }}" \
+            "https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats?date_start=2024-12-25&date_end=2025-01-10&date_type=creation"
       # - name: Create venv & install test dependencies
       #   run: |
       #     python3 -m venv venv
