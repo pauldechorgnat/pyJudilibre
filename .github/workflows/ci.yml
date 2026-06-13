@@ -47,8 +47,9 @@ jobs:
           
       - run: date && python -c "import datetime; print(datetime.datetime.now())"
       - name: Test network
-        run: python -c "import urllib.request; print(urllib.request.urlopen('https://example.org').status)"
-
+        run: |
+          curl -v https://example.org
+          curl -v https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats
       # - name: Create venv & install test dependencies
       #   run: |
       #     python3 -m venv venv
