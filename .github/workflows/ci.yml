@@ -50,6 +50,10 @@ jobs:
         run: |
           curl -v https://example.org
           curl -v https://api.piste.gouv.fr/cassation/judilibre/v1.0/stats
+      - name: Debug proxy
+        run: |
+          python -c "import urllib.request; print(urllib.request.getproxies())"
+          env | grep -i proxy
       # - name: Create venv & install test dependencies
       #   run: |
       #     python3 -m venv venv
