@@ -12,6 +12,7 @@ from pyjudilibre.enums import (
     JudilibreTransactionActionEnum,
     JurisdictionEnum,
     LocationCAEnum,
+    LocationCPHEnum,
     LocationTCOMEnum,
     LocationTJEnum,
     PublicationCCEnum,
@@ -244,7 +245,7 @@ class JudilibreShortDecision(BaseModel):
     particularInterest: bool
 
     # Optional values
-    location: LocationCAEnum | LocationTJEnum | LocationTCOMEnum | None = None
+    location: LocationCAEnum | LocationTJEnum | LocationTCOMEnum | LocationCPHEnum | None = None
     chamber: ChamberCCEnum | str | None = None
     ecli: str | None = None
     formation: FormationCCEnum | None = None  # remplacer par FormationEnum ?
@@ -348,7 +349,7 @@ class JudilibreStatsAggregationKey(BaseModel):
 
     source: SourceEnum | None = None
     jurisdiction: JurisdictionEnum | None = None
-    location: LocationCAEnum | LocationTCOMEnum | LocationTJEnum | None = None
+    location: LocationCAEnum | LocationTCOMEnum | LocationTJEnum | LocationCPHEnum | None = None
     particularInterest: bool | None = None
 
     # TODO: Remplacer par des Enums
@@ -408,7 +409,7 @@ class JudilibreStatsQuery(BaseModel):
     date_end: datetime.date | None = None
     date_type: JudilibreDateTypeEnum | None = None
     jurisdiction: list[JurisdictionEnum] | None = None
-    location: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum] | None = None
+    location: list[LocationCAEnum | LocationTJEnum | LocationTCOMEnum | LocationCPHEnum] | None = None
     particularInterest: bool | None = None
 
     keys: list[JudilibreStatsAggregationKeysEnum] | JudilibreStatsAggregationKeysEnum | None = None

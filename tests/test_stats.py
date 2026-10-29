@@ -19,13 +19,8 @@ from .config import client
 start_date = datetime.date(year=2024, month=12, day=25)
 end_date = datetime.date(year=2025, month=1, day=10)
 jurisdictions = [
-    j
-    for j in JurisdictionEnum
-    if j
-    not in [
-        JurisdictionEnum.tribunaux_judiciaires,
-        JurisdictionEnum.tribunaux_de_commerce,
-    ]
+    JurisdictionEnum.cour_de_cassation,
+    JurisdictionEnum.cours_d_appel,
 ]
 
 # YEAR, MONTH -> CC

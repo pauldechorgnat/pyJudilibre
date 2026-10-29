@@ -1,4 +1,4 @@
-# pyJudilibre `0.14.6`
+# pyJudilibre `0.15.1`
 
 ## Presentation
 
