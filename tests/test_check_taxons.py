@@ -16,17 +16,24 @@ from pyjudilibre.enums import (
     LocationCAEnum,
     LocationTCOMEnum,
     LocationTJEnum,
+    LocationCPHEnum,
     PublicationCCEnum,
     SolutionCCEnum,
+    SourceEnum,
 )
 
 from .config import client
 
 PARAMETERS = [
+    # JURISDICTIONS
+    (JudilibreTaxonEnum.jurisdiction, JurisdictionEnum.cour_de_cassation, JurisdictionEnum),
+    # SOURCES
+    (JudilibreTaxonEnum.source, JurisdictionEnum.cour_de_cassation, SourceEnum),
     # LOCATIONS
     (JudilibreTaxonEnum.location, JurisdictionEnum.cours_d_appel, LocationCAEnum),
-    # (JudilibreTaxonEnum.location, JurisdictionEnum.tribunaux_judiciaires, LocationTJEnum), skipped
+    (JudilibreTaxonEnum.location, JurisdictionEnum.tribunaux_judiciaires, LocationTJEnum),
     (JudilibreTaxonEnum.location, JurisdictionEnum.tribunaux_de_commerce, LocationTCOMEnum),
+    (JudilibreTaxonEnum.location, JurisdictionEnum.conseils_de_prud_hommes, LocationCPHEnum),
     # TECHNICAL FIELDS
     (JudilibreTaxonEnum.date_type, JurisdictionEnum.cour_de_cassation, JudilibreDateTypeEnum),
     (JudilibreTaxonEnum.query_operator, JurisdictionEnum.cour_de_cassation, JudilibreOperatorEnum),
